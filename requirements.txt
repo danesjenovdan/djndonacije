@@ -1,0 +1,6 @@
+Django==2.2.1
+django-admin-sortable2==0.7.1
+djangorestframework==3.9.4
+django-filter==2.1.0
+drf-writable-nested==0.5.1
+django-behaviors==0.4.1
