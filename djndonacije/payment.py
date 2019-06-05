@@ -11,7 +11,9 @@ gateway = braintree.BraintreeGateway(
     )
 )
 
-def client_token(user):
+def client_token(user=None):
+    if not user:
+        return gateway.client_token.generate()
     if user.braintree_id:
         customer_id = user.braintree_id
     else:
@@ -67,8 +69,8 @@ def update_subscription(user, costum_price=None):
 
     data = {
         #"payment_method_nonce": nonce,
-        "plan_id": PLAN,
-        "price": '%.2f' % (costum_price * settings.VAT),
+        "plan_id": 'djnd',
+        "price": '%.2f' % (costum_price),
         "options": {"prorate_charges": True}
     }
 
@@ -83,7 +85,7 @@ def update_subscription(user, costum_price=None):
 
     return result
 
-def pay_bt_3d(user, amount, nonce):
+def pay_bt_3d(nonce, amount):
     print({
         'amount': str(amount),
         'payment_method_nonce': nonce,

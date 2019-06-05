@@ -20,4 +20,7 @@ import djnd_supporters
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('djnd_supporters.urls')),
+    path('tinymce/', include('tinymce.urls')),
+    path('shop/', include('shop.urls')),
+    path('api/shop/', include('shop.urls_api')),
 ]
