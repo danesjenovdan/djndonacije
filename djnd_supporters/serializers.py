@@ -27,45 +27,43 @@ class DonationSerializer(serializers.ModelSerializer):
             'subscriber': {'write_only': True, 'required': False}
         }
 
-
-class SupporterSerializer(WritableNestedModelSerializer):
+class SubscriberSerializer(WritableNestedModelSerializer):
     donations = DonationSerializer(many=True)
-    donation_amount = serializers.SerializerMethodField()
-
-    class Meta:
-        model = models.Supporter
-        read_only_fields = ('id',)
-        fields = ('id', 'name', 'surename', 'email', 'newsletter', 'is_supporter', 'donations', 'donation_amount')
+    #donation_amount = serializers.SerializerMethodField()
+    donation_amount = serializers.IntegerField()
 
     def validate(self, data):
-        """
-        Check that the start is before the stop.
-        """
-        if models.Supporter.objects.filter(email=data.get('email')):
-            raise serializers.ValidationError({'email': ['Supporter with this email already exists.']})
+        donations = data['donations']
+        donation_amount = data.pop('donation_amount')
+        if self.instance and donations:
+            new_sum = sum([donation['amount'] for donation in donations])
+            if self.instance.donation_amount != new_sum:
+                if new_sum == donation_amount:
+                    return data
+                raise serializers.ValidationError(['Donation amount mismatch subscription amount'])
         return data
 
     def get_donation_amount(self, obj):
         return obj.donation_amount
 
 
-class GiftSerializer(serializers.ModelSerializer):
-    donations = DonationSerializer(many=True)
-    donation_amount = serializers.SerializerMethodField()
+class SupporterSerializer(SubscriberSerializer):
+    class Meta:
+        model = models.Supporter
+        read_only_fields = ('id',)
+        fields = ('id', 'name', 'surename', 'email', 'newsletter', 'is_supporter', 'donations', 'donation_amount')
 
+    def validate_email(self, value):
+        """
+        Check if upporter with this email exists.
+        """
+        if models.Supporter.objects.filter(email=value):
+            raise serializers.ValidationError(['Supporter with this email already exists.'])
+        return data
+
+
+class GiftSerializer(SubscriberSerializer):
     class Meta:
         model = models.Gift
         read_only_fields = ('id',)
         fields = ('id', 'name', 'email', 'send_at', 'mail_content', 'donations', 'sender')
-
-    def create(self, validated_data):
-        donations = validated_data.pop('donations')
-        subscriber = models.Gift.objects.create(**validated_data)
-        subscriber.username = subscriber.id
-        subscriber.save()
-        for donation in donations:
-            models.Donation.objects.create(subscriber=subscriber, **donation)
-        return subscriber
-
-    def donation_amount(self, obj):
-        return obj.get_donation_amount()

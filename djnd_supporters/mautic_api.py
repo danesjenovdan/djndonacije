@@ -6,28 +6,32 @@ from django.conf import settings
 def getBasicAuth():
     return HTTPBasicAuth(settings.MAUTIC_USER, settings.MAUTIC_PASS)
 
-def mauticRequest(endpoint, data={}, method='post'):
+def mauticRequest(endpoint, data={}, file=None, method='post'):
     response = getattr(requests, method)(
         settings.MAUTIC_URL + endpoint,
         auth=getBasicAuth(),
-        json=data
+        json=data,
+        files=file,
         )
 
-    if response.status_code == 200:
+    if response.status_code >= 200 and response.status_code < 300:
         return response.json()
     else:
+        print(response.content)
         # TODO: throw exception?
         return ""
 
-def createContact(email, token, name='', surename=''):
+def createContact(email, name='', surename='', token=None):
+    data = {
+        'email': email,
+        'name': name,
+        'surename': surename
+    }
+    if token:
+        data.update({'token': token})
     return mauticRequest(
         'contacts/new',
-        {
-            'email': email,
-            'token': token,
-            'name': name,
-            'surename': surename
-        }
+        data
     )
 
 def deleteContact(contact_id):
@@ -57,6 +61,20 @@ def getCampaingOfMember(contact_id):
         method='get'
     )
 
+def createEmail(name, title, subject, customHtml, description, assetAttachments=None):
+    return mauticRequest(
+        'emails/new',
+        data={
+            'name': name,
+            'title': title,
+            'subject': subject,
+            'customHtml': customHtml,
+            'description': description,
+            'isPublished': 1,
+            'assetAttachments': assetAttachments,
+        }
+    )
+
 def sendEmail(email_id, contact_id, data):
     return mauticRequest(
         'emails/%s/contact/%s/send' % (email_id, contact_id),
@@ -77,4 +95,23 @@ def addContactToASegment(segment_id, contact_id):
 def removeContactFromASegment(segment_id, contact_id):
     return mauticRequest(
         'segments/%s/contact/%s/remove' % (segment_id, contact_id),
+    )
+
+def saveAsset(title, file_, storageLocation='local'):
+    return mauticRequest(
+        'assets/new',
+        data={
+            'title': title,
+            'storageLocation': storageLocation,
+            'file': file_
+        }
+    )
+
+def saveFile(name, file_):
+    return mauticRequest(
+        'files/assets/new',
+        file={
+            'name': name,
+            'file': file_
+        }
     )

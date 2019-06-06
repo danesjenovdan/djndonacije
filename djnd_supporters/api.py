@@ -4,7 +4,8 @@ from django.conf import settings
 from rest_framework import viewsets, status, mixins, views
 from rest_framework.response import Response
 
-from djnd_supporters import models, mautic_api, serializers, payment, authentication, permissions
+from djndonacije import payment
+from djnd_supporters import models, mautic_api, serializers, authentication, permissions
 
 from requests.auth import HTTPBasicAuth
 from datetime import datetime
@@ -98,6 +99,27 @@ class PrepareSupporterViewSet(mixins.CreateModelMixin,
         data.update(serializer.data)
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        data = serializer.validated_data
+        new_sum = sum([donation['amount'] for donation in data['donations']])
+
+        if instance.donation_amount != new_sum and instance.subscription_id:
+            payment.update_subscription(instance, costum_price=new_sum)
+
+        self.perform_update(serializer)
+
+        if not instance.subscription_id:
+            data = {'token': payment.client_token(instance)}
+            data.update(serializer.data)
+        else:
+            data = serializer.data
+        return Response(data)
+
 
 class PrepareGiftViewSet(mixins.CreateModelMixin,
                          mixins.UpdateModelMixin,
@@ -118,14 +140,38 @@ class PrepareGiftViewSet(mixins.CreateModelMixin,
         data.update(serializer.data)
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        data = serializer.validated_data
+        new_sum = sum([donation['amount'] for donation in data['donations']])
+
+        if instance.donation_amount != new_sum and instance.subscription_id:
+            payment.update_subscription(instance, costum_price=new_sum)
+
+        self.perform_update(serializer)
+
+        if not instance.subscription_id:
+            data = {'token': payment.client_token(instance)}
+            data.update(serializer.data)
+        else:
+            data = serializer.data
+        return Response(data)
+
 
 class Subscribe(views.APIView):
+    """
+    This endpoint is for make braintree subscription
+    """
     def post(self, request, format=None):
         data = request.data
         subscriber = models.Subscriber.objects.get(id=data.get('subscriber_id')).get_child()
         if subscriber.subscription_id:
             return Response({'msg': 'This subscriber already has a subscription.'}, status=status.HTTP_409_CONFLICT)
-        amount = subscriber.get_donation_amount()
+        amount = subscriber.donation_amount
         payment_response = payment.create_subscription(
             data.get('nonce'),
             subscriber,
@@ -163,6 +209,9 @@ class Subscribe(views.APIView):
 
 
 class SubscriberApiView(views.APIView):
+    """
+    Endpoint for getting active Subscriber instances for this user
+    """
     action = ('retrieve',)
     permission_classes = (permissions.permissions.IsAuthenticated,)
     authentication_classes = (authentication.SubscriberAuthentication,)

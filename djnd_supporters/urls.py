@@ -18,5 +18,4 @@ urlpatterns = [
 
     # test views
     path('test-payment/', views.TestPaymentView.as_view()),
-
 ]

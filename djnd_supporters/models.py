@@ -62,7 +62,6 @@ class Supporter(Subscriber):
 
     def save_to_mautic(self, send_email=True):
         response = mautic_api.createContact(self.email, self.token, self.name, self.surename)
-        print(response)
         self.mautic_id = response['contact']['id']
         self.save()
         if send_email:
@@ -90,10 +89,10 @@ class Gift(Subscriber):
     def __str__(self):
         return "Gift_" + str(self.email)
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.token = token_hex(16)
-        super(Subscriber, self).save(*args, **kwargs)
+    #def save(self, *args, **kwargs):
+    #    if not self.pk:
+    #        self.token = token_hex(16)
+    #    super(Subscriber, self).save(*args, **kwargs)
 
     def save_to_mautic(self, send_email_to_sender=True):
         response = mautic_api.createContact(self.email, self.token, self.name, '')
