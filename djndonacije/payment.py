@@ -101,9 +101,9 @@ def pay_bt_3d(nonce, amount):
         'payment_method_nonce': nonce,
         'options': {
             'submit_for_settlement': True,
-            'three_d_secure': {
-                'required': True
-            },
+            #'three_d_secure': {
+            #    'required': True
+            #},
         }
     })
     print(result)

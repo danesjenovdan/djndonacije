@@ -173,14 +173,14 @@ class Pay(APIView):
         if payment_type == 'braintree':
             nonce = request.POST.get('nonce', None)
 
-            is_ok, log = payment.pay_bt_3d(nonce, order.basket.total)
-            if is_ok:
+            pay_response = payment.pay_bt_3d(nonce, order.basket.total)
+            if pay_response.is_success:
                 order.is_payed=True
                 order.save()
                 msg = order.name + " je nekaj naročil/-a in plačal/-a s kartico: \n"
             else:
                 return JsonResponse({'msg': 'failed',
-                                     'error': log})
+                                     'error': dict(pay_response)})
 
         elif payment_type == 'upn':
             reference = prepare_upn_data(order)
