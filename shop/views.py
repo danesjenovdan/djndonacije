@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.core import signing
-from .payments_braintree import client_token
+#from .payments_braintree import client_token
 
 import json
 
@@ -88,7 +88,7 @@ def getPDFodOrder(request, pk):
                                )
 
 
-def bt_test(request):
-    return render_to_response('braintree_test.html', {
-        'token': client_token()
-    })
+#def bt_test(request):
+#    return render_to_response('braintree_test.html', {
+#        'token': client_token()
+#    })
