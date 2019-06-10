@@ -173,7 +173,7 @@ class Pay(APIView):
         if payment_type == 'braintree':
             nonce = request.POST.get('nonce', None)
 
-            is_ok, log = payment.pay_bt_3d(nonce, order.basket.price)
+            is_ok, log = payment.pay_bt_3d(nonce, order.basket.total)
             if is_ok:
                 order.is_payed=True
                 order.save()
@@ -297,7 +297,7 @@ def checkout(request):
         if payment_type == 'braintree':
             nonce = request.POST.get('nonce', None)
 
-            is_ok, log = payment.pay_bt_3d(nonce, order.basket.price)
+            is_ok, log = payment.pay_bt_3d(nonce, order.basket.total)
             if is_ok:
                 order.is_payed=True
                 order.save()
