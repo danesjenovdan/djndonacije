@@ -108,3 +108,7 @@ def pay_bt_3d(nonce, amount):
     })
     print(result)
     return result
+
+def get_hook(signature, payload):
+    webhook_notification = gateway.webhook_notification.parse(signature, payload)
+    return webhook_notification

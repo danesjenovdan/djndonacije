@@ -15,6 +15,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('subscribe/', api.Subscribe.as_view()),
     path('subsribers/', api.SubscriberApiView.as_view()),
+    path('braintree_hook/', api.BraintreeHook.as_view()),
 
     # test views
     path('test-payment/', views.TestPaymentView.as_view()),

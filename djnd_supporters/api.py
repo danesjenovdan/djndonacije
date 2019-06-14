@@ -59,7 +59,7 @@ def getSettings(request):
         })
     else:
         return JsonResponse({'msg': 'Subscriber doesnt exist'}, status=404)
-
+"""
 def deliverEmail(request):
     email = request.POST.get('email')
     subscriber = models.Subscriber.getOrCreate(email=email)
@@ -73,6 +73,8 @@ def deliverEmail(request):
         }
     )
     return JsonResponse({'msg': 'sent'})
+"""
+
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = models.Project.objects.all()
@@ -110,6 +112,7 @@ class PrepareSupporterViewSet(mixins.CreateModelMixin,
 
         if instance.donation_amount != new_sum and instance.subscription_id:
             payment.update_subscription(instance, costum_price=new_sum)
+            models.Project.update_all_funds()
 
         self.perform_update(serializer)
 
@@ -151,6 +154,7 @@ class PrepareGiftViewSet(mixins.CreateModelMixin,
 
         if instance.donation_amount != new_sum and instance.subscription_id:
             payment.update_subscription(instance, costum_price=new_sum)
+            models.Project.update_all_funds()
 
         self.perform_update(serializer)
 
@@ -197,6 +201,8 @@ class Subscribe(views.APIView):
             else:
                 return Response({'msg': 'WTF'}, status=status.HTTP_409_CONFLICT)
 
+            # update projects funds
+            models.Project.update_all_funds()
             return Response({'msg': 'subscribed'})
         else:
             return Response(
@@ -225,10 +231,44 @@ class SubscriberApiView(views.APIView):
         if model_type == 'supporter':
             supporter = serializers.SupporterSerializer(user).data
 
-        gifts = models.Gift.objects.filter(email=user.email)
+        gifts = models.Gift.objects.filter(email=user.email).exclude(subscription_id=None)
         data = {
             "supporter": supporter,
             "received_gifts": serializers.GiftSerializer(gifts, many=True).data,
-            "sent_gifts": serializers.GiftSerializer(user.gifts.all(), many=True).data if supporter else []
+            "sent_gifts": serializers.GiftSerializer(user.gifts.all().exclude(subscription_id=None), many=True).data if supporter else []
         }
         return Response(data)
+
+
+class BraintreeHook(views.APIView):
+    def post(self, request, format=None):
+        data = request.data
+        webhook_notification = payment.get_hook(str(data['bt_signature']), data['bt_payload'])
+        subscription_id = webhook_notification.subscription.id
+        subscriber = models.Subscriber.objects.filter(subscription_id=subscription_id)
+        if webhook_notification.kind == 'subscription_canceled':
+            if subscriber:
+                subscriber = subscriber[0]
+                subscriber.subscription_id = None
+                subscriber.save()
+                if subscriber.model_type == 'supporter':
+                    mautic_id = subscriber.get_child().mautic_id
+                else:
+                    mautic_id = subscriber.get_child().sender.mautic_id
+                mautic_api.sendEmail(
+                    settings.MAIL_TEMPLATES['SUBSCRIPTION_CANCELED'],
+                    mautic_id,
+                    {}
+                )
+        elif webhook_notification.kind == 'subscription_charged_unsuccessfully':
+            if subscriber.model_type == 'supporter':
+                mautic_id = subscriber.get_child().mautic_id
+            else:
+                mautic_id = subscriber.get_child().sender.mautic_id
+            mautic_api.sendEmail(
+                settings.MAIL_TEMPLATES['CHARGED_UNSUCCESSFULLY'],
+                mautic_id,
+                {}
+            )
+
+        return Response({'msg': _('all is ok')},)

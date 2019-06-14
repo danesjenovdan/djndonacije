@@ -149,6 +149,18 @@ class Project(Timestamped):
     def __str__(self):
         return self.name
 
+    def update_collected_funds(self):
+        donations = self.donations.all().exclude(subscriber__subscription_id=None)
+        self.collected_funds = sum(donations.values_list('amount', flat=True))
+        self.save()
+
+    @classmethod
+    def update_all_funds(cls):
+        for proj in cls.objects.all():
+            proj.update_collected_funds()
+
+
+
 
 class Donation(Timestamped):
     subscriber = models.ForeignKey('Subscriber', related_name='donations', on_delete=models.CASCADE)
