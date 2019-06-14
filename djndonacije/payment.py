@@ -97,14 +97,8 @@ def pay_bt_3d(nonce, amount):
         }
     })
     result = gateway.transaction.sale({
-        'amount': str(amount),
+        'amount': '%.2f' % (amount),
         'payment_method_nonce': nonce,
-        'options': {
-            'submit_for_settlement': True,
-            #'three_d_secure': {
-            #    'required': True
-            #},
-        }
     })
     print(result)
     return result
