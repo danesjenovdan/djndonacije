@@ -293,4 +293,4 @@ class BraintreeHook(views.APIView):
                 }
             )
 
-        return Response({'msg': _('all is ok')},)
+        return Response({'msg': _('all is ok')})
