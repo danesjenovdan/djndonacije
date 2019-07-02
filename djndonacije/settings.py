@@ -126,7 +126,7 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATIC_URL = '/static/'
-MAUTIC_URL = 'http://mautic.djnd.si/api/'
+MAUTIC_URL = 'https://mautic.djnd.si/api/'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

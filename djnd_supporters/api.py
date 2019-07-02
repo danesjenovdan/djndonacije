@@ -9,6 +9,10 @@ from djnd_supporters import models, mautic_api, serializers, authentication, per
 
 from requests.auth import HTTPBasicAuth
 from datetime import datetime
+import slack
+
+
+sc = slack.WebClient(settings.SLACK_KEY, timeout=30)
 
 def getBasicAuth():
     return HTTPBasicAuth(settings.MAUTIC_USER, settings.MAUTIC_PASS)
@@ -260,15 +264,32 @@ class BraintreeHook(views.APIView):
                     mautic_id,
                     {}
                 )
+                msg = 'Osebi %s smo prekinal naročnino. Kontaktira se jo lahko preko mautica: https://mautic.djnd.si/s/contacts/view/%d' % (_subscriber.name, mautic_id)
+                sc.api_call(
+                    'chat.postMessage',
+                    json={
+                        'channel': "#danesjenovdan_si",
+                        'text': msg
+                    }
+                )
         elif webhook_notification.kind == 'subscription_charged_unsuccessfully':
             if subscriber.model_type == 'supporter':
-                mautic_id = subscriber.get_child().mautic_id
+                _subscriber = subscriber.get_child()
             else:
-                mautic_id = subscriber.get_child().sender.mautic_id
+                _subscriber = subscriber.get_child().sender
+            mautic_id = _subscriber.mautic_id
             mautic_api.sendEmail(
                 settings.MAIL_TEMPLATES['CHARGED_UNSUCCESSFULLY'],
                 mautic_id,
                 {}
+            )
+            msg = 'Osebi %s nismo zmogli odtegniti donacije. Kontaktira se jo lahko preko mautica: https://mautic.djnd.si/s/contacts/view/%d' % (_subscriber.name, mautic_id)
+            sc.api_call(
+                'chat.postMessage',
+                json={
+                    'channel': "#danesjenovdan_si",
+                    'text': msg
+                }
             )
 
         return Response({'msg': _('all is ok')},)
