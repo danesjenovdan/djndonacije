@@ -245,6 +245,7 @@ class SubscriberApiView(views.APIView):
 
 
 class BraintreeHook(views.APIView):
+    permission_classes = (permissions.permissions.AllowAny,)
     def post(self, request, format=None):
         data = request.data
         webhook_notification = payment.get_hook(str(data['bt_signature']), data['bt_payload'])
