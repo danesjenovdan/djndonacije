@@ -1,11 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
+
+from django.conf import settings
 
 from secrets import token_hex
 from behaviors.behaviors import Timestamped, Published
 
 from djnd_supporters import mautic_api
 
+import os.path
+from PIL import Image as PILImage
+from io import BytesIO
 # Create your models here.
 
 class Subscriber(User, Timestamped):
@@ -166,3 +172,54 @@ class Donation(Timestamped):
     subscriber = models.ForeignKey('Subscriber', related_name='donations', on_delete=models.CASCADE)
     project = models.ForeignKey('Project', related_name='donations', on_delete=models.CASCADE)
     amount = models.IntegerField(default=0)
+
+
+class Image(Timestamped):
+    token = models.TextField(blank=False, null=False, default='1234567890')
+    image = models.ImageField(upload_to='images')
+    thumbnail = models.ImageField(upload_to='thumbs')
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.token = token_hex(16)
+
+        if self.image:
+            if not self.make_thumbnail():
+                # set to a default thumbnail
+                raise Exception('Could not create thumbnail - is the file type valid?')
+
+        super(Image, self).save(*args, **kwargs)
+
+    def getUploadUrl(self):
+        return settings.UPLOAD_IMAGE_URL + self.token
+
+    def make_thumbnail(self):
+
+        image = PILImage.open(self.image)
+        image.thumbnail(settings.THUMB_SIZE, PILImage.ANTIALIAS)
+
+        thumb_name, thumb_extension = os.path.splitext(self.image.name)
+        thumb_extension = thumb_extension.lower()
+
+        thumb_filename = thumb_name + '_thumb' + thumb_extension
+
+        if thumb_extension in ['.jpg', '.jpeg']:
+            FTYPE = 'JPEG'
+        elif thumb_extension == '.gif':
+            FTYPE = 'GIF'
+        elif thumb_extension == '.png':
+            FTYPE = 'PNG'
+        else:
+            return False    # Unrecognized file type
+
+        # Save thumbnail to in-memory file as StringIO
+        temp_thumb = BytesIO()
+        image.save(temp_thumb, FTYPE)
+        temp_thumb.seek(0)
+
+        # set save=False, otherwise it will run in an infinite loop
+        self.thumbnail.save(thumb_filename, ContentFile(temp_thumb.read()), save=False)
+        temp_thumb.close()
+
+        return True
+

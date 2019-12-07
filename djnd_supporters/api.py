@@ -52,7 +52,7 @@ def getSettings(request):
     email = request.POST.get('email')
     subscriber = models.Subscriber.objects.filter(token=token, email=email)
     if subscriber:
-        campaings = getCampaingOfMember(subscriber[0].mautic_id)
+        campaings = mautic_api.getCampaingOfMember(subscriber[0].mautic_id)
         return JsonResponse({
             'email': subscriber[0].email,
             'lists': [{
@@ -294,3 +294,13 @@ class BraintreeHook(views.APIView):
             )
 
         return Response(status=status.HTTP_200_OK)
+
+
+class ImageViewSet(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.ListModelMixin,
+                   mixins.UpdateModelMixin,
+                   viewsets.GenericViewSet):
+    lookup_field = 'token'
+    queryset = models.Image.objects.all()
+    serializer_class = serializers.ImageSerializer

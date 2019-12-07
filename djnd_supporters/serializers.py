@@ -67,3 +67,10 @@ class GiftSerializer(SubscriberSerializer):
         model = models.Gift
         read_only_fields = ('id',)
         fields = ('id', 'name', 'email', 'send_at', 'mail_content', 'donations', 'sender')
+
+
+class ImageSerializer(serializers.ModelSerializer):
+    thumbnail = serializers.ImageField(read_only=True)
+    class Meta:
+        model = models.Image
+        fields = ['image', 'thumbnail']

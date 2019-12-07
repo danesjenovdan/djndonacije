@@ -112,7 +112,8 @@ USE_TZ = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'djnd_supporters.authentication.SubscriberAuthentication',
-    )
+    ),
+    #'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
 MAIL_TEMPLATES = {
@@ -120,3 +121,6 @@ MAIL_TEMPLATES = {
     'CHARGED_UNSUCCESSFULLY': 13,
     'SUBSCRIPTION_CANCELED': 14
 }
+THUMB_SIZE = (50, 50)
+
+UPLOAD_IMAGE_URL = 'https://nov.djnd.si/'

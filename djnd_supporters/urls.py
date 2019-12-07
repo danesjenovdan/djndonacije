@@ -10,6 +10,7 @@ router = routers.DefaultRouter()
 router.register(r'projects', api.ProjectViewSet)
 router.register(r'supporters', api.PrepareSupporterViewSet)
 router.register(r'gifts', api.PrepareGiftViewSet)
+router.register(r'images', api.ImageViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

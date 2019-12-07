@@ -12,3 +12,4 @@ Pillow==6.0.0
 slackclient==2.0.1
 braintree==3.54.0
 requests==2.22.0
+coreapi==2.3.3
