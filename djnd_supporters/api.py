@@ -296,8 +296,7 @@ class BraintreeHook(views.APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class ImageViewSet(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
+class ImageViewSet(mixins.RetrieveModelMixin,
                    mixins.ListModelMixin,
                    mixins.UpdateModelMixin,
                    viewsets.GenericViewSet):
