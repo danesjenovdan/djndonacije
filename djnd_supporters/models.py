@@ -10,8 +10,9 @@ from djnd_supporters import mautic_api
 
 class Subscriber(User, Timestamped):
     token = models.TextField(blank=False, null=False, default='1234567890')
-    name = models.CharField(max_length=128)
+    name = models.CharField(default="Anonimnež_ica", max_length=128)
     subscription_id = models.CharField(max_length=128, null=True, blank=True)
+    mautic_id = models.IntegerField(null=True, blank=True, unique=True)
     #email = models.EmailField()
 
     def save(self, *args, **kwargs):
@@ -25,6 +26,20 @@ class Subscriber(User, Timestamped):
             return Supporter.objects.get(subscriber_ptr=self.id)
         elif Gift.objects.filter(subscriber_ptr=self.id):
             return Gift.objects.get(subscriber_ptr=self.id)
+    
+    def save_to_mautic(self, email, send_email=True):
+        response = mautic_api.createContact(email=email, name=self.name, token=self.token)
+        self.mautic_id = response['contact']['id']
+        self.save()
+        if send_email:
+            mautic_api.sendEmail(
+                2, # 2 is wellcome mail
+                response['contact']['id'],
+                {
+                    'unsubscribe_text': 'asdasd'
+                }
+            )
+        return self
 
     @property
     def model_type(self):
@@ -36,6 +51,9 @@ class Subscriber(User, Timestamped):
     @property
     def donation_amount(self):
         return sum(self.donations.values_list('amount', flat=True))
+    
+    def __str__(self):
+        return "Subscriber_" + str(self.name)
 
 
 ## this is workaround beacuse Supporter cannot overide email field if email is not member of non abstract model
@@ -46,8 +64,8 @@ class Subscriber(User, Timestamped):
 class Supporter(Subscriber):
     # subsriber info
     #email = models.EmailField(unique=True)
-    surename = models.CharField(max_length=128)
-    mautic_id = models.IntegerField(null=True, blank=True, unique=True)
+    surname = models.CharField(max_length=128)
+    # mautic_id = models.IntegerField(null=True, blank=True, unique=True)
 
     newsletter = models.BooleanField(default=False)
     is_supporter = models.BooleanField(default=False)
@@ -56,21 +74,6 @@ class Supporter(Subscriber):
 
     # payment fields
     braintree_id = models.CharField(max_length=128, null=True, blank=True)
-
-    def __str__(self):
-        return "Subscriber_" + str(self.name)
-
-    def save_to_mautic(self, send_email=True):
-        response = mautic_api.createContact(self.email, self.token, self.name, self.surename)
-        self.mautic_id = response['contact']['id']
-        self.save()
-        if send_email:
-            mautic_api.sendEmail(
-                2, # 2 is wellcome mail
-                response['contact']['id'],
-                {}
-            )
-        return self
 
     def __str__(self):
         return "Supporter_" + str(self.email)

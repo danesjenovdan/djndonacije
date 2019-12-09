@@ -21,11 +21,11 @@ def mauticRequest(endpoint, data={}, file=None, method='post'):
         # TODO: throw exception?
         return ""
 
-def createContact(email, name='', surename='', token=None):
+def createContact(email, name='', surname='', token=None):
     data = {
         'email': email,
         'name': name,
-        'surename': surename
+        'surname': surname
     }
     if token:
         data.update({'token': token})

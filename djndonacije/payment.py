@@ -19,7 +19,7 @@ def client_token(user=None):
     else:
         print({
             'first_name': user.name,
-            'last_name': user.surename,
+            'last_name': user.surname,
             'company': '',
             'email': user.email,
             #'phone': '',
@@ -28,7 +28,7 @@ def client_token(user=None):
         })
         result = gateway.customer.create({
             'first_name': user.name,
-            'last_name': user.surename,
+            'last_name': user.surname,
             #'company': '',
             'email': user.email,
             #'phone': '',

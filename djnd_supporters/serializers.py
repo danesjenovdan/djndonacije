@@ -51,7 +51,7 @@ class SupporterSerializer(SubscriberSerializer):
     class Meta:
         model = models.Supporter
         read_only_fields = ('id',)
-        fields = ('id', 'name', 'surename', 'email', 'newsletter', 'is_supporter', 'donations', 'donation_amount')
+        fields = ('id', 'name', 'surname', 'email', 'newsletter', 'is_supporter', 'donations', 'donation_amount')
 
     def validate_email(self, value):
         """

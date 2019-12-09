@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import viewsets, status, mixins, views
 from rest_framework.response import Response
@@ -17,12 +18,22 @@ sc = slack.WebClient(settings.SLACK_KEY, timeout=30)
 def getBasicAuth():
     return HTTPBasicAuth(settings.MAUTIC_USER, settings.MAUTIC_PASS)
 
+# def addOrCreateContact(request):
+#     email = request.POST.get('email')
+    
+@csrf_exempt
 def addSubscriber(request):
     email = request.POST.get('email')
-    the_list = request.POST.get('the_list')
-    subscriber = models.Subscriber.getOrCreate(email=email)
-    mautic_api.addContactToACampaign(the_list, subscriber.mautic_id)
-    return JsonResponse({'email': email, 'the_list': the_list})
+    token = request.POST.get('token')
+    if token:
+        subscriber = models.Subscriber.objects.get_or_create(token=token)
+        return JsonResponse({'email': email, 'token': subscriber.token})
+    if email:
+        subscriber, created = models.Subscriber.objects.get_or_create(email=email)
+        subscriber.save()
+        subscriber.save_to_mautic(email)
+        return JsonResponse({'email': email, 'token': subscriber.token})
+    return JsonResponse({'error': 'Missing email and/or token.'})
 
 def deleteSubscriber(request, token):
     subscriber = models.Subscriber.objects.filter(token=token)
