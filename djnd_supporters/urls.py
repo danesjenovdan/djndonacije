@@ -20,4 +20,7 @@ urlpatterns = [
 
     # test views
     path('test-payment/', views.TestPaymentView.as_view()),
+
+    # custom views
+    path('custom/subscriber/', api.addSubscriber),
 ]
