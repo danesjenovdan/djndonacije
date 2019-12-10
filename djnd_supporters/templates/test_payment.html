@@ -64,7 +64,7 @@
                         // Add the nonce to the form and submit
                         document.querySelector('#nonce').value = payload.nonce;
                         $.post({
-                            url:"/api/donate",
+                            url:"/api/donate/",
                             data: JSON.stringify({
                                 "nonce": payload.nonce,
                                 "amount": 50,
