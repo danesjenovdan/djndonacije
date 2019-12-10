@@ -52,6 +52,8 @@ class Donation(Timestamped):
         blank=True
     )
     amount = models.DecimalField(default=0.0, decimal_places=1, max_digits=20)
+    # is_assigned is helper atrribut using for group donations.
+    is_assigned = models.BooleanField(default=True)
 
 
 class Image(Timestamped):

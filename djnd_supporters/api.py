@@ -159,7 +159,10 @@ class GiftDonate(views.APIView):
             subscriber = None
 
         if ( not nonce ) or ( not amount):
-            return Response({'msg': 'Nonce or amount are missing.'}, status=status.HTTP_409_CONFLICT)
+            return Response(
+                {'msg': 'Nonce or amount are missing.'},
+                status=status.HTTP_409_CONFLICT
+            )
 
         result = payment.pay_bt_3d(nonce, amount)
         print(result)
@@ -171,7 +174,11 @@ class GiftDonate(views.APIView):
             for gift_amount in gifts_amounts:
                 new_subscriber = models.Subscriber.objects.create(email='')
                 new_subscriber.save()
-                donation = models.Donation(amount=gift_amount, subscriber=new_subscriber)
+                donation = models.Donation(
+                    amount=gift_amount,
+                    subscriber=new_subscriber,
+                    is_assigned=False
+                )
                 donation.save()
                 image = models.Image(donation=donation)
                 image.save()
@@ -207,6 +214,12 @@ class AssignGift(views.APIView):
         donation = subscriber.gifts.last().gifts.filter(subscriber=new_subscriber)
         if donation:
             donation = donation[0]
+            if donation.is_assigned:
+                return Response({
+                    'msg': 'donation is already assigned',
+                    },
+                    status=status.HTTP_409_CONFLICT
+                )
             mautic_id = None
             contacts = mautic_api.getContactByEmail(gift_email)
             if contacts['contacts']:
@@ -217,7 +230,8 @@ class AssignGift(views.APIView):
                 new_subscriber.name = name
                 new_subscriber.save_to_mautic(gift_email, name=name, send_email=False)
                 mautic_id = new_subscriber.mautic_id
-
+            donation.is_assigned = True
+            donation.save()
             print(mautic_id)
             print(mautic_api.sendEmail(
                 settings.MAIL_TEMPLATES['GIFT'],
