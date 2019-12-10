@@ -8,6 +8,6 @@ class ImageSerializer(serializers.ModelSerializer):
     donation_amount = serializers.SerializerMethodField()
     class Meta:
         model = models.Image
-        fields = ['image', 'thumbnail', 'donation_amount']
+        fields = ['id', 'image', 'thumbnail', 'url', 'donation_amount']
     def get_donation_amount(self, obj):
         return obj.donation.amount

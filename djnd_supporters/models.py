@@ -17,7 +17,6 @@ from io import BytesIO
 class Subscriber(User, Timestamped):
     token = models.TextField(blank=False, null=False, default='1234567890')
     name = models.CharField(default="Anonimnež_ica", max_length=128)
-    subscription_id = models.CharField(max_length=128, null=True, blank=True)
     mautic_id = models.IntegerField(null=True, blank=True, unique=True)
     #email = models.EmailField()
 
@@ -59,6 +58,7 @@ class Image(Timestamped):
     donation = models.OneToOneField('Donation', on_delete=models.CASCADE)
     token = models.TextField(blank=False, null=False, default='1234567890')
     image = models.ImageField(upload_to='images')
+    url = models.URLField(null=True, blank=True)
     thumbnail = models.ImageField(upload_to='thumbs')
 
     def save(self, *args, **kwargs):
@@ -104,3 +104,15 @@ class Image(Timestamped):
         temp_thumb.close()
 
         return True
+
+
+class Gift(Timestamped):
+    subscriber = models.ForeignKey(
+        'Subscriber',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='gifts'
+    )
+    amount = models.DecimalField(default=0.0, decimal_places=1, max_digits=20)
+    gifts = models.ManyToManyField('Donation', related_name='gifts')
