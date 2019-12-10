@@ -37,7 +37,7 @@ class ManageSegments(views.APIView):
     authentication_classes = [authentication.SubscriberAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, segment, token, format=None):
+    def post(self, request, segment, format=None):
         contact_id = request.user.mautic_id
         segment_id = settings.SEGMENTS.get(segment, None)
         if not segment_id:
@@ -48,7 +48,7 @@ class ManageSegments(views.APIView):
         else:
             return Response({'msg': 'Subscriber doesnt exist'}, status=status.HTTP_404_NOT_FOUND)
 
-    def delete(self, request, segment, token, format=None):
+    def delete(self, request, segment, format=None):
         contact_id = request.user.mautic_id
         segment_id = settings.SEGMENTS.get(segment, None)
         if not segment_id:
