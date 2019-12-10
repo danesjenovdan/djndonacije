@@ -74,7 +74,11 @@ class UserSegments(views.APIView):
 
     def get(self, request, format=None):
         contact_id = request.user.mautic_id
-        return Response({'segments': [value for id, value in mautic_api.getSegmentsOfContact(contact_id)['lists'].items()]})
+        segments = mautic_api.getSegmentsOfContact(contact_id)['lists']
+        if segments:
+            return Response({'segments': [value for id, value in segments.items()]})
+        else:
+            return Response({'segments': []})
 
 
 class Donate(views.APIView):
