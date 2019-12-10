@@ -91,7 +91,7 @@ class Donate(views.APIView):
     """
     authentication_classes = [authentication.SubscriberAuthentication]
     def get(self, request):
-        return Response({'client_token' :payment.client_token()})
+        return Response({'token' :payment.client_token()})
 
     def post(self, request):
         data = request.data
