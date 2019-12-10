@@ -64,11 +64,11 @@
                         // Add the nonce to the form and submit
                         document.querySelector('#nonce').value = payload.nonce;
                         $.post({
-                            url:"/subscribe/",
+                            url:"/api/donate",
                             data: JSON.stringify({
                                 "nonce": payload.nonce,
-                                "donation_amount": 50,
-                                "subscriber_id": 1,
+                                "amount": 50,
+                                "email": 'cofek0@gmail.com',
                                 "csrfmiddlewaretoken": "{{ csrf_token }}"
                             }),
                             headers:{

@@ -6,12 +6,11 @@ class SubscriberAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
         email = request.GET.get('email')
         token = request.GET.get('token')
-        print(email, token)
         if not (email and token):
-            print(email, token)
             return None
         try:
-            subscriber = models.Subscriber.objects.get(email=email, token=token)
+            subscriber = models.Subscriber.objects.get(token=token)
+            # TODO check mautic if is equal email, make login session
         except models.Subscriber.DoesNotExist:
             raise exceptions.AuthenticationFailed('No such subscriber')
 

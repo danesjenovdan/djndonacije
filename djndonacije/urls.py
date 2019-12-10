@@ -22,7 +22,7 @@ import djnd_supporters
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('djnd_supporters.urls')),
+    path('api/', include(('djnd_supporters.urls', 'djnd_supporters'), namespace='supporters')),
     path('tinymce/', include('tinymce.urls')),
     path('shop/', include('shop.urls')),
     path('api/shop/', include('shop.urls_api')),

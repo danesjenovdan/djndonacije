@@ -124,3 +124,16 @@ MAIL_TEMPLATES = {
 THUMB_SIZE = (50, 50)
 
 UPLOAD_IMAGE_URL = 'https://nov.djnd.si/'
+
+MAIL_TEMPLATES = {
+    'EDIT_SUBSCRIPTIPNS': 1,
+    'WELLCOME_MAIL': 2,
+    'SHOP_THANKSGIVING_UPN': 6,
+}
+
+SEGMENTS = {
+    'agrument': 1,
+    'general': 2,
+    'parlameter': 3,
+    'donations': 4
+}

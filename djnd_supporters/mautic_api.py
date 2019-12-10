@@ -34,6 +34,19 @@ def createContact(email, name='', surname='', token=None):
         data
     )
 
+def getContact(contact_id):
+    return mauticRequest(
+        'contacts/%s' % contact_id,
+        method='get'
+    )
+
+def getContactByEmail(email):
+    print(email)
+    return mauticRequest(
+        'contacts?search=email:%s' % email,
+        method='get'
+    )
+
 def deleteContact(contact_id):
     return mauticRequest(
         'contacts/%s/delete' % contact_id,
@@ -43,11 +56,6 @@ def deleteContact(contact_id):
 def addContactToACampaign(campagin_id, contact_id):
     return mauticRequest(
         'campaigns/%s/contact/%s/add' % (campagin_id, contact_id),
-    )
-
-def removeContactToACampaign(campagin_id, contact_id):
-    return mauticRequest(
-        'campaigns/%s/contact/%s/remove' % (campagin_id, contact_id),
     )
 
 def removeContactFromACampaign(campagin_id, contact_id):
@@ -76,6 +84,7 @@ def createEmail(name, title, subject, customHtml, description, assetAttachments=
     )
 
 def sendEmail(email_id, contact_id, data):
+    print(email_id, contact_id, data)
     return mauticRequest(
         'emails/%s/contact/%s/send' % (email_id, contact_id),
         data=data
@@ -95,6 +104,12 @@ def addContactToASegment(segment_id, contact_id):
 def removeContactFromASegment(segment_id, contact_id):
     return mauticRequest(
         'segments/%s/contact/%s/remove' % (segment_id, contact_id),
+    )
+
+def getSegmentsOfContact(contact_id):
+    return mauticRequest(
+        'contacts/%s/segments' % contact_id,
+        method='get'
     )
 
 def saveAsset(title, file_, storageLocation='local'):

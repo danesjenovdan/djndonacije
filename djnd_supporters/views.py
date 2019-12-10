@@ -7,6 +7,5 @@ class TestPaymentView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(TestPaymentView, self).get_context_data(*args, **kwargs)
-        supporter = models.Gift.objects.get(id=6)
-        context['token'] = payment.client_token(supporter.sender)
+        context['token'] = payment.client_token()
         return context
