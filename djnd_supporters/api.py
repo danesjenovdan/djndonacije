@@ -177,7 +177,7 @@ class GiftDonate(views.APIView):
 
         response, response_status = mautic_api.getContactByEmail(email)
         if response_status == 200:
-            contacts = contacts['contacts']
+            contacts = response['contacts']
         else:
             return Response({'msg': response}, status=response_status)
         print(contacts)
