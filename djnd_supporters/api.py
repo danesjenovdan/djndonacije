@@ -197,6 +197,19 @@ class GiftDonate(views.APIView):
 
 
 class AssignGift(views.APIView):
+    def get(self, request, token):
+        subscriber = models.Subscriber.objects.get(token=token)
+        unassigned_donations = models. Donation.objects.filter(
+            gifts__subscriber=subscriber,
+            is_assigned=False
+        )
+        return Response({
+            'gifts': [{
+                'gift_token': gift.subscriber.token,
+                'amount': gift.amount
+            }for gift in unassigned_donations]
+        })
+
     def post(self, request):
         data = request.data
         owner_token = data.get('owner_token', None)
