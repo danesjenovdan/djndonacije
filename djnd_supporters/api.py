@@ -115,6 +115,7 @@ class Donate(views.APIView):
         amount = data.get('amount', None)
         email = data.get('email', None)
         name = data.get('name', '')
+        add_to_mailing = data.get('mailing', False)
 
         response, response_status = mautic_api.getContactByEmail(email)
         if response_status == 200:
@@ -122,6 +123,7 @@ class Donate(views.APIView):
         else:
             return Response({'msg': response}, status=response_status)
         print(contacts)
+        mautic_id = None
         if contacts:
             mautic_id = list(contacts.keys())[0]
             subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
@@ -142,6 +144,9 @@ class Donate(views.APIView):
             donation.save()
             image = models.Image(donation=donation)
             image.save()
+            if add_to_mailing and mautic_id:
+                segment_id = settings.SEGMENTS.get('donations', None)
+                response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
             return Response({
                 'msg': 'Thanks <3',
                 'upload_token': image.token
@@ -168,6 +173,7 @@ class GiftDonate(views.APIView):
         gifts_amounts = data.get('gifts_amounts', [])
         email = data.get('email', None)
         amount = data.get('amount', None)
+        add_to_mailing = data.get('mailing', False)
 
         response, response_status = mautic_api.getContactByEmail(email)
         if response_status == 200:
@@ -175,6 +181,7 @@ class GiftDonate(views.APIView):
         else:
             return Response({'msg': response}, status=response_status)
         print(contacts)
+        mautic_id = None
         if contacts:
             mautic_id = list(contacts.keys())[0]
             subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
@@ -211,6 +218,10 @@ class GiftDonate(views.APIView):
                     'subscriber_token': new_subscriber.token,
                     'amount': gift_amount
                 })
+            if add_to_mailing and mautic_id:
+                segment_id = settings.SEGMENTS.get('donations', None)
+                response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
+
             return Response({
                 'msg': 'Thanks <3',
                 'owner_token': subscriber.token,
