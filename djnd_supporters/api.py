@@ -44,8 +44,11 @@ class ManageSegments(views.APIView):
             return Response({'msg': 'Segment doesnt exist'}, status=status.HTTP_404_NOT_FOUND)
 
         if contact_id:
-            # TODO: if mautic fails return mautic response status
-            return Response(mautic_api.addContactToASegment(segment_id, contact_id))
+            response, response_status = mautic_api.addContactToASegment(segment_id, contact_id)
+            if response_status == 200:
+                return Response(response)
+            else:
+                return Response(response, status=response_status)
         else:
             return Response({'msg': 'Subscriber doesnt exist'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -56,8 +59,11 @@ class ManageSegments(views.APIView):
             return Response({'msg': 'Segment doesnt exist'}, status=status.HTTP_404_NOT_FOUND)
 
         if contact_id:
-            # TODO: if mautic fails return mautic response status
-            return Response(mautic_api.removeContactFromASegment(segment_id, contact_id))
+            response, response_status = mautic_api.removeContactFromASegment(segment_id, contact_id)
+            if response_status == 200:
+                return Response(response)
+            else:
+                return Response({'msg': response}, status=response_status)
         else:
             return Response({'msg': 'Subscriber doesnt exist'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -67,7 +73,11 @@ class Segments(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        return Response({'segments': [value for id, value in mautic_api.getSegments()['lists'].items()]})
+        response, response_status = mautic_api.getSegments()
+        if response_status == 200:
+            return Response({'segments': [value for id, value in response['lists'].items()]})
+        else:
+            return Response({'msg': response}, status=response_status)
 
 
 class UserSegments(views.APIView):
@@ -76,11 +86,15 @@ class UserSegments(views.APIView):
 
     def get(self, request, format=None):
         contact_id = request.user.mautic_id
-        segments = mautic_api.getSegmentsOfContact(contact_id)['lists']
-        if segments:
-            return Response({'segments': [value for id, value in segments.items()]})
+        response, response_status = mautic_api.getSegmentsOfContact(contact_id)
+        if response_status == 200:
+            segments = response['lists']
+            if segments:
+                return Response({'segments': [value for id, value in segments.items()]})
+            else:
+                return Response({'segments': []})
         else:
-            return Response({'segments': []})
+            return Response({'msg': response}, status=response_status)
 
 
 class Donate(views.APIView):
@@ -102,15 +116,20 @@ class Donate(views.APIView):
         email = data.get('email', None)
         name = data.get('name', '')
 
-        contacts = mautic_api.getContactByEmail(email)
+        response, response_status = mautic_api.getContactByEmail(email)
+        if response_status == 200:
+            contacts = response['contacts']
+        else:
+            return Response({'msg': response}, status=response_status)
         print(contacts)
-        if contacts['contacts']:
-            mautic_id = list(contacts['contacts'].keys())[0]
+        if contacts:
+            mautic_id = list(contacts.keys())[0]
             subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
             subscriber.name = name
             subscriber.save()
         else:
             subscriber = None
+            # TODO create new subscriber and then add it to donors mailing list
 
         if ( not nonce ) or ( not amount):
             return Response({'msg': 'Nonce or amount are missing.'}, status=status.HTTP_409_CONFLICT)
@@ -150,12 +169,17 @@ class GiftDonate(views.APIView):
         email = data.get('email', None)
         amount = data.get('amount', None)
 
-        contacts = mautic_api.getContactByEmail(email)
+        response, response_status = mautic_api.getContactByEmail(email)
+        if response_status == 200:
+            contacts = contacts['contacts']
+        else:
+            return Response({'msg': response}, status=response_status)
         print(contacts)
-        if contacts['contacts']:
-            mautic_id = list(contacts['contacts'].keys())[0]
+        if contacts:
+            mautic_id = list(contacts.keys())[0]
             subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
         else:
+            # TODO what to do? :)
             subscriber = None
 
         if ( not nonce ) or ( not amount):
@@ -219,11 +243,10 @@ class AssignGift(views.APIView):
         name = data.get('name', None)
         message = data.get('message', None)
 
-        #TODO check if gift is already assigned
-
         subscriber = models.Subscriber.objects.get(token=owner_token)
 
         new_subscriber = models.Subscriber.objects.get(token=subscriber_token)
+        # TODO check if is subscriber.gifts.last() OK?
         donation = subscriber.gifts.last().gifts.filter(subscriber=new_subscriber)
         if donation:
             donation = donation[0]
@@ -234,19 +257,23 @@ class AssignGift(views.APIView):
                     status=status.HTTP_409_CONFLICT
                 )
             mautic_id = None
-            contacts = mautic_api.getContactByEmail(gift_email)
-            if contacts['contacts']:
+            response, response_status = mautic_api.getContactByEmail(gift_email)
+            if response_status == 200:
+                contacts = response['contacts']
+            else:
+                return Response({'msg': response}, status=response_status)
+            if contacts:
+                # TODO merge Subscribers
                 print('contact ze obstaja')
-                mautic_id = list(contacts['contacts'].keys())[0]
+                mautic_id = list(contacts.keys())[0]
             else:
                 print('dodaj novga')
                 new_subscriber.name = name
                 new_subscriber.save_to_mautic(gift_email, name=name, send_email=False)
                 mautic_id = new_subscriber.mautic_id
-            donation.is_assigned = True
-            donation.save()
+
             print(mautic_id)
-            print(mautic_api.sendEmail(
+            response, response_status = mautic_api.sendEmail(
                 settings.MAIL_TEMPLATES['GIFT'],
                 mautic_id,
                 {
@@ -255,7 +282,17 @@ class AssignGift(views.APIView):
                         '{upload_image}': donation.image.get_upload_url()
                     }
                 }
-            ))
+            )
+            if response_status == 200:
+                donation.is_assigned = True
+                donation.save()
+            else:
+                return Response({'msg': 'cannot send message, please try again'}, status=status.HTTP_409_CONFLICT)
+
+            if subscriber.gifts.last().gifts.filter(is_assigned=False).count() == 0:
+                #TODO send thanks mail
+                pass
+
             return Response({
                 'msg': 'Gift was sent',
             })

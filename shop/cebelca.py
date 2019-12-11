@@ -125,12 +125,12 @@ class Cebelca(object):
         pdf = self.get_pdf()
         if pdf[0]:
 
-            response = mautic_api.saveFile('racun.pdf', pdf[1])
-            response = mautic_api.saveAsset('racun', response['file']['name'])
+            response, response_status = mautic_api.saveFile('racun.pdf', pdf[1])
+            response, response_status = mautic_api.saveAsset('racun', response['file']['name'])
             asset_id = response['asset']['id']
 
-            response_contact = mautic_api.createContact(email, name, '')
-            response_mail = mautic_api.createEmail(
+            response_contact, response_status = mautic_api.createContact(email, name, '')
+            response_mail, response_status = mautic_api.createEmail(
                 'racun-' + email,
                 '',
                 title,
