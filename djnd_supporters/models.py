@@ -27,11 +27,11 @@ class Subscriber(User, Timestamped):
         super(Subscriber, self).save(*args, **kwargs)
 
     def save_to_mautic(self, email, send_email=True):
-        response = mautic_api.createContact(email=email, name=self.name, token=self.token)
+        response, response_status = mautic_api.createContact(email=email, name=self.name, token=self.token)
         self.mautic_id = response['contact']['id']
         self.save()
         if send_email:
-            mautic_api.sendEmail(
+            response, response_status = mautic_api.sendEmail(
                 settings.MAIL_TEMPLATES['WELLCOME_MAIL'],
                 response['contact']['id'],
                 {

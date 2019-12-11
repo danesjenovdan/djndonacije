@@ -224,14 +224,14 @@ class Pay(APIView):
 
             pdf = getPDFodOrder(None, signing.dumps(order.id)).render().content
 
-            response = mautic_api.saveFile('upn.pdf', pdf)
+            response, response_status = mautic_api.saveFile('upn.pdf', pdf)
             print(response)
-            response = mautic_api.saveAsset('upn', response['file']['name'])
+            response, response_status = mautic_api.saveAsset('upn', response['file']['name'])
             print(response)
             asset_id = response['asset']['id']
 
-            response_contact = mautic_api.createContact(order.email, order.name, '')
-            response_mail = mautic_api.createEmail(
+            response_contact, response_status = mautic_api.createContact(order.email, order.name, '')
+            response_mail, response_status = mautic_api.createEmail(
                 'upn-' + order.email,
                 '',
                 'Položnica za tvoj nakup <3',

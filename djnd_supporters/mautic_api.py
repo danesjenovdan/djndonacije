@@ -15,11 +15,10 @@ def mauticRequest(endpoint, data={}, file=None, method='post'):
         )
 
     if response.status_code >= 200 and response.status_code < 300:
-        return response.json()
+        return response.json(), 200
     else:
         print(response.content)
-        # TODO: throw exception?
-        return ""
+        return response.content, response.status_code
 
 def createContact(email, name='', surname='', token=None):
     data = {
