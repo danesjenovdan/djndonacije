@@ -21,8 +21,11 @@ class Subscribe(views.APIView):
         if email:
             subscriber, created = models.Subscriber.objects.get_or_create(email=email)
             subscriber.save()
-            subscriber.save_to_mautic(email)
-            return Response({'email': email, 'token': subscriber.token})
+            response, response_status = subscriber.save_to_mautic(email)
+            if response_status == 200:
+                return Response({'email': email, 'token': subscriber.token})
+            else:
+                return Response({'msg': response}, status=response_status)
         return Response({'error': 'Missing email and/or token.'}, status=status.HTTP_409_CONFLICT)
 
 
@@ -186,8 +189,12 @@ class GiftDonate(views.APIView):
             mautic_id = list(contacts.keys())[0]
             subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
         else:
-            # TODO what to do? :)
-            subscriber = None
+            subscriber = models.Subscriber.objects.create()
+            subscriber.save()
+            response, response_status = subscriber.save_to_mautic(email)
+            if response_status != 200:
+                return Response({'msg': response}, status=response_status)
+            mautic_id = subscriber.mautic_id
 
         if ( not nonce ) or ( not amount):
             return Response(
@@ -280,7 +287,11 @@ class AssignGift(views.APIView):
             else:
                 print('dodaj novga')
                 new_subscriber.name = name
-                new_subscriber.save_to_mautic(gift_email, name=name, send_email=False)
+                response, response_status = new_subscriber.save_to_mautic(gift_email, name=name, send_email=False)
+
+                if response_status != 200:
+                    return Response({'msg': response}, status=response_status)
+
                 mautic_id = new_subscriber.mautic_id
 
             print(mautic_id)

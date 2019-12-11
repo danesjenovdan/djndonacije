@@ -1,0 +1,92 @@
+<html>
+    <head>
+        <script
+            src="https://code.jquery.com/jquery-3.4.1.js"
+            integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+            crossorigin="anonymous"></script>
+
+    </head>
+    <body>
+        <form>
+
+        </form>
+        <div class="wrapper">
+            <div class="checkout container">
+
+                <header>
+                <h1>Hi, <br>Let's test a transaction</h1>
+                <p>
+                    Make a test payment with Braintree using PayPal or a card
+                </p>
+                </header>
+
+                <form id="payment-form" method="post" action="/checkouts">
+                <section>
+                    <label for="amount">
+                    <span class="input-label">Amount</span>
+                    <div class="input-wrapper amount-wrapper">
+                        <input id="amount" name="amount" type="tel" min="1" placeholder="Amount" value="10">
+                    </div>
+                    </label>
+
+                    <div class="bt-drop-in-wrapper">
+                    <div id="bt-dropin"></div>
+                    </div>
+                </section>
+
+                <input type="hidden" id="nonce" name="payment_method_nonce" />
+                <button class="button" type="submit" id="submit-button"><span>Test Transaction</span></button>
+                </form>
+
+            </div>
+            </div>
+        <script src="https://js.braintreegateway.com/web/dropin/1.18.0/js/dropin.min.js"></script>
+        <script>
+            //$.ajaxSetup({
+            //    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+            //});
+
+            var form = document.querySelector('#payment-form');
+            braintree.dropin.create({
+                authorization: "{{token}}",
+                container: '#bt-dropin',
+                paypal: {
+                flow: 'vault'
+                }
+            }, function (createErr, instance) {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    instance.requestPaymentMethod(function (err, payload) {
+                        if (err) {
+                        console.log('Error', err);
+                        return;
+                        }
+                        // Add the nonce to the form and submit
+                        document.querySelector('#nonce').value = payload.nonce;
+                        $.post({
+                            url:"/api/donate-gift/",
+                            data: JSON.stringify({
+                                "nonce": payload.nonce,
+                                "amount": 50,
+                                "email": 'tomazkunst@gmail.com',
+                                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                                "gifts_amounts": [10, 20, 20]
+                            }),
+                            headers:{
+                                "Content-Type": "application/json",
+                                "Accept": "*/*",
+                                "Cache-Control": "no-cache",
+                                "Host": "localhost:8000",
+                                "accept-encoding": "gzip, deflate",
+                                "content-length": "185",
+                                "Connection": "keep-alive",
+                                "cache-control": "no-cache",
+                                "X-CSRFToken":  "{{ csrf_token }}"
+                            }
+                        });
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
