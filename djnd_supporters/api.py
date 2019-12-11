@@ -125,7 +125,7 @@ class Donate(views.APIView):
             image.save()
             return Response({
                 'msg': 'Thanks <3',
-                'upload_url': image.get_upload_url()
+                'upload_token': image.token
             })
         else:
             return Response({'msg': result.transaction.processor_response_text}, status=status.HTTP_400_BAD_REQUEST)
