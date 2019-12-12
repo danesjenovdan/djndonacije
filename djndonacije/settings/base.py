@@ -116,11 +116,6 @@ REST_FRAMEWORK = {
     #'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
-MAIL_TEMPLATES = {
-    'SHOP_THANKSGIVING_UPN': 6,
-    'CHARGED_UNSUCCESSFULLY': 13,
-    'SUBSCRIPTION_CANCELED': 14
-}
 THUMB_SIZE = (50, 50)
 
 UPLOAD_IMAGE_URL = 'https://nov.djnd.si/'
@@ -129,7 +124,8 @@ MAIL_TEMPLATES = {
     'EDIT_SUBSCRIPTIPNS': 1,
     'WELLCOME_MAIL': 2,
     'SHOP_THANKSGIVING_UPN': 6,
-    'GIFT': 15
+    'GIFT_SENT': 4, # done
+    'GIFT': 15 # done
 }
 
 SEGMENTS = {

@@ -148,8 +148,12 @@ class Donate(views.APIView):
             subscriber.name = name
             subscriber.save()
         else:
-            subscriber = None
-            # TODO create new subscriber and then add it to donors mailing list
+            subscriber = models.Subscriber.objects.create(name=name)
+            subscriber.save()
+            response, response_status = subscriber.save_to_mautic(email)
+            if response_status != 200:
+                return Response({'msg': response}, status=response_status)
+            mautic_id = subscriber.mautic_id
 
         if ( not nonce ) or ( not amount):
             return Response({'msg': 'Nonce or amount are missing.'}, status=status.HTTP_409_CONFLICT)
@@ -191,6 +195,7 @@ class GiftDonate(views.APIView):
         gifts_amounts = data.get('gifts_amounts', [])
         email = data.get('email', None)
         amount = data.get('amount', None)
+        name = data.get('name', '')
         add_to_mailing = data.get('mailing', False)
 
         response, response_status = mautic_api.getContactByEmail(email)
@@ -204,7 +209,7 @@ class GiftDonate(views.APIView):
             mautic_id = list(contacts.keys())[0]
             subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
         else:
-            subscriber = models.Subscriber.objects.create()
+            subscriber = models.Subscriber.objects.create(name=name)
             subscriber.save()
             response, response_status = subscriber.save_to_mautic(email)
             if response_status != 200:
@@ -225,7 +230,7 @@ class GiftDonate(views.APIView):
             new_gift = models.Gift(amount=amount, subscriber=subscriber)
             new_gift.save()
             for gift_amount in gifts_amounts:
-                new_subscriber = models.Subscriber.objects.create(email='')
+                new_subscriber = models.Subscriber.objects.create()
                 new_subscriber.save()
                 donation = models.Donation(
                     amount=gift_amount,
@@ -279,7 +284,6 @@ class AssignGift(views.APIView):
         subscriber = models.Subscriber.objects.get(token=owner_token)
 
         new_subscriber = models.Subscriber.objects.get(token=subscriber_token)
-        # TODO check if is subscriber.gifts.last() OK?
         donation = subscriber.gifts.last().gifts.filter(subscriber=new_subscriber)
         if donation:
             donation = donation[0]
@@ -296,12 +300,11 @@ class AssignGift(views.APIView):
             else:
                 return Response({'msg': response}, status=response_status)
             if contacts:
-                # TODO merge Subscribers
-                print('contact ze obstaja')
                 mautic_id = list(contacts.keys())[0]
             else:
                 print('dodaj novga')
                 new_subscriber.name = name
+                new_subscriber.save()
                 response, response_status = new_subscriber.save_to_mautic(gift_email, name=name, send_email=False)
 
                 if response_status != 200:
@@ -327,7 +330,11 @@ class AssignGift(views.APIView):
                 return Response({'msg': 'cannot send message, please try again'}, status=status.HTTP_409_CONFLICT)
 
             if subscriber.gifts.last().gifts.filter(is_assigned=False).count() == 0:
-                #TODO send thanks mail
+                response, response_status = mautic_api.sendEmail(
+                    settings.MAIL_TEMPLATES['GIFT_SENT'],
+                    mautic_id,
+                    {}
+                )
                 pass
 
             return Response({
