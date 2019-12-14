@@ -273,7 +273,6 @@ class GiftDonate(views.APIView):
                 return Response({
                     'msg': 'Thanks <3',
                     'nonce': nonce,
-                    'owner_token': subscriber.token,
                     'gifts': new_subscribers
                 })
             else:
