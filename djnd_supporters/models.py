@@ -121,5 +121,6 @@ class Gift(Timestamped):
         blank=True,
         related_name='gifts'
     )
+    nonce = models.TextField(null=True, blank=True)
     amount = models.DecimalField(default=0.0, decimal_places=1, max_digits=20)
     gifts = models.ManyToManyField('Donation', related_name='gifts')
