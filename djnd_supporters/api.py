@@ -203,7 +203,7 @@ class Donate(views.APIView):
         donation.save()
         return Response({
             'msg': 'Thanks <3',
-            'upload_token': image.token
+            'upload_token': donation.image.token
         })
 
 
