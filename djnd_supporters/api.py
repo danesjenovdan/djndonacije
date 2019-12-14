@@ -243,7 +243,8 @@ class GiftDonate(views.APIView):
             # if no amount deny
             if not amount:
                 return Response({'msg': 'Missing amount.'}, status=status.HTTP_400_BAD_REQUEST)
-            # if no gifts_amounts:
+            # if no gifts_amounts deny
+            if not gifts_amounts:
                 return Response({'msg': 'Missing gifts_amounts.'}, status=status.HTTP_400_BAD_REQUEST)
 
             result = payment.pay_bt_3d(nonce, float(amount))
