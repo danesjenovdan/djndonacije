@@ -18,6 +18,7 @@ class Subscriber(User, Timestamped):
     token = models.TextField(blank=False, null=False, default='1234567890')
     name = models.CharField(default="Anonimnež_ica", max_length=128)
     mautic_id = models.IntegerField(null=True, blank=True, unique=True)
+    address = models.TextField(null=True, blank=True)
     #email = models.EmailField()
 
     def save(self, *args, **kwargs):
@@ -54,6 +55,7 @@ class Donation(Timestamped):
         null=True,
         blank=True
     )
+    nonce = models.TextField(null=True, blank=True)
     amount = models.DecimalField(default=0.0, decimal_places=1, max_digits=20)
     # is_assigned is helper atrribut using for group donations.
     is_assigned = models.BooleanField(default=True)
