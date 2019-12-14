@@ -18,6 +18,7 @@ class Subscriber(User, Timestamped):
     token = models.TextField(blank=False, null=False, default='1234567890')
     name = models.CharField(default="Anonimnež_ica", max_length=128)
     mautic_id = models.IntegerField(null=True, blank=True, unique=True)
+    address = models.TextField(null=True, blank=True)
     #email = models.EmailField()
 
     def save(self, *args, **kwargs):

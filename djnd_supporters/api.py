@@ -180,10 +180,11 @@ class Donate(views.APIView):
             mautic_id = list(contacts.keys())[0]
             subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
             subscriber.name = name
+            subscriber.address = address
             subscriber.save()
         else:
             # subscriber does not exist on mautic
-            subscriber = models.Subscriber.objects.create(name=name)
+            subscriber = models.Subscriber.objects.create(name=name, address=address)
             subscriber.save()
             response, response_status = subscriber.save_to_mautic(email)
             if response_status != 200:
