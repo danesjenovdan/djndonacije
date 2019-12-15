@@ -366,7 +366,7 @@ class AssignGift(views.APIView):
                 print('dodaj novga')
                 new_subscriber.name = name
                 new_subscriber.save()
-                response, response_status = new_subscriber.save_to_mautic(gift_email, name=name, send_email=False)
+                response, response_status = new_subscriber.save_to_mautic(gift_email, send_email=False)
 
                 if response_status != 200:
                     return Response({'msg': response}, status=response_status)
