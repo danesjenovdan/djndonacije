@@ -309,10 +309,10 @@ class GiftDonate(views.APIView):
             segment_id = settings.SEGMENTS.get('donations', None)
             response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
         
-        # finally connect donation to person
-        donation = models.Donation.objects.get(nonce=nonce)
-        donation.subscriber = subscriber
-        donation.save()
+        # finally connect gift to person
+        gift = models.Gift.objects.get(nonce=nonce)
+        gift.subscriber = subscriber
+        gift.save()
         return Response({
             'msg': 'Thanks <3',
             'owner_token': subscriber.token
