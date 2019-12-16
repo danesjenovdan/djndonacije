@@ -7,6 +7,28 @@ from djnd_supporters import models, mautic_api, authentication, serializers
 from djndonacije import payment
 
 
+class UsersImport(views.APIView):
+    """
+    This endpoint just for import users
+    """
+    def post(self, request, format=None):
+        data = request.data
+        email = data.get('email', None)
+        lists = data.get('lists', None)
+        if email:
+            subscriber = models.Subscriber.objects.create()
+            subscriber.save()
+            subscriber.save_to_mautic(email)
+
+            contact_id = subscriber.mautic_id
+
+            for segment in lists:
+                segment_id = settings.SEGMENTS.get(segment, None)
+                if segment_id:
+                    mautic_api.addContactToASegment(segment_id, contact_id)
+
+        return Response({'error': 'Missing email and/or token.'}, status=status.HTTP_409_CONFLICT)
+
 class Subscribe(views.APIView):
     """
     This endpoint is for make braintree subscription

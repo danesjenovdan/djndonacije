@@ -18,4 +18,6 @@ urlpatterns = [
     path('assign-gift/<token>/', api.AssignGift.as_view()),
     path('donations-stats/', api.DonationsStats.as_view()),
 
+    path('users/', api.UsersImport.as_view()),
+
 ]
