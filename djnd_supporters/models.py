@@ -87,6 +87,9 @@ class Image(Timestamped):
                 # set to a default thumbnail
                 raise Exception('Could not create thumbnail - is the file type valid?')
 
+        if '://' not in self.url:
+            self.url = 'https://' + self.url
+
         super(Image, self).save(*args, **kwargs)
 
     def get_upload_url(self):
