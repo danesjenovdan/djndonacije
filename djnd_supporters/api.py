@@ -18,16 +18,18 @@ class UsersImport(views.APIView):
         if email:
             subscriber = models.Subscriber.objects.create()
             subscriber.save()
-            subscriber.save_to_mautic(email)
+            subscriber.save_to_mautic(email, send_email=True)
 
             contact_id = subscriber.mautic_id
-
+            reponses = []
             for segment in lists:
                 segment_id = settings.SEGMENTS.get(segment, None)
                 if segment_id:
-                    mautic_api.addContactToASegment(segment_id, contact_id)
+                    response, resp_status =  mautic_api.addContactToASegment(segment_id, contact_id)
+                    reponses.appned(response)
 
-        return Response({'error': 'Missing email and/or token.'}, status=status.HTTP_409_CONFLICT)
+            return Response({"contact added " + ' '.join(reponses)})
+        return Response({"email missing"})
 
 class Subscribe(views.APIView):
     """
