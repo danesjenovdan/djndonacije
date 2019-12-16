@@ -18,7 +18,7 @@ class UsersImport(views.APIView):
         if email:
             subscriber = models.Subscriber.objects.create()
             subscriber.save()
-            subscriber.save_to_mautic(email, send_email=True)
+            subscriber.save_to_mautic(email, send_email=False)
 
             contact_id = subscriber.mautic_id
             reponses = []
@@ -26,10 +26,10 @@ class UsersImport(views.APIView):
                 segment_id = settings.SEGMENTS.get(segment, None)
                 if segment_id:
                     response, resp_status =  mautic_api.addContactToASegment(segment_id, contact_id)
-                    reponses.appned(response)
+                    reponses.append(response)
 
-            return Response({"contact added " + ' '.join(reponses)})
-        return Response({"email missing"})
+            return Response({"contact added": True})
+        return Response({"email missing": True})
 
 class Subscribe(views.APIView):
     """
