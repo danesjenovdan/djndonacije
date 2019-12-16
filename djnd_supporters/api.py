@@ -227,15 +227,26 @@ class Donate(views.APIView):
         donation.save()
 
         # Send email thanks for donation
-        response, response_status = mautic_api.sendEmail(
-            settings.MAIL_TEMPLATES['DONATION_COMPLETE'],
-            subscriber.mautic_id,
-            {
-                'tokens': {
-                    'upload_image': donation.image.get_upload_url()
+        if donation.amount < 11:
+            response, response_status = mautic_api.sendEmail(
+                settings.MAIL_TEMPLATES['GIFT_WITHOUT_GIFT'],
+                subscriber.mautic_id,
+                {
+                    'tokens': {
+                        'upload_image': donation.image.get_upload_url()
+                    }
                 }
-            }
-        )
+            )
+        else:
+            response, response_status = mautic_api.sendEmail(
+                settings.MAIL_TEMPLATES['GIFT_WITH_GIFT'],
+                subscriber.mautic_id,
+                {
+                    'tokens': {
+                        'upload_image': donation.image.get_upload_url()
+                    }
+                }
+            )
 
         return Response({
             'msg': 'Thanks <3',
@@ -349,6 +360,18 @@ class GiftDonate(views.APIView):
         gift = models.Gift.objects.get(nonce=nonce)
         gift.subscriber = subscriber
         gift.save()
+        if gift.amount < 11:
+            response, response_status = mautic_api.sendEmail(
+                settings.MAIL_TEMPLATES['GIFT_WITHOUT_GIFT'],
+                mautic_id,
+                {}
+            )
+        else:
+            response, response_status = mautic_api.sendEmail(
+                settings.MAIL_TEMPLATES['GIFT_WITH_GIFT'],
+                mautic_id,
+                {}
+            )
         return Response({
             'msg': 'Thanks <3',
             'owner_token': subscriber.token
@@ -411,11 +434,11 @@ class AssignGift(views.APIView):
 
             print(mautic_id)
             response, response_status = mautic_api.sendEmail(
-                settings.MAIL_TEMPLATES['GIFT'],
+                settings.MAIL_TEMPLATES['CUSTOM_GIFT'],
                 mautic_id,
                 {
                     'tokens': {
-                        'message': message,
+                        'message': message.replace('\n', '<br>'),
                         'sender_name': subscriber.name,
                         'upload_image': donation.image.get_upload_url()
                     }

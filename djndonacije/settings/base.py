@@ -124,9 +124,14 @@ MAIL_TEMPLATES = {
     'EDIT_SUBSCRIPTIPNS': 1,
     'WELLCOME_MAIL': 2,
     'SHOP_THANKSGIVING_UPN': 6,
-    'GIFT_SENT': 4, # done
+    #'GIFT_SENT': 4, # done
     'GIFT': 15, # done
-    'DONATION_COMPLETE': 5
+    'DONATION_COMPLETE': 5,
+    'CUSTOM_GIFT': 24,
+    'GIFT_SENT': 26, # edit 4
+    'GIFT_WITH_GIFT': 27,
+    'GIFT_WITHOUT_GIFT': 25,
+
 }
 
 SEGMENTS = {
