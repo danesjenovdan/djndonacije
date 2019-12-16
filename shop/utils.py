@@ -1,6 +1,7 @@
 from shop.models import Basket, Item
 from django.core.signing import Signer
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 
 SIGNER = Signer(salt=settings.SALT)
@@ -9,7 +10,7 @@ def get_basket(request):
     key = request.GET.get('order_key', None)
     if key:
         print('mam key', key)
-        return Basket.objects.get(session=key)
+        return get_object_or_404(Basket, session=key)
     else:
         # generate new basket
         try:
