@@ -125,7 +125,8 @@ MAIL_TEMPLATES = {
     'WELLCOME_MAIL': 2,
     'SHOP_THANKSGIVING_UPN': 6,
     'GIFT_SENT': 4, # done
-    'GIFT': 15 # done
+    'GIFT': 15, # done
+    'DONATION_COMPLETE': 5
 }
 
 SEGMENTS = {
