@@ -230,7 +230,11 @@ class Donate(views.APIView):
         response, response_status = mautic_api.sendEmail(
             settings.MAIL_TEMPLATES['DONATION_COMPLETE'],
             subscriber.mautic_id,
-            {}
+            {
+                'tokens': {
+                    'upload_image': donation.image.get_upload_url()
+                }
+            }
         )
 
         return Response({
