@@ -215,16 +215,24 @@ class Donate(views.APIView):
                 # something went wrong with saving to mautic, abort
                 return Response({'msg': response}, status=response_status)
             mautic_id = subscriber.mautic_id
-        
+
         # add to mailing if they agreed
         if add_to_mailing:
             segment_id = settings.SEGMENTS.get('donations', None)
             response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
-        
+
         # finally connect donation to person
         donation = models.Donation.objects.get(nonce=nonce)
         donation.subscriber = subscriber
         donation.save()
+
+        # Send email thanks for donation
+        response, response_status = mautic_api.sendEmail(
+            settings.MAIL_TEMPLATES['DONATION_COMPLETE'],
+            subscriber.mautic_id,
+            {}
+        )
+
         return Response({
             'msg': 'Thanks <3',
             'upload_token': donation.image.token
@@ -327,12 +335,12 @@ class GiftDonate(views.APIView):
                 # something went wrong with saving to mautic, abort
                 return Response({'msg': response}, status=response_status)
             mautic_id = subscriber.mautic_id
-        
+
         # add to mailing if they agreed
         if add_to_mailing:
             segment_id = settings.SEGMENTS.get('donations', None)
             response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
-        
+
         # finally connect gift to person
         gift = models.Gift.objects.get(nonce=nonce)
         gift.subscriber = subscriber
@@ -404,7 +412,8 @@ class AssignGift(views.APIView):
                 {
                     'tokens': {
                         'message': message,
-                        '{upload_image}': donation.image.get_upload_url()
+                        'sender_name': subscriber.name,
+                        'upload_image': donation.image.get_upload_url()
                     }
                 }
             )
@@ -417,7 +426,7 @@ class AssignGift(views.APIView):
             if subscriber.gifts.last().gifts.filter(is_assigned=False).count() == 0:
                 response, response_status = mautic_api.sendEmail(
                     settings.MAIL_TEMPLATES['GIFT_SENT'],
-                    mautic_id,
+                    subscriber.mautic_id,
                     {}
                 )
                 pass
