@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
+from django.core.validators import URLValidator
 
 from django.conf import settings
 
@@ -13,6 +14,15 @@ import os.path
 from PIL import Image as PILImage
 from io import BytesIO
 # Create your models here.
+
+
+class OptionalSchemeURLValidator(URLValidator):
+    def __call__(self, value):
+        if '://' not in value:
+            # Validate as if it were http://
+            value = 'http://' + value
+        super(OptionalSchemeURLValidator, self).__call__(value)
+
 
 class Subscriber(User, Timestamped):
     token = models.TextField(blank=False, null=False, default='1234567890')
@@ -65,7 +75,7 @@ class Image(Timestamped):
     donation = models.OneToOneField('Donation', on_delete=models.CASCADE)
     token = models.TextField(blank=False, null=False, default='1234567890')
     image = models.ImageField(upload_to='images')
-    url = models.URLField(null=True, blank=True)
+    url = models.CharField(max_length=200, null=True, blank=True, validators=[OptionalSchemeURLValidator()])
     thumbnail = models.ImageField(upload_to='thumbs')
 
     def save(self, *args, **kwargs):
