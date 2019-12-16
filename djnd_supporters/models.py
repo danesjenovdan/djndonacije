@@ -86,9 +86,9 @@ class Image(Timestamped):
             if not self.make_thumbnail():
                 # set to a default thumbnail
                 raise Exception('Could not create thumbnail - is the file type valid?')
-
-        if '://' not in self.url:
-            self.url = 'https://' + self.url
+        if self.url:
+            if '://' not in self.url:
+                self.url = 'https://' + self.url
 
         super(Image, self).save(*args, **kwargs)
 
