@@ -463,8 +463,8 @@ class AssignGift(views.APIView):
             print(mautic_id)
             message = message.replace('\n', '<br>')
             if name:
-                message = 'Dragi_a ' + name + '<br><br>' + message
-            message = message + '<br>' + subscriber.name
+                message = name + '!<br><br>' + message
+            message = message + '<br>' + subscriber.name + '<br><br>Danes je nov dar! <3'
             response, response_status = mautic_api.sendEmail(
                 settings.MAIL_TEMPLATES['CUSTOM_GIFT'],
                 mautic_id,
