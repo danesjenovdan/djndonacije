@@ -179,7 +179,7 @@ class Donate(views.APIView):
             if not amount:
                 return Response({'msg': 'Missing amount.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            result = payment.pay_bt_3d(nonce, float(amount))
+            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
             if result.is_success:
                 # create donation and image object without subscriber
                 donation = models.Donation(amount=amount, nonce=nonce)
@@ -309,7 +309,7 @@ class GiftDonate(views.APIView):
             if not gifts_amounts:
                 return Response({'msg': 'Missing gifts_amounts.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            result = payment.pay_bt_3d(nonce, float(amount))
+            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
             new_subscribers = []
             if result.is_success:
                 # create donation and image object without subscriber

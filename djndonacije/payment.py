@@ -85,7 +85,7 @@ def update_subscription(user, costum_price=None):
 
     return result
 
-def pay_bt_3d(nonce, amount):
+def pay_bt_3d(nonce, amount, taxExempt=False):
     print({
         'amount': str(amount),
         'payment_method_nonce': nonce,
@@ -99,6 +99,7 @@ def pay_bt_3d(nonce, amount):
     result = gateway.transaction.sale({
         'amount': '%.2f' % (amount),
         'payment_method_nonce': nonce,
+        'tax_exempt': taxExempt
     })
     print(result)
     return result
