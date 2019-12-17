@@ -4,7 +4,7 @@ from datetime import date, timedelta
 
 gateway = braintree.BraintreeGateway(
     braintree.Configuration(
-        braintree.Environment.Sandbox,
+        braintree.Environment.Production,
         merchant_id=settings.MERCHANT_ID,
         public_key=settings.PUBLIC_KEY,
         private_key=settings.PRIVATE_KEY
