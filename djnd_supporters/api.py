@@ -214,7 +214,7 @@ class Donate(views.APIView):
             # subscriber does not exist on mautic
             subscriber = models.Subscriber.objects.create(name=name, address=address)
             subscriber.save()
-            response, response_status = subscriber.save_to_mautic(email)
+            response, response_status = subscriber.save_to_mautic(email, send_email=False)
             if response_status != 200:
                 # something went wrong with saving to mautic, abort
                 return Response({'msg': response}, status=response_status)
@@ -360,7 +360,7 @@ class GiftDonate(views.APIView):
             # subscriber does not exist on mautic
             subscriber = models.Subscriber.objects.create(name=name, address=address)
             subscriber.save()
-            response, response_status = subscriber.save_to_mautic(email)
+            response, response_status = subscriber.save_to_mautic(email, send_email=False)
             if response_status != 200:
                 # something went wrong with saving to mautic, abort
                 return Response({'msg': response}, status=response_status)
