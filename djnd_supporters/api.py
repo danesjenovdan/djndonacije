@@ -229,7 +229,7 @@ class Donate(views.APIView):
         # Send email thanks for donation
         if donation.amount < 11:
             response, response_status = mautic_api.sendEmail(
-                settings.MAIL_TEMPLATES['GIFT_WITHOUT_GIFT'],
+                settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT'],
                 subscriber.mautic_id,
                 {
                     'tokens': {
@@ -239,7 +239,7 @@ class Donate(views.APIView):
             )
         else:
             response, response_status = mautic_api.sendEmail(
-                settings.MAIL_TEMPLATES['GIFT_WITH_GIFT'],
+                settings.MAIL_TEMPLATES['DONATION_WITH_GIFT'],
                 subscriber.mautic_id,
                 {
                     'tokens': {
