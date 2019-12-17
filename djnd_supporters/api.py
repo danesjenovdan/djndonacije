@@ -432,7 +432,7 @@ class AssignGift(views.APIView):
         subscriber = models.Subscriber.objects.get(token=owner_token)
 
         new_subscriber = models.Subscriber.objects.get(token=subscriber_token)
-        donation = subscriber.gifts.last().gifts.filter(subscriber=new_subscriber)
+        donation = models.Donation.objects.filter(subscriber=new_subscriber)
         if donation:
             donation = donation[0]
             if donation.is_assigned:
