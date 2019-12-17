@@ -433,12 +433,16 @@ class AssignGift(views.APIView):
                 mautic_id = new_subscriber.mautic_id
 
             print(mautic_id)
+            message = message.replace('\n', '<br>')
+            if name:
+                message = 'Dragi_a ' + name + '<br><br>' + message
+            message = message + '<br>' + subscriber.name
             response, response_status = mautic_api.sendEmail(
                 settings.MAIL_TEMPLATES['CUSTOM_GIFT'],
                 mautic_id,
                 {
                     'tokens': {
-                        'message': message.replace('\n', '<br>'),
+                        'message': message,
                         'sender_name': subscriber.name,
                         'upload_image': donation.image.get_upload_url()
                     }
