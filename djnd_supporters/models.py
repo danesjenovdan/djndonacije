@@ -71,7 +71,7 @@ class Donation(Timestamped):
     is_assigned = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.subscriber.name + ' -> ' + str(self.amount)
+        return (self.subscriber.name if self.subscriber else '?') + ' -> ' + str(self.amount)
 
 
 class Image(Timestamped):
@@ -142,4 +142,4 @@ class Gift(Timestamped):
     gifts = models.ManyToManyField('Donation', related_name='gifts')
 
     def __str__(self):
-        return self.subscriber.name + ' -> ' + str(self.amount)
+        return (self.subscriber.name if self.subscriber else '?') + ' -> ' + str(self.amount)
