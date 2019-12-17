@@ -70,6 +70,9 @@ class Donation(Timestamped):
     # is_assigned is helper atrribut using for group donations.
     is_assigned = models.BooleanField(default=True)
 
+    def __str__(self):
+        return self.subscriber.name + ' -> ' + str(self.amount)
+
 
 class Image(Timestamped):
     donation = models.OneToOneField('Donation', on_delete=models.CASCADE)
@@ -137,3 +140,6 @@ class Gift(Timestamped):
     nonce = models.TextField(null=True, blank=True)
     amount = models.DecimalField(default=0.0, decimal_places=1, max_digits=20)
     gifts = models.ManyToManyField('Donation', related_name='gifts')
+
+    def __str__(self):
+        return self.subscriber.name + ' -> ' + str(self.amount)

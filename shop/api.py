@@ -250,13 +250,16 @@ class Pay(APIView):
             msg += "Preveri naročilo: " + url
             if order.info:
                 msg += '\n Posvetilo: ' + order.info
-            sc.api_call(
-                "chat.postMessage",
-                json={
-                    'channel': "#danesjenovdan_si",
-                    'text': msg
-                }
-            )
+            try:
+                sc.api_call(
+                    "chat.postMessage",
+                    json={
+                        'channel': "#danesjenovdan_si",
+                        'text': msg
+                    }
+                )
+            except:
+                pass
         return JsonResponse({'msg': 'prepared'})
 
 
@@ -307,11 +310,14 @@ def checkout(request):
                 msg += "Preveri naročilo: " + url
                 if order.info:
                     msg += '\n Posvetilo: ' + order.info
-                sc.api_call(
-                "chat.postMessage",
-                channel="#danesjenovdan_si",
-                text=msg
-                )
+                try:
+                    sc.api_call(
+                        "chat.postMessage",
+                        channel="#danesjenovdan_si",
+                        text=msg
+                    )
+                except:
+                    pass
 
                 # update artickles stock
                 update_stock(order)
@@ -331,13 +337,16 @@ def checkout(request):
             msg += "Preveri naročilo: " + url
             if order.info:
                 msg += '\n Posvetilo: ' + order.info
-            sc.api_call(
-                "chat.postMessage",
-                json={
-                    'channel': "#danesjenovdan_si",
-                    'text': msg
-                }
-            )
+            try:
+                sc.api_call(
+                    "chat.postMessage",
+                    json={
+                        'channel': "#danesjenovdan_si",
+                        'text': msg
+                    }
+                )
+            except:
+                pass
             data = {"id": order.id,
                     "upn_id": signing.dumps(order.id),
                     "date": datetime.now().strftime('%d.%m.%Y'),

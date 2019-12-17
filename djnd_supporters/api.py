@@ -6,6 +6,10 @@ from rest_framework.response import Response
 from djnd_supporters import models, mautic_api, authentication, serializers
 from djndonacije import payment
 
+import slack
+
+sc = slack.WebClient(settings.SLACK_KEY, timeout=30)
+
 
 class UsersImport(views.APIView):
     """
@@ -247,6 +251,17 @@ class Donate(views.APIView):
                     }
                 }
             )
+        try:
+            msg = name + ' nam je podarila donacijo v višini: ' + str(donation.amount)
+            sc.api_call(
+                "chat.postMessage",
+                json={
+                    'channel': "#danesjenovdan_si",
+                    'text': msg
+                }
+            )
+        except:
+            pass
 
         return Response({
             'msg': 'Thanks <3',
@@ -372,6 +387,19 @@ class GiftDonate(views.APIView):
                 mautic_id,
                 {}
             )
+
+        try:
+            msg = name + ' nam je podarila donacijo v višini: ' + str(gift.amount)
+            sc.api_call(
+                "chat.postMessage",
+                json={
+                    'channel': "#danesjenovdan_si",
+                    'text': msg
+                }
+            )
+        except:
+            pass
+
         return Response({
             'msg': 'Thanks <3',
             'owner_token': subscriber.token
