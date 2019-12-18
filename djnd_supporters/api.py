@@ -252,7 +252,7 @@ class Donate(views.APIView):
                 }
             )
         try:
-            msg = name + ' nam je podarila donacijo v višini: ' + str(donation.amount)
+            msg = ( name if name else 'Dinozaver' ) + ' nam je podarila donacijo v višini: ' + str(donation.amount)
             sc.api_call(
                 "chat.postMessage",
                 json={
@@ -389,7 +389,7 @@ class GiftDonate(views.APIView):
             )
 
         try:
-            msg = name + ' nam je podarila donacijo v višini: ' + str(gift.amount)
+            msg = ( name if name else 'Dinozaver' ) + ' nam je podarila donacijo v višini: ' + str(gift.amount)
             sc.api_call(
                 "chat.postMessage",
                 json={
