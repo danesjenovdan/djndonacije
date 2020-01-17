@@ -2,6 +2,7 @@ from django.conf.urls import url
 from shop import api
 
 urlpatterns = [
+    url(r'^products/(?P<pk>\d+)/', api.ProductsList.as_view()),
     url(r'^products/', api.ProductsList.as_view()),
     url(r'^categories/', api.CategoryList.as_view()),
     url(r'^items/(?P<pk>\d+)/', api.ItemView.as_view()),

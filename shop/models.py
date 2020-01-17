@@ -26,6 +26,13 @@ class Article(Timestamped):
 	mergable = models.BooleanField(default=False)
 	articles = models.ManyToManyField('self', blank=True, through='BoundleItem', symmetrical=False)
 	custom_mail = HTMLField(null=True, blank=True)
+	variant_of = models.ForeignKey(
+		'self',
+		verbose_name='variant of',
+		on_delete=models.CASCADE,
+		related_name='variants',
+		null=True,
+		blank=True)
 
 	def __str__(self):
 		return self.name
@@ -37,6 +44,8 @@ class Article(Timestamped):
 			print(self.name, ' je boundle ', self.stock, min([article.article.stock for article in articles]))
 			return min([article.article.stock for article in articles])
 		else:
+			if self.variants.all():
+				return sum(self.variants.values_list('stock', flat=True))
 			return self.stock
 
 

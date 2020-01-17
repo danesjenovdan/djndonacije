@@ -41,10 +41,15 @@ def prepare_upn_data(order):
     return ref
 
 class ProductsList(APIView):
-    def get(self, request, format=None):
-        articles = [article for article in Article.objects.all() if article.get_stock > 0]
-        serializer = ArticleSerializer(articles, many=True)
-        return Response(serializer.data)
+    def get(self, request, pk=None, format=None):
+        if pk:
+            product = get_object_or_404(Article, pk=pk)
+            serializer = ArticleSerializer(product)
+            return Response(serializer.data)
+        else:
+            articles = [article for article in Article.objects.filter(variant_of=None) if article.get_stock > 0]
+            serializer = ArticleSerializer(articles, many=True)
+            return Response(serializer.data)
 
 
 class CategoryList(APIView):

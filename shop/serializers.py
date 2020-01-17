@@ -2,11 +2,21 @@ from rest_framework import serializers
 
 from shop.models import Article, Category, Item
 
-class ArticleSerializer(serializers.ModelSerializer):
+class VariantSerializer(serializers.ModelSerializer):
     stock = serializers.SerializerMethodField()
     class Meta:
         model = Article
         fields = ('id', 'name', 'price', 'tax', 'stock', 'category', 'mergable')
+
+    def get_stock(self, obj):
+        return obj.get_stock
+
+class ArticleSerializer(serializers.ModelSerializer):
+    stock = serializers.SerializerMethodField()
+    variants = VariantSerializer(many=True, read_only=True)
+    class Meta:
+        model = Article
+        fields = ('id', 'name', 'price', 'tax', 'stock', 'category', 'mergable', 'variants')
 
     def get_stock(self, obj):
         return obj.get_stock
