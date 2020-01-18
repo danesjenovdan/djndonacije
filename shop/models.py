@@ -15,6 +15,11 @@ class Category(Timestamped):
         return self.name
 
 
+class ArticleImage(models.Model):
+    image = models.ImageField(upload_to='images/', height_field=None, width_field=None, max_length=1000, null=True, blank=True)
+    article = models.ForeignKey('Article', related_name='images', on_delete=models.CASCADE)
+
+
 class Article(Timestamped):
     variant_of = models.ForeignKey(
         'self',
@@ -29,7 +34,6 @@ class Article(Timestamped):
     price = models.DecimalField(decimal_places=2, max_digits=10)
     tax = models.DecimalField(decimal_places=2, max_digits=10)
     stock = models.IntegerField(default=0)
-    image = models.ImageField(upload_to='images/', height_field=None, width_field=None, max_length=1000, null=True, blank=True)
     mergable = models.BooleanField(default=False)
     articles = models.ManyToManyField('self', blank=True, through='BoundleItem', symmetrical=False)
     custom_mail = HTMLField(null=True, blank=True)
@@ -71,6 +75,7 @@ class Item(Timestamped):
     quantity = models.IntegerField(default=1)
     def __str__(self):
         return "item " + self.article.name
+
 
 class Order(Timestamped):
     basket = models.ForeignKey(Basket, related_name='order', on_delete=models.CASCADE)

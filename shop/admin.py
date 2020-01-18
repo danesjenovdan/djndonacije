@@ -2,14 +2,21 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.db.models.functions import Concat
-from django.db.models import Case, When, Sum, Count, Value, IntegerField, CharField
+from django.db.models import Case, When, Sum, Count, Value, IntegerField, CharField, ImageField
 
-from shop.models import Article, Basket, Order, Item, Category, BoundleItem
+from shop.models import ArticleImage, Article, Basket, Order, Item, Category, BoundleItem
+
+
+class ArticleImageInline(admin.TabularInline):
+    model = ArticleImage
+    fields = ['image']
 
 
 class ArticleAdmin(admin.ModelAdmin):
     list_display = ['computed_name', 'price', 'tax', 'computed_stock']
     search_fields = ['name', 'variant_of__name']
+
+    inlines = [ArticleImageInline]
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
