@@ -1,14 +1,54 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.db.models.functions import Concat
+from django.db.models import Case, When, Sum, Count, Value, IntegerField, CharField, ImageField
 
-from shop.models import Article, Basket, Order, Item, Category, BoundleItem
+from shop.models import ArticleImage, Article, Basket, Order, Item, Category, BoundleItem
+
+
+class ArticleImageInline(admin.TabularInline):
+    model = ArticleImage
+    fields = ['image']
 
 
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ['name', 'price', 'stock']
-    search_fields = ['name', 'stock']
-    list_filter = ['name', 'stock']
+    list_display = ['computed_name', 'price', 'tax', 'computed_stock']
+    search_fields = ['name', 'variant_of__name']
+
+    inlines = [ArticleImageInline]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.annotate(
+            _has_variants=Count('variants'),
+        )
+        queryset = queryset.annotate(
+            _computed_stock=Case(
+                When(_has_variants__gt=0, then=Sum('variants__stock')),
+                default='stock',
+                output_field=IntegerField(),
+            )
+        )
+        queryset = queryset.annotate(
+            _computed_name=Case(
+                When(variant_of=None, then='name'),
+                default=Concat('variant_of__name', Value(' - '), 'name'),
+                output_field=CharField(),
+            )
+        )
+        queryset = queryset.order_by('_computed_name')
+        return queryset
+
+    def computed_stock(self, obj):
+        return obj._computed_stock
+    computed_stock.admin_order_field = '_computed_stock'
+    computed_stock.short_description = 'stock'
+
+    def computed_name(self, obj):
+        return obj._computed_name
+    computed_name.admin_order_field = '_computed_name'
+    computed_name.short_description = 'name'
 
 
 class ItemInline(admin.TabularInline):

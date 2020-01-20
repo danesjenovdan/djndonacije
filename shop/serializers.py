@@ -1,25 +1,44 @@
 from rest_framework import serializers
 
-from shop.models import Article, Category, Item
+from shop.models import ArticleImage, Article, Category, Item
 
-class VariantSerializer(serializers.ModelSerializer):
+
+class BaseArticleSerializer(serializers.ModelSerializer):
     stock = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
+    category = serializers.CharField(source='category.name', read_only=True)
+
     class Meta:
         model = Article
-        fields = ('id', 'name', 'price', 'tax', 'stock', 'category', 'mergable')
+        fields = ('id', 'name', 'price', 'tax', 'stock', 'category', 'images')
 
     def get_stock(self, obj):
         return obj.get_stock
 
-class ArticleSerializer(serializers.ModelSerializer):
-    stock = serializers.SerializerMethodField()
-    variants = VariantSerializer(many=True, read_only=True)
-    class Meta:
-        model = Article
-        fields = ('id', 'name', 'price', 'tax', 'stock', 'category', 'mergable', 'variants')
+    def get_images(self, obj):
+        return [i.image.url for i in obj.images.all() if i.image]
 
-    def get_stock(self, obj):
-        return obj.get_stock
+
+class VariantArticleSerializer(BaseArticleSerializer):
+    name = serializers.SerializerMethodField()
+    variant = serializers.SerializerMethodField()
+
+    class Meta(BaseArticleSerializer.Meta):
+        fields = BaseArticleSerializer.Meta.fields + ('variant',)
+
+    def get_name(self, obj):
+        return obj.variant_of.name
+
+    def get_variant(self, obj):
+        return obj.name
+
+
+class ArticleSerializer(BaseArticleSerializer):
+    variants = VariantArticleSerializer(many=True, read_only=True)
+
+    class Meta(BaseArticleSerializer.Meta):
+        fields = BaseArticleSerializer.Meta.fields + ('variants',)
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,6 +48,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ItemSerializer(serializers.ModelSerializer):
     article = ArticleSerializer(read_only=True)
+
     class Meta:
         model = Item
         fields = ('id', 'article', 'quantity')
