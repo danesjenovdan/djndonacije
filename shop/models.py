@@ -26,6 +26,7 @@ class Article(Timestamped):
         verbose_name='variant of',
         on_delete=models.CASCADE,
         related_name='variants',
+        limit_choices_to={'variant_of': None},
         null=True,
         blank=True)
     name = models.CharField(max_length=64)

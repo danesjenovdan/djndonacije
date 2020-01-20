@@ -33,7 +33,7 @@ class ArticleAdmin(admin.ModelAdmin):
         queryset = queryset.annotate(
             _computed_name=Case(
                 When(variant_of=None, then='name'),
-                default=Concat('variant_of__name', Value(' --> '), 'name'),
+                default=Concat('variant_of__name', Value(' - '), 'name'),
                 output_field=CharField(),
             )
         )
