@@ -40,6 +40,20 @@ class ArticleSerializer(BaseArticleSerializer):
         fields = BaseArticleSerializer.Meta.fields + ('variants',)
 
 
+class ItemArticleSerializer(BaseArticleSerializer):
+    name = serializers.SerializerMethodField()
+    variant = serializers.SerializerMethodField()
+
+    class Meta(BaseArticleSerializer.Meta):
+        fields = BaseArticleSerializer.Meta.fields + ('variant',)
+
+    def get_name(self, obj):
+        return obj.variant_of.name if obj.variant_of else obj.name
+
+    def get_variant(self, obj):
+        return obj.name if obj.variant_of else None
+
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -47,7 +61,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ItemSerializer(serializers.ModelSerializer):
-    article = ArticleSerializer(read_only=True)
+    article = ItemArticleSerializer(read_only=True)
 
     class Meta:
         model = Item
