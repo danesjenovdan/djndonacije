@@ -44,44 +44,36 @@ def client_token(user=None):
         'customer_id': customer_id
     })
 
-def create_subscription(nonce, user, costum_price=None):
+def create_subscription(nonce, costum_price=None):
     data = {
         'payment_method_nonce': nonce,
         'plan_id': 'djnd',
     }
 
     if costum_price:
-        data.update({'price': costum_price})
+        print(costum_price)
+        data.update({'price': '%.2f' % (costum_price),})
 
-    result = gateway.subscription.create(data)
+    print(data)
+    return gateway.subscription.create(data)
 
-    if result:
-        if not result.subscription:
-            return result
-        user.subscription_id = result.subscription.id
-        user.save()
-    return result
-
-def update_subscription(user, costum_price=None):
-    subscription = gateway.subscription.find(user.subscription_id)
-    old_plan_id = subscription.plan_id
+def update_subscription(donation, costum_price=None):
+    subscription = gateway.subscription.find(donation.subscription_id)
     print(subscription)
 
     data = {
         #"payment_method_nonce": nonce,
         "plan_id": 'djnd',
         "price": '%.2f' % (costum_price),
-        "options": {"prorate_charges": True}
     }
 
-    result = gateway.subscription.update(user.subscription_id, data)
+    result = gateway.subscription.update(donation.subscription_id, data)
     print(vars(result))
     if result:
         if not result.subscription:
             return result
-        user.subscription_id = result.subscription.id
-        user.is_active_guy = True
-        user.save()
+        donation.subscription_id = result.subscription.id
+        donation.save()
 
     return result
 
@@ -99,7 +91,13 @@ def pay_bt_3d(nonce, amount, taxExempt=False):
     result = gateway.transaction.sale({
         'amount': '%.2f' % (amount),
         'payment_method_nonce': nonce,
-        'tax_exempt': taxExempt
+        'tax_exempt': taxExempt,
+        'options': {
+            'submit_for_settlement': True,
+            'three_d_secure': {
+                'required': True
+            },
+        }
     })
     print(result)
     return result
