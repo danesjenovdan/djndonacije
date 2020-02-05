@@ -47,7 +47,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ItemSerializer(serializers.ModelSerializer):
-    article = ArticleSerializer(read_only=True)
+    article = VariantArticleSerializer(read_only=True)
 
     class Meta:
         model = Item
