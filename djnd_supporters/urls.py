@@ -13,6 +13,7 @@ urlpatterns = [
     path('segments/my/', api.UserSegments.as_view()),
     path('segments/<segment>/contact/', api.ManageSegments.as_view()),
     path('donate/', api.Donate.as_view()),
+    path('donate-upn/', api.DonateUPN.as_view()),
     path('monthly-donation/', api.RecurringDonate.as_view()),
     path('donations-stats/', api.DonationsStats.as_view()),
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from djnd_supporters.models import Gift, Donation
+from djnd_supporters.models import Gift, Donation, Subscriber
 
 class DonationAdmin(admin.ModelAdmin):
     readonly_fields = ('address',)
@@ -20,3 +20,4 @@ class DonationAdmin(admin.ModelAdmin):
 
 admin.site.register(Donation, DonationAdmin)
 admin.site.register(Gift)
+admin.site.register(Subscriber)

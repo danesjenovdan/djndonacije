@@ -68,6 +68,8 @@ class Donation(Timestamped):
     )
     nonce = models.TextField(null=True, blank=True)
     amount = models.DecimalField(default=0.0, decimal_places=1, max_digits=20)
+    is_paid = models.BooleanField(default=True)
+    payment_type = models.CharField(default='BT', max_length=10)
     # is_assigned is helper atrribut using for group donations.
     is_assigned = models.BooleanField(default=True)
 

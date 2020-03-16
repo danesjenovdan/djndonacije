@@ -1,10 +1,14 @@
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 from rest_framework import status, views, permissions, mixins, viewsets
 from rest_framework.response import Response
 
 from djnd_supporters import models, mautic_api, authentication, serializers
 from djndonacije import payment
+from shop.qrcode import generate_upn_qr
+
+from decimal import Decimal
 
 import slack
 
@@ -143,6 +147,44 @@ class UserSegments(views.APIView):
             return Response({'msg': response}, status=response_status)
 
 
+class DonateUPN(views.APIView):
+    def post(self, request):
+        data = request.data
+        nonce = data.get('nonce', None)
+        amount = data.get('amount', None)
+
+        subscriber = get_object_or_404(models.Subscriber, nonce=nonce)
+
+        donation = models.Donation(
+            amount=amount,
+            nonce=nonce,
+            subscriber=subscriber,
+            payment_type='UPN',
+            is_paid=False
+        )
+        donation.save()
+
+        refrence = 'SI00 ' + str(donation.id).zfill(10)
+
+        qr_svg = generate_upn_qr(
+            subscriber.name,
+            '',
+            '',
+            Decimal(amount),
+            refrence,
+            'Donacija DJND'
+        )
+
+        return Response({
+            'qr_code': qr_svg,
+            'reference': refrence,
+            'iban': settings.IBAN,
+            'to_name': settings.TO_NAME.strip(),
+            'to_address1': settings.TO_ADDRESS1.strip(),
+            'to_address2': settings.TO_ADDRESS2.strip()
+        })
+
+
 class Donate(views.APIView):
     """
     GET get client token
@@ -181,14 +223,21 @@ class Donate(views.APIView):
 
             result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
             if result.is_success:
-                # create donation without subscriber
+                # create donation with subscriber
                 subscriber = models.Subscriber.objects.get(nonce=nonce)
-                donation = models.RecurringDonation(
-                    amount=amount,
-                    nonce=nonce,
-                    subscriber = subscriber,
-                    subscription_id=result.subscription.id
-                )
+
+                # if dnation already created in UPN tab
+                ex_donation = models.Donation.objects.filter(nonce=nonce)
+                if ex_donation:
+                    donation = ex_donation[0]
+                    donation.payment_type = 'BT'
+                    donation.is_paid = True
+                else:
+                    donation = models.Donation(
+                        amount=amount,
+                        nonce=nonce,
+                        subscriber = subscriber,
+                    )
                 donation.save()
 
                 return Response({
@@ -361,237 +410,6 @@ class RecurringDonate(views.APIView):
 
     def update(self, request):
         return Response({})
-
-
-class GiftDonate(views.APIView):
-    """
-    GET get client token
-
-    POST json data:
-     - nonce
-     - amount
-    """
-    authentication_classes = [authentication.SubscriberAuthentication]
-    def get(self, request):
-        return Response({'token' :payment.client_token()})
-
-    '''
-        CHANGE REQUEST
-        same as Donate post
-    '''
-
-    def post(self, request):
-        data = request.data
-        nonce = data.get('nonce', None)
-        gifts_amounts = data.get('gifts_amounts', [])
-        email = data.get('email', None)
-        amount = data.get('amount', None)
-        name = data.get('name', '')
-        add_to_mailing = data.get('mailing', False)
-        address = data.get('address', '')
-
-        # if nonce not present deny
-        if not nonce:
-            return Response({'msg': 'Missing nonce.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # if email not present, try to pay
-        if not email:
-            # if no amount deny
-            if not amount:
-                return Response({'msg': 'Missing amount.'}, status=status.HTTP_400_BAD_REQUEST)
-            # if no gifts_amounts deny
-            if not gifts_amounts:
-                return Response({'msg': 'Missing gifts_amounts.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
-            new_subscribers = []
-            if result.is_success:
-                # create donation and image object without subscriber
-                new_gift = models.Gift(amount=amount, nonce=nonce)
-                new_gift.save()
-                for gift_amount in gifts_amounts:
-                    new_subscriber = models.Subscriber.objects.create()
-                    new_subscriber.save()
-                    donation = models.Donation(
-                        amount=gift_amount,
-                        subscriber=new_subscriber,
-                        is_assigned=False
-                    )
-                    donation.save()
-                    image = models.Image(donation=donation)
-                    image.save()
-                    new_gift.gifts.add(donation)
-                    new_subscribers.append({
-                        'subscriber_token': new_subscriber.token,
-                        'amount': gift_amount
-                    })
-
-                return Response({
-                    'msg': 'Thanks <3',
-                    'nonce': nonce,
-                    'gifts': new_subscribers
-                })
-            else:
-                return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
-
-        # email and nonce are both present
-        response, response_status = mautic_api.getContactByEmail(email)
-        if response_status == 200:
-            contacts = response['contacts']
-        else:
-            # something went wrong with mautic, return
-            return Response({'msg': response}, status=response_status)
-        print(contacts)
-        mautic_id = None
-        if contacts:
-            # subscriber exists on mautic
-            mautic_id = list(contacts.keys())[0]
-            subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
-            subscriber.name = name
-            subscriber.address = address
-            subscriber.save()
-        else:
-            # subscriber does not exist on mautic
-            subscriber = models.Subscriber.objects.create(name=name, address=address)
-            subscriber.save()
-            response, response_status = subscriber.save_to_mautic(email, send_email=False)
-            if response_status != 200:
-                # something went wrong with saving to mautic, abort
-                return Response({'msg': response}, status=response_status)
-            mautic_id = subscriber.mautic_id
-
-        # add to mailing if they agreed
-        if add_to_mailing:
-            segment_id = settings.SEGMENTS.get('donations', None)
-            response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
-
-        # finally connect gift to person
-        gift = models.Gift.objects.get(nonce=nonce)
-        gift.subscriber = subscriber
-        gift.save()
-        if gift.amount < 11:
-            response, response_status = mautic_api.sendEmail(
-                settings.MAIL_TEMPLATES['GIFT_WITHOUT_GIFT'],
-                mautic_id,
-                {}
-            )
-        else:
-            response, response_status = mautic_api.sendEmail(
-                settings.MAIL_TEMPLATES['GIFT_WITH_GIFT'],
-                mautic_id,
-                {}
-            )
-
-        try:
-            msg = ( name if name else 'Dinozaver' ) + ' nam je podarila donacijo v višini: ' + str(gift.amount)
-            sc.api_call(
-                "chat.postMessage",
-                json={
-                    'channel': "#danesjenovdan_si",
-                    'text': msg
-                }
-            )
-        except:
-            pass
-
-        return Response({
-            'msg': 'Thanks <3',
-            'owner_token': subscriber.token
-        })
-
-
-class AssignGift(views.APIView):
-    def get(self, request, token):
-        subscriber = models.Subscriber.objects.get(token=token)
-        unassigned_donations = models. Donation.objects.filter(
-            gifts__subscriber=subscriber,
-            is_assigned=False
-        )
-        return Response({
-            'gifts': [{
-                'gift_token': gift.subscriber.token,
-                'amount': gift.amount
-            }for gift in unassigned_donations]
-        })
-
-    def post(self, request):
-        data = request.data
-        owner_token = data.get('owner_token', None)
-
-        gift_email = data.get('gift_email', None)
-        subscriber_token = data.get('subscriber_token')
-        name = data.get('name', None)
-        message = data.get('message', None)
-
-        subscriber = models.Subscriber.objects.get(token=owner_token)
-
-        new_subscriber = models.Subscriber.objects.get(token=subscriber_token)
-        donation = models.Donation.objects.filter(subscriber=new_subscriber)
-        if donation:
-            donation = donation[0]
-            if donation.is_assigned:
-                return Response({
-                    'msg': 'donation is already assigned',
-                    },
-                    status=status.HTTP_409_CONFLICT
-                )
-            mautic_id = None
-            response, response_status = mautic_api.getContactByEmail(gift_email)
-            if response_status == 200:
-                contacts = response['contacts']
-            else:
-                return Response({'msg': response}, status=response_status)
-            if contacts:
-                mautic_id = list(contacts.keys())[0]
-            else:
-                print('dodaj novga')
-                new_subscriber.name = name
-                new_subscriber.save()
-                response, response_status = new_subscriber.save_to_mautic(gift_email, send_email=False)
-
-                if response_status != 200:
-                    return Response({'msg': response}, status=response_status)
-
-                mautic_id = new_subscriber.mautic_id
-
-            print(mautic_id)
-            message = message.replace('\n', '<br>')
-            if name:
-                message = name + '!<br><br>' + message
-            message = message + '<br>' + subscriber.name + '<br><br>Danes je nov dar! <3'
-            response, response_status = mautic_api.sendEmail(
-                settings.MAIL_TEMPLATES['CUSTOM_GIFT'],
-                mautic_id,
-                {
-                    'tokens': {
-                        'message': message,
-                        'sender_name': subscriber.name,
-                        'upload_image': donation.image.get_upload_url()
-                    }
-                }
-            )
-            if response_status == 200:
-                donation.is_assigned = True
-                donation.save()
-            else:
-                return Response({'msg': 'cannot send message, please try again'}, status=status.HTTP_409_CONFLICT)
-
-            if subscriber.gifts.last().gifts.filter(is_assigned=False).count() == 0:
-                response, response_status = mautic_api.sendEmail(
-                    settings.MAIL_TEMPLATES['GIFT_SENT'],
-                    subscriber.mautic_id,
-                    {}
-                )
-                pass
-
-            return Response({
-                'msg': 'Gift was sent',
-            })
-        return Response({
-                'msg': 'donation was not found',
-            },
-            status=status.HTTP_409_CONFLICT
-        )
 
 
 class DonationsStats(views.APIView):
