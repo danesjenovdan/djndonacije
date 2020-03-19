@@ -99,7 +99,11 @@ def pay_bt_3d(nonce, amount, taxExempt=False):
     result = gateway.transaction.sale({
         'amount': '%.2f' % (amount),
         'payment_method_nonce': nonce,
-        'tax_exempt': taxExempt
+        'tax_exempt': taxExempt,
+        'options': {
+            'submit_for_settlement': True,
+        }
+
     })
     print(result)
     return result
