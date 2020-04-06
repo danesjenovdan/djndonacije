@@ -20,4 +20,5 @@ urlpatterns = [
 
     path('users/', api.UsersImport.as_view()),
 
+    path('send-agrument-mail/', viewsAgrumentMailApiView.as_view()),
 ]

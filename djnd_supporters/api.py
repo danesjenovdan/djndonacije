@@ -516,3 +516,44 @@ class ImageViewSet(mixins.RetrieveModelMixin,
     lookup_field = 'token'
     queryset = models.Image.objects.all()
     serializer_class = serializers.ImageSerializer
+
+
+class AgrumentMailApiView(views.APIView):
+    def post(self, request):
+        data = request.data
+        if settings.AGRUM_TOKEN != request.META.get('HTTP_AUTHORIZATION', None):
+            return Response({
+                    'msg': 'You have no permissions for do that.'
+                }, status=403)
+        short_url_response = requests.get('https://djnd.si/yomamasofat/?fatmama=%s' % data['url'])
+        if short_url_response:
+
+            response, response_status = mautic_api.editEmailSubject(42, data['title'])
+
+            if response_status == 200:
+                print(mautic_api.sendEmail(42, 315, {
+                    'tokens': {
+                        "content": data['content_html'],
+                        "image": data['image_url'],
+                        "short_url": short_url_response.text
+                    }
+                }))
+                print(
+                    mautic_api.sendEmailToSegment(
+                        42,
+                        {
+                            'tokens': {
+                                "content": data['content_html'],
+                                "image": data['image_url'],
+                                "short_url": short_url_response.text
+                            }
+                        }
+                    )
+                )
+            else:
+                return Response({
+                    'msg': 'cannot edit title'
+                }, status=409)
+        return Response({
+            'msg': 'sent'
+        })

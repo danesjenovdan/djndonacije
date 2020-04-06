@@ -82,10 +82,26 @@ def createEmail(name, title, subject, customHtml, description, assetAttachments=
         }
     )
 
+def editEmailSubject(email_id, subject):
+    return mauticRequest(
+        'emails/%s/edit' % (email_id),
+        data={
+            'subject': subject
+        },
+        method='patch'
+    )
+
 def sendEmail(email_id, contact_id, data):
     print(email_id, contact_id, data)
     return mauticRequest(
         'emails/%s/contact/%s/send' % (email_id, contact_id),
+        data=data
+    )
+
+def sendEmailToSegment(email_id, data):
+    print(email_id, data)
+    return mauticRequest(
+        'emails/%s/send' % (email_id),
         data=data
     )
 
