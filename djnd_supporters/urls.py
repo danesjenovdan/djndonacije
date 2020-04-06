@@ -17,8 +17,9 @@ urlpatterns = [
     path('assign-gift/', api.AssignGift.as_view()),
     path('assign-gift/<token>/', api.AssignGift.as_view()),
     path('donations-stats/', api.DonationsStats.as_view()),
+    path('send-agrument-mail/', api.AgrumentMailApiView.as_view()),
 
     path('users/', api.UsersImport.as_view()),
 
-    path('send-agrument-mail/', viewsAgrumentMailApiView.as_view()),
+    path('test/', views.TestPaymentView.as_view()),
 ]

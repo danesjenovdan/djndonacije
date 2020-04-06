@@ -7,6 +7,7 @@ from djnd_supporters import models, mautic_api, authentication, serializers
 from djndonacije import payment
 
 import slack
+import requests
 
 sc = slack.WebClient(settings.SLACK_KEY, timeout=30)
 
@@ -528,32 +529,57 @@ class AgrumentMailApiView(views.APIView):
         short_url_response = requests.get('https://djnd.si/yomamasofat/?fatmama=%s' % data['url'])
         if short_url_response:
 
-            response, response_status = mautic_api.editEmailSubject(42, data['title'])
+            # get tempalte of email
+            response, response_status = getEmail(42)
 
+            # make changes in email
+            content = response["email"]["customHtml"]
+            content = content.replace('{content}', data['content_html'])
+            content = content.replace('{image}', data['image_url'])
+            content = content.replace('{short_url}', short_url_response.text)
+
+            # create new email
+            response, response_status = createEmail(
+                "Agrument: " + data['title'],
+                data['title'],
+                data['title'],
+                customHtml=content,
+                emailType='list',
+                description="Agrument",
+                assetAttachments=None,
+                template='cards',
+                lists=[10],
+                fromAddress='agrument@agrument.danesjenovdan.si',
+                fromName='Agrument'
+            )
             if response_status == 200:
-                print(mautic_api.sendEmail(42, 315, {
-                    'tokens': {
-                        "content": data['content_html'],
-                        "image": data['image_url'],
-                        "short_url": short_url_response.text
-                    }
-                }))
-                print(
-                    mautic_api.sendEmailToSegment(
-                        42,
-                        {
-                            'tokens': {
-                                "content": data['content_html'],
-                                "image": data['image_url'],
-                                "short_url": short_url_response.text
-                            }
+                new_email_id = response['email']['id']
+
+                if response_status == 200:
+                    print(mautic_api.sendEmail(42, 315, {
+                        'tokens': {
+                            "content": data['content_html'],
+                            "image": data['image_url'],
+                            "short_url": short_url_response.text
                         }
+                    }))
+                    print(
+                        mautic_api.sendEmailToSegment(
+                            new_email_id, {}
+                        )
                     )
-                )
+                else:
+                    return Response({
+                        'msg': 'cannot send email'
+                        },
+                        status=409
+                    )
             else:
                 return Response({
-                    'msg': 'cannot edit title'
-                }, status=409)
+                    'msg': 'cannot send email'
+                    },
+                    status=409
+                )
         return Response({
             'msg': 'sent'
         })

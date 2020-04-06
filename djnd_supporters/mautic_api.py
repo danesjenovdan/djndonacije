@@ -68,7 +68,7 @@ def getCampaingOfMember(contact_id):
         method='get'
     )
 
-def createEmail(name, title, subject, customHtml, description, assetAttachments=None):
+def createEmail(name, title, subject, customHtml, description, emailType='template', template='cards', assetAttachments=None, lists=None, fromAddress=None, fromName=None):
     return mauticRequest(
         'emails/new',
         data={
@@ -79,7 +79,18 @@ def createEmail(name, title, subject, customHtml, description, assetAttachments=
             'description': description,
             'isPublished': 1,
             'assetAttachments': assetAttachments,
+            'emailType': emailType,
+            'lists': lists,
+            'template': template,
+            'fromAddress': fromAddress,
+            'fromName': fromName
         }
+    )
+
+def getEmail(email_id):
+    return mauticRequest(
+        'emails/%s' % (email_id),
+        method='get'
     )
 
 def editEmailSubject(email_id, subject):
@@ -92,7 +103,6 @@ def editEmailSubject(email_id, subject):
     )
 
 def sendEmail(email_id, contact_id, data):
-    print(email_id, contact_id, data)
     return mauticRequest(
         'emails/%s/contact/%s/send' % (email_id, contact_id),
         data=data
