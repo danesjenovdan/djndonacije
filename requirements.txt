@@ -1,4 +1,4 @@
-Django==2.2.3
+Django==2.2.10
 django-admin-sortable2==0.7.1
 djangorestframework==3.9.4
 django-filter==2.1.0
@@ -8,7 +8,7 @@ django-cors-headers==3.0.1
 django-tinymce==2.8.0
 django-wkhtmltopdf==3.2.0
 qrcodegen==1.4.0
-Pillow==6.0.0
+Pillow==6.2.0
 slackclient==2.0.1
 braintree==3.54.0
 requests==2.22.0
