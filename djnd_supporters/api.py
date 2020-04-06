@@ -530,7 +530,7 @@ class AgrumentMailApiView(views.APIView):
         if short_url_response:
 
             # get tempalte of email
-            response, response_status = getEmail(42)
+            response, response_status = mautic_api.getEmail(42)
 
             # make changes in email
             content = response["email"]["customHtml"]
@@ -539,7 +539,7 @@ class AgrumentMailApiView(views.APIView):
             content = content.replace('{short_url}', short_url_response.text)
 
             # create new email
-            response, response_status = createEmail(
+            response, response_status = mautic_api.createEmail(
                 "Agrument: " + data['title'],
                 data['title'],
                 data['title'],
