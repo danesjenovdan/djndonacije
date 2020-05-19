@@ -541,8 +541,8 @@ class AgrumentMailApiView(views.APIView):
             # create new email
             response, response_status = mautic_api.createEmail(
                 "Agrument: " + data['title'],
-                "Agrument: " + data['title'],
-                "Agrument: " + data['title'],
+                data['title'],
+                data['title'],
                 customHtml=content,
                 emailType='list',
                 description="Agrument",
