@@ -541,8 +541,8 @@ class AgrumentMailApiView(views.APIView):
             # create new email
             response, response_status = mautic_api.createEmail(
                 "Agrument: " + data['title'],
-                data['title'],
-                data['title'],
+                "Agrument: " + data['title'],
+                "Agrument: " + data['title'],
                 customHtml=content,
                 emailType='list',
                 description="Agrument",
@@ -556,13 +556,13 @@ class AgrumentMailApiView(views.APIView):
                 new_email_id = response['email']['id']
 
                 if response_status == 200:
-                    print(mautic_api.sendEmail(42, 315, {
-                        'tokens': {
-                            "content": data['content_html'],
-                            "image": data['image_url'],
-                            "short_url": short_url_response.text
-                        }
-                    }))
+                    #print(mautic_api.sendEmail(42, 315, {
+                    #    'tokens': {
+                    #        "content": data['content_html'],
+                    #        "image": data['image_url'],
+                    #        "short_url": short_url_response.text
+                    #    }
+                    #}))
                     print(
                         mautic_api.sendEmailToSegment(
                             new_email_id, {}
