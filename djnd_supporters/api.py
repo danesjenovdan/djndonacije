@@ -538,6 +538,9 @@ class AgrumentMailApiView(views.APIView):
             content = content.replace('{image}', data['image_url'])
             content = content.replace('{short_url}', short_url_response.text)
 
+            content = content.replace('{source_name}', data.get('image_source', ''))
+            content = content.replace('{source_url}', data.get('image_source_url', ''))
+
             # create new email
             response, response_status = mautic_api.createEmail(
                 "Agrument: " + data['title'],
