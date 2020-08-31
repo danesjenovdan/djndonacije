@@ -174,7 +174,7 @@ class Pay(APIView):
         payment_type = data.get('payment_type')
         order.payment_method=payment_type
         order.save()
-        url = "https://shop.djnd.si/admin/shop/order/" + str(order.id) + "/change/"
+        url = "https://podpri.djnd.si/admin/shop/order/" + str(order.id) + "/change/"
         if payment_type == 'braintree':
             nonce = data.get('nonce', None)
             pay_response = payment.pay_bt_3d(nonce, order.basket.total)
@@ -308,7 +308,7 @@ def checkout(request):
             if is_ok:
                 order.is_payed=True
                 order.save()
-                url = "https://shop.djnd.si/admin/shop/order/" + str(order.id) + "/change/"
+                url = "https://podpri.djnd.si/admin/shop/order/" + str(order.id) + "/change/"
                 msg = order.name + " je nekaj naročil/-a in plačal/-a je s paypalom: \n"
                 for item in order.basket.items.all():
                     msg += " * " + str(item.quantity) + "X " + item.article.name + "\n"
@@ -335,7 +335,7 @@ def checkout(request):
 
         elif payment_type == 'upn':
             reference = upn(order)
-            url = "https://shop.djnd.si/admin/shop/order/" + str(order.id) + "/change/"
+            url = "https://podpri.djnd.si/admin/shop/order/" + str(order.id) + "/change/"
             msg = order.name + " je nekaj naročil/-a in plačal/-a bo s položnico: \n"
             for item in basket.items.all():
                 msg += " * " + str(item.quantity) + "X " + item.article.name + "\n"
