@@ -551,7 +551,7 @@ class AgrumentMailApiView(views.APIView):
                 description="Agrument",
                 assetAttachments=None,
                 template='cards',
-                lists=[10],
+                lists=[1],
                 fromAddress='agrument@agrument.danesjenovdan.si',
                 fromName='Agrument'
             )
