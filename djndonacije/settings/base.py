@@ -118,7 +118,7 @@ REST_FRAMEWORK = {
 
 THUMB_SIZE = (50, 50)
 
-UPLOAD_IMAGE_URL = 'https://nov.djnd.si/'
+UPLOAD_IMAGE_URL = 'https://danesjenovdan.si/doniraj/hvala?token='
 
 MAIL_TEMPLATES = {
     'EDIT_SUBSCRIPTIPNS': 1,
