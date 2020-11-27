@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from djnd_supporters import models, mautic_api, authentication, serializers
 from djndonacije import payment
 
+from datetime import datetime
+
 import slack
 import requests
 
@@ -515,7 +517,7 @@ class ImageViewSet(mixins.RetrieveModelMixin,
                    mixins.UpdateModelMixin,
                    viewsets.GenericViewSet):
     lookup_field = 'token'
-    queryset = models.Image.objects.all()
+    queryset = models.Image.objects.filter(created__gte=datetime(day=1, month=11, year=2020))
     serializer_class = serializers.ImageSerializer
 
 
@@ -586,3 +588,124 @@ class AgrumentMailApiView(views.APIView):
         return Response({
             'msg': 'sent'
         })
+
+
+class RecurringDonate(views.APIView):
+    authentication_classes = [authentication.SubscriberAuthentication]
+    def get(self, request):
+        return Response({})
+
+    def post(self, request):
+        data = request.data
+        nonce = data.get('nonce', None)
+        amount = data.get('amount', None)
+        email = data.get('email', None)
+        name = data.get('name', '')
+        add_to_mailing = data.get('mailing', False)
+        address = data.get('address', '')
+
+        # if nonce not present deny
+        if not nonce:
+            return Response({'msg': 'Missing nonce.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # if email not present, try to pay
+        if not email:
+            # if no amount deny
+            if not amount:
+                return Response({'msg': 'Missing amount.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            result = payment.create_subscription(nonce, float(amount))
+            if result.is_success:
+                # create donation without subscriber
+                subscriber = models.Subscriber.objects.get(nonce=nonce)
+                donation = models.RecurringDonation(
+                    amount=amount,
+                    subscriber=subscriber,
+                    subscription_id=result.subscription.id
+                )
+                donation.save()
+
+                return Response({
+                    'msg': 'Thanks <3',
+                    'nonce': nonce,
+                })
+            else:
+                return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
+
+        # email and nonce are both present
+        response, response_status = mautic_api.getContactByEmail(email)
+        if response_status == 200:
+            contacts = response['contacts']
+        else:
+            # something went wrong with mautic, return
+            return Response({'msg': response}, status=response_status)
+        mautic_id = None
+        subscriber = None
+        if contacts:
+            # subscriber exists on mautic
+            mautic_id = list(contacts.keys())[0]
+            try:
+                subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
+            except:
+                subscriber = models.Subscriber.objects.create(
+                    mautic_id=mautic_id
+                )
+                subscriber.save()
+            subscriber.name = name
+            subscriber.address = address
+            subscriber.save()
+        else:
+            # subscriber does not exist on mautic
+            subscriber = models.Subscriber.objects.create(
+                name=name,
+                address=address,
+            )
+            subscriber.save()
+            response, response_status = subscriber.save_to_mautic(email, send_email=False)
+            if response_status != 200:
+                # something went wrong with saving to mautic, abort
+                return Response({'msg': response}, status=response_status)
+            mautic_id = subscriber.mautic_id
+
+        # add to mailing if they agreed
+        if add_to_mailing:
+            segment_id = settings.SEGMENTS.get('donations', None)
+            response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
+
+        result = payment.create_subscription(nonce, float(amount))
+        if result.is_success:
+            # create donation without subscriber
+            donation = models.RecurringDonation(
+                amount=amount,
+                subscriber=subscriber,
+                subscription_id=result.subscription.id
+            )
+            donation.save()
+        else:
+            return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Send email thanks for donation
+        response, response_status = mautic_api.sendEmail(
+            settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT'],
+            subscriber.mautic_id,
+            {}
+        )
+
+        try:
+            msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila mesečno donacijo v višini: ' + str(donation.amount)
+            sc.api_call(
+                "chat.postMessage",
+                json={
+                    'channel': "#danesjenovdan_si",
+                    'text': msg
+                }
+            )
+        except:
+            pass
+
+        return Response({
+            'msg': 'saved'
+        })
+
+    def update(self, request):
+        return Response({})

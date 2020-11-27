@@ -143,3 +143,10 @@ class Gift(Timestamped):
 
     def __str__(self):
         return (self.subscriber.name if self.subscriber else '?') + ' -> ' + str(self.amount)
+
+
+class RecurringDonation(Donation):
+    subscription_id = models.CharField(max_length=128, null=True, blank=True)
+
+    def __str__(self):
+        return (self.subscriber.name if self.subscriber else '?') + ' -> ' + str(self.amount)
