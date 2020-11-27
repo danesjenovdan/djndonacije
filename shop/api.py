@@ -139,8 +139,42 @@ class Checkout(APIView):
         basket.is_open = False
         basket.save()
         data = json.loads(request.body.decode('utf-8'))
-        delivery_method = data['delivery_method']
 
+        email = data.get('email')
+        address=data.get('address', '')
+        name=data.get('name')
+        add_to_mailing = data.get('mailing', False)
+
+        response, response_status = mautic_api.getContactByEmail(email)
+        if response_status == 200:
+            contacts = response['contacts']
+        else:
+            # something went wrong with mautic, return
+            return Response({'msg': response}, status=response_status)
+        mautic_id = None
+        if contacts:
+            # subscriber exists on mautic
+            mautic_id = list(contacts.keys())[0]
+            subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
+            subscriber.name = name
+            subscriber.address = address
+            subscriber.save()
+        else:
+            # subscriber does not exist on mautic
+            subscriber = models.Subscriber.objects.create(name=name, address=address)
+            subscriber.save()
+            response, response_status = subscriber.save_to_mautic(email, send_email=False)
+            if response_status != 200:
+                # something went wrong with saving to mautic, abort
+                return Response({'msg': response}, status=response_status)
+            mautic_id = subscriber.mautic_id
+
+        if add_to_mailing:
+            segment_id = settings.SEGMENTS.get('donations', None)
+            response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
+
+
+        delivery_method = data['delivery_method']
         order = Order.objects.filter(basket=basket)
         if order:
             order.update(
@@ -235,7 +269,11 @@ class Pay(APIView):
             print(response)
             asset_id = response['asset']['id']
 
-            response_contact, response_status = mautic_api.createContact(order.email, order.name, '')
+            #response_contact, response_status = mautic_api.createContact(order.email, order.name, '')
+            response_contact, response_status = mautic_api.getContactByEmail(order.email)
+            contacts = response_contact['contacts']
+            mautic_id = list(contacts.keys())[0]
+
             response_mail, response_status = mautic_api.createEmail(
                 'upn-' + order.email,
                 '',
@@ -246,7 +284,7 @@ class Pay(APIView):
             )
             mautic_api.sendEmail(
                 response_mail['email']['id'],
-                response_contact['contact']['id'],
+                mautic_id,
                 {}
             )
 
