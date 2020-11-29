@@ -229,7 +229,10 @@ class Donate(views.APIView):
             response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
 
         # finally connect donation to person
-        donation = models.Donation.objects.get(nonce=nonce)
+        donation = models.Donation(amount=amount, nonce=nonce)
+        donation.save()
+        image = models.Image(donation=donation)
+        image.save()
         donation.subscriber = subscriber
         donation.save()
 
