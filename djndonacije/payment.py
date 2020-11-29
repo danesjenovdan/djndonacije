@@ -15,7 +15,10 @@ def client_token(user=None):
     if not user:
         result = gateway.customer.create({})
         return {
-            'token': gateway.client_token.generate(customer_id=result.customer.id),
+            'token': gateway.client_token.generate(
+                {
+                    'customer_id': result.customer.id
+                }),
             'customer_id': result.customer.id
         }
     if user.braintree_id:
