@@ -156,7 +156,7 @@ class Donate(views.APIView):
     """
     authentication_classes = [authentication.SubscriberAuthentication]
     def get(self, request):
-        return Response({'token': payment.client_token()})
+        return Response(payment.client_token())
 
     '''
         CHANGE REQUEST
@@ -603,6 +603,7 @@ class RecurringDonate(views.APIView):
         name = data.get('name', '')
         add_to_mailing = data.get('mailing', False)
         address = data.get('address', '')
+        customer_id = data.get('customer_id', '')
 
         # if nonce not present deny
         if not nonce:
@@ -614,7 +615,7 @@ class RecurringDonate(views.APIView):
             if not amount:
                 return Response({'msg': 'Missing amount.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            result = payment.create_subscription(nonce, float(amount))
+            result = payment.create_subscription(nonce, customer_id, float(amount))
             if result.is_success:
                 # create donation without subscriber
                 subscriber = models.Subscriber.objects.get(nonce=nonce)
@@ -672,7 +673,7 @@ class RecurringDonate(views.APIView):
             segment_id = settings.SEGMENTS.get('donations', None)
             response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
 
-        result = payment.create_subscription(nonce, float(amount))
+        result = payment.create_subscription(nonce, customer_id, float(amount))
         if result.is_success:
             # create donation without subscriber
             donation = models.RecurringDonation(

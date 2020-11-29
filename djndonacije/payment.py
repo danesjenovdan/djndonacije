@@ -4,7 +4,7 @@ from datetime import date, timedelta
 
 gateway = braintree.BraintreeGateway(
     braintree.Configuration(
-        braintree.Environment.Sandbox,
+        braintree.Environment.Production,
         merchant_id=settings.MERCHANT_ID,
         public_key=settings.PUBLIC_KEY,
         private_key=settings.PRIVATE_KEY
@@ -13,7 +13,11 @@ gateway = braintree.BraintreeGateway(
 
 def client_token(user=None):
     if not user:
-        return gateway.client_token.generate()
+        result = gateway.customer.create({})
+        return {
+            'token': gateway.client_token.generate(customer_id=result.customer.id),
+            'customer_id': result.customer.id
+        }
     if user.braintree_id:
         customer_id = user.braintree_id
     else:
@@ -85,7 +89,14 @@ def client_token(user=None):
 
 #     return result
 
-def create_subscription(nonce, costum_price=None):
+def create_subscription(nonce, customer_id, costum_price=None):
+    result = gateway.payment_method.create({
+        "customer_id": customer_id,
+        "payment_method_nonce": nonce
+    })
+
+    print(vars(result))
+
     data = {
         'payment_method_nonce': nonce,
         'plan_id': 'djnd',
