@@ -628,10 +628,13 @@ class RecurringDonate(views.APIView):
                     subscription_id=result.subscription.id
                 )
                 donation.save()
+                image = models.Image(donation=donation)
+                image.save()
 
                 return Response({
                     'msg': 'Thanks <3',
                     'nonce': nonce,
+                    'upload_token': image.token
                 })
             else:
                 return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
@@ -685,6 +688,8 @@ class RecurringDonate(views.APIView):
                 subscription_id=result.subscription.id
             )
             donation.save()
+            image = models.Image(donation=donation)
+            image.save()
         else:
             return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -708,7 +713,8 @@ class RecurringDonate(views.APIView):
             pass
 
         return Response({
-            'msg': 'saved'
+            'msg': 'Thanks <3',
+            'upload_token': image.token
         })
 
     def update(self, request):
