@@ -198,7 +198,7 @@ class Checkout(APIView):
                 info=data.get('info', ''))
             order.save()
 
-        return Response({'token': payment.client_token()})
+        return Response(payment.client_token())
 
 
 class Pay(APIView):
