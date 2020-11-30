@@ -7,5 +7,43 @@ class TestPaymentView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(TestPaymentView, self).get_context_data(*args, **kwargs)
-        context['token'] = payment.client_token()
+        context['token'] = payment.client_token()['token']
         return context
+
+
+def getPDForDonation(request, pk):
+    try:
+        donation = get_object_or_404(models.Donation, pk=signing.loads(pk))
+    except:
+        order = models.Order.objects.first()
+
+    bill = {}
+    bill['id'] = donation.id
+    bill['date'] = datetime.now().strftime('%d.%m.%Y')
+    bill['price'] = donation.amount
+    bill['referencemath'] = donation.reference
+
+    bill['code'] = "ADCS"
+    bill['purpose'] = "Donacija"
+
+    address = donation.subscriber.address.split(',')
+
+    victim = {}
+    victim['name'] = donation.subscriber.name
+    victim['address1'] = address[0]
+    victim['address2'] = address[1] if len(address) > 1 else ''
+
+    qr_code = qrcode.generate_upn_qr(victim['name'],
+                                     victim['address1'],
+                                     victim['address2'],
+                                     bill['price'],
+                                     bill['referencemath'],
+                                     bill['purpose'])
+    qr_code = "\n".join(qr_code.split("\n")[2:])
+
+    return PDFTemplateResponse(request=request,
+                               template='poloznica.html',
+                               filename='upn_djnd.pdf',
+                               context={'victim': victim, 'bill': bill, 'pdf': True, 'qr_code': qr_code},
+                               show_content_in_browser=True,
+                               )

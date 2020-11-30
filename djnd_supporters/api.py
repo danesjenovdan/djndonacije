@@ -11,7 +11,7 @@ from datetime import datetime
 import slack
 import requests
 
-from shop.views import getPDFodOrder
+from djnd_supporters.views import getPDForDonation
 from django.template.loader import get_template
 from django.core import signing
 
@@ -262,7 +262,7 @@ class Donate(views.APIView):
                         'bic': 'HDELSI22'}
             html_content = html.render(context)
 
-            pdf = getPDFodOrder(None, signing.dumps(reference)).render().content
+            pdf = getPDForDonation(None, signing.dumps(reference)).render().content
 
             response, response_status = mautic_api.saveFile('upn.pdf', pdf)
             print(response)
