@@ -534,8 +534,10 @@ class AgrumentMailApiView(views.APIView):
         short_url_response = requests.get('https://djnd.si/yomamasofat/?fatmama=%s' % data['url'])
         if short_url_response:
 
+            email_id = int(data.get('template_id', 42))
+
             # get tempalte of email
-            response, response_status = mautic_api.getEmail(42)
+            response, response_status = mautic_api.getEmail(email_id)
 
             # make changes in email
             content = response["email"]["customHtml"]

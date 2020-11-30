@@ -140,6 +140,7 @@ MAIL_TEMPLATES = {
 
 SEGMENTS = {
     'agrument': 1,
+    'monthly': 12,
     'general': 2,
     'parlameter': 3,
     'donations': 4
