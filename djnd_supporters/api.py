@@ -237,7 +237,7 @@ class Donate(views.APIView):
         donation.save()
 
         # Send email thanks for donation
-        if donation.amount < 11:
+        if donation.amount < 24:
             response, response_status = mautic_api.sendEmail(
                 settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT'],
                 subscriber.mautic_id,
@@ -693,12 +693,34 @@ class RecurringDonate(views.APIView):
         else:
             return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
 
+
+        if donation.amount < 24:
+            response, response_status = mautic_api.sendEmail(
+                settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT'],
+                subscriber.mautic_id,
+                {
+                    'tokens': {
+                        'upload_image': donation.image.get_upload_url()
+                    }
+                }
+            )
+        else:
+            response, response_status = mautic_api.sendEmail(
+                settings.MAIL_TEMPLATES['DONATION_WITH_GIFT'],
+                subscriber.mautic_id,
+                {
+                    'tokens': {
+                        'upload_image': donation.image.get_upload_url()
+                    }
+                }
+            )
+
         # Send email thanks for donation
-        response, response_status = mautic_api.sendEmail(
-            settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT'],
-            subscriber.mautic_id,
-            {}
-        )
+        # response, response_status = mautic_api.sendEmail(
+        #     settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT'],
+        #     subscriber.mautic_id,
+        #     {}
+        # )
 
         try:
             msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila mesečno donacijo v višini: ' + str(donation.amount)
