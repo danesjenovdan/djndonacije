@@ -11,6 +11,10 @@ from datetime import datetime
 import slack
 import requests
 
+from shop.views import getPDFodOrder
+from django.template.loader import get_template
+from django.core import signing
+
 sc = slack.WebClient(settings.SLACK_KEY, timeout=30)
 
 
@@ -163,6 +167,7 @@ class Donate(views.APIView):
          - post only nonce and amount process payment with pay_by_3d
          - upon second request post email, name, add_to_mailing, address
     '''
+
     def post(self, request):
         data = request.data
         nonce = data.get('nonce', None)
@@ -171,31 +176,15 @@ class Donate(views.APIView):
         name = data.get('name', '')
         add_to_mailing = data.get('mailing', False)
         address = data.get('address', '')
+        payment_type = data.get('payment_type', 'upn')
 
         # if nonce not present deny
         if not nonce:
             return Response({'msg': 'Missing nonce.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # if email not present, try to pay
-        if not email:
-            # if no amount deny
-            if not amount:
-                return Response({'msg': 'Missing amount.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
-            if result.is_success:
-                # create donation and image object without subscriber
-                donation = models.Donation(amount=amount, nonce=nonce)
-                donation.save()
-                image = models.Image(donation=donation)
-                image.save()
-                return Response({
-                    'msg': 'Thanks <3',
-                    'nonce': nonce,
-                    'upload_token': image.token
-                })
-            else:
-                return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
+        # if no amount deny
+        if not amount:
+            return Response({'msg': 'Missing amount.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # email and nonce are both present
         response, response_status = mautic_api.getContactByEmail(email)
@@ -228,35 +217,129 @@ class Donate(views.APIView):
             segment_id = settings.SEGMENTS.get('donations', None)
             response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
 
-        # finally connect donation to person
-        donation = models.Donation(amount=amount, nonce=nonce)
-        donation.save()
-        image = models.Image(donation=donation)
-        image.save()
-        donation.subscriber = subscriber
-        donation.save()
+        if payment_type == 'upn':
+            # TODO UPN
+            reference = 'SI00 11' + str(order.id).zfill(8)
+            donation = models.Donation(
+                amount=amount,
+                nonce=nonce,
+                subscriber=subscriber,
+                reference=reference,
+                is_paid=False,
+                payment_method='upn')
+            donation.save()
+            image = models.Image(donation=donation)
+            image.save()
 
-        # Send email thanks for donation
-        if donation.amount < 24:
-            response, response_status = mautic_api.sendEmail(
-                settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT'],
-                subscriber.mautic_id,
-                {
-                    'tokens': {
-                        'upload_image': donation.image.get_upload_url()
-                    }
-                }
+            data = {"id": donation.id,
+                    "upn_id": signing.dumps(donation.id),
+                    "date": datetime.now().strftime('%d.%m.%Y'),
+                    "price": amount,
+                    "reference": reference,
+                    "code": "?",
+                    "name": name.name,
+                    "address1": address,
+                    "address2": "",
+                    "status": "prepared"}
+
+            data['code'] = "ADCS"
+            data['purpose'] = "Donacija"
+
+            total = amount
+            iban = settings.IBAN.replace(' ', '')
+            to_name = settings.TO_NAME.strip()
+            to_address1 = settings.TO_ADDRESS1.strip()
+            to_address2 = settings.TO_ADDRESS2.strip()
+
+            html = get_template('email_poloznica.html')
+            context = { 'total': total,
+                        'reference': reference,
+                        'iban': iban,
+                        'to_address1': to_address1,
+                        'to_address2': to_address2,
+                        'code': data['code'],
+                        'purpose': data['purpose'],
+                        'bic': 'HDELSI22'}
+            html_content = html.render(context)
+
+            pdf = getPDFodOrder(None, signing.dumps(reference)).render().content
+
+            response, response_status = mautic_api.saveFile('upn.pdf', pdf)
+            print(response)
+            response, response_status = mautic_api.saveAsset('upn', response['file']['name'])
+            print(response)
+            asset_id = response['asset']['id']
+
+            email_id = donation.amount < 24 settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT'] else settings.MAIL_TEMPLATES['DONATION_WITH_GIFT']
+            response, response_status = mautic_api.getEmail(email_id)
+            content = response["email"]["customHtml"]
+            subject = response["email"]["subject"]
+            response_mail, response_status = mautic_api.createEmail(
+                subject + ' copy-for ' + name,
+                subject,
+                subject,
+                customHtml=content,
+                emailType='list',
+                description=response["email"]["description"],
+                assetAttachments=None,
+                template='cards',
+                #lists=[1],
+                fromAddress=response["email"]["fromAddress"],
+                fromName=response["email"]["fromName"]
             )
-        else:
-            response, response_status = mautic_api.sendEmail(
-                settings.MAIL_TEMPLATES['DONATION_WITH_GIFT'],
-                subscriber.mautic_id,
-                {
-                    'tokens': {
-                        'upload_image': donation.image.get_upload_url()
-                    }
-                }
+
+            #response_mail, response_status = mautic_api.createEmail(
+            #     'upn-' + order.email,
+            #     '',
+            #     'Položnica za tvoj nakup <3',
+            #     html_content,
+            #     'To je mail za kupca ki, bo/je plačal s položnico',
+            #     assetAttachments=[asset_id]
+            # )
+            # mautic_api.sendEmail(
+            #     response_mail['email']['id'],
+            #     mautic_id,
+            #     {}
+            # )
+            mautic_api.sendEmail(
+                response_mail['email']['id'],
+                mautic_id,
+                {}
             )
+
+        elif payment_type == 'braintree':
+            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
+            if result.is_success:
+                # create donation and image object without subscriber
+                donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber)
+                donation.save()
+                image = models.Image(donation=donation)
+                image.save()
+                        # Send email thanks for donation
+                if donation.amount < 24:
+                    response, response_status = mautic_api.sendEmail(
+                        settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT'],
+                        subscriber.mautic_id,
+                        {
+                            'tokens': {
+                                'upload_image': donation.image.get_upload_url()
+                            }
+                        }
+                    )
+                else:
+                    response, response_status = mautic_api.sendEmail(
+                        settings.MAIL_TEMPLATES['DONATION_WITH_GIFT'],
+                        subscriber.mautic_id,
+                        {
+                            'tokens': {
+                                'upload_image': donation.image.get_upload_url()
+                            }
+                        }
+                    )
+            else:
+                return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
+
+
         try:
             msg = ( name if name else 'Dinozaver' ) + ' nam je podarila donacijo v višini: ' + str(donation.amount)
             sc.api_call(
