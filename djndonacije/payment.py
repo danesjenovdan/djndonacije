@@ -93,12 +93,12 @@ def client_token(user=None):
 #     return result
 
 def create_subscription(nonce, customer_id, costum_price=None):
-    result = gateway.payment_method.create({
-        "customer_id": customer_id,
-        "payment_method_nonce": nonce
-    })
+    #result = gateway.payment_method.create({
+    #    "customer_id": customer_id,
+    #    "payment_method_nonce": nonce
+    #})
 
-    print(vars(result))
+    #print(vars(result))
 
     data = {
         'payment_method_nonce': nonce,
