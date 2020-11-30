@@ -176,7 +176,7 @@ class Donate(views.APIView):
         name = data.get('name', '')
         add_to_mailing = data.get('mailing', False)
         address = data.get('address', '')
-        payment_type = data.get('payment_type', 'upn')
+        payment_type = data.get('payment_type', 'braintree')
 
         # if nonce not present deny
         if not nonce:
@@ -219,7 +219,7 @@ class Donate(views.APIView):
 
         if payment_type == 'upn':
             # TODO UPN
-            reference = 'SI00 11' + str(order.id).zfill(8)
+            reference = 'SI00 11' + str(donation.id).zfill(8)
             donation = models.Donation(
                 amount=amount,
                 nonce=nonce,
@@ -270,7 +270,7 @@ class Donate(views.APIView):
             print(response)
             asset_id = response['asset']['id']
 
-            email_id = donation.amount < 24 settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT'] else settings.MAIL_TEMPLATES['DONATION_WITH_GIFT']
+            email_id = settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT'] if donation.amount < 24 else settings.MAIL_TEMPLATES['DONATION_WITH_GIFT']
             response, response_status = mautic_api.getEmail(email_id)
             content = response["email"]["customHtml"]
             subject = response["email"]["subject"]
