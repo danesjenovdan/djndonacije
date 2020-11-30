@@ -21,6 +21,7 @@ from shop.utils import get_basket, get_basket_data, add_article_to_basket, updat
 from djndonacije import payment
 
 from djnd_supporters import mautic_api
+from djnd_supporters.models import Subscriber
 
 from shop.views import getPDFodOrder
 from shop.spam_mailer import send_mail_spam
@@ -155,13 +156,13 @@ class Checkout(APIView):
         if contacts:
             # subscriber exists on mautic
             mautic_id = list(contacts.keys())[0]
-            subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
+            subscriber =Subscriber.objects.get(mautic_id=mautic_id)
             subscriber.name = name
             subscriber.address = address
             subscriber.save()
         else:
             # subscriber does not exist on mautic
-            subscriber = models.Subscriber.objects.create(name=name, address=address)
+            subscriber = Subscriber.objects.create(name=name, address=address)
             subscriber.save()
             response, response_status = subscriber.save_to_mautic(email, send_email=False)
             if response_status != 200:
