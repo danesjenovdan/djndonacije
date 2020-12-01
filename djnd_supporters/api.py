@@ -179,8 +179,8 @@ class Donate(views.APIView):
         payment_type = data.get('payment_type', 'braintree')
 
         # if nonce not present deny
-        if not nonce:
-            return Response({'msg': 'Missing nonce.'}, status=status.HTTP_400_BAD_REQUEST)
+        #if not nonce:
+        #    return Response({'msg': 'Missing nonce.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # if no amount deny
         if not amount:
@@ -219,14 +219,15 @@ class Donate(views.APIView):
 
         if payment_type == 'upn':
             # TODO UPN
-            reference = 'SI00 11' + str(donation.id).zfill(8)
             donation = models.Donation(
                 amount=amount,
                 nonce=nonce,
                 subscriber=subscriber,
-                reference=reference,
                 is_paid=False,
                 payment_method='upn')
+            donation.save()
+            reference = 'SI00 11' + str(donation.id).zfill(8)
+            donation.reference = reference
             donation.save()
             image = models.Image(donation=donation)
             image.save()
@@ -237,7 +238,7 @@ class Donate(views.APIView):
                     "price": amount,
                     "reference": reference,
                     "code": "?",
-                    "name": name.name,
+                    "name": name,
                     "address1": address,
                     "address2": "",
                     "status": "prepared"}
@@ -262,7 +263,7 @@ class Donate(views.APIView):
                         'bic': 'HDELSI22'}
             html_content = html.render(context)
 
-            pdf = getPDForDonation(None, signing.dumps(reference)).render().content
+            pdf = getPDForDonation(None, donation.id).render().content
 
             response, response_status = mautic_api.saveFile('upn.pdf', pdf)
             print(response)
@@ -270,7 +271,7 @@ class Donate(views.APIView):
             print(response)
             asset_id = response['asset']['id']
 
-            email_id = settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT'] if donation.amount < 24 else settings.MAIL_TEMPLATES['DONATION_WITH_GIFT']
+            email_id = settings.MAIL_TEMPLATES['DONATION_WITHOUT_GIFT_UPN'] if donation.amount < 24 else settings.MAIL_TEMPLATES['DONATION_WITH_GIFT_UPN']
             response, response_status = mautic_api.getEmail(email_id)
             content = response["email"]["customHtml"]
             subject = response["email"]["subject"]
@@ -279,9 +280,9 @@ class Donate(views.APIView):
                 subject,
                 subject,
                 customHtml=content,
-                emailType='list',
-                description=response["email"]["description"],
-                assetAttachments=None,
+                #emailType='list',
+                description='email for donation with UPN',
+                assetAttachments=[asset_id],
                 template='cards',
                 #lists=[1],
                 fromAddress=response["email"]["fromAddress"],

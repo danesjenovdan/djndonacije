@@ -1,6 +1,10 @@
+from django.shortcuts import render_to_response, get_object_or_404
 from django.views.generic import TemplateView
 from djnd_supporters import models
 from djndonacije import payment
+from datetime import datetime
+from shop import qrcode
+from wkhtmltopdf.views import PDFTemplateResponse
 
 class TestPaymentView(TemplateView):
     template_name = "test_payment.html"
@@ -12,10 +16,7 @@ class TestPaymentView(TemplateView):
 
 
 def getPDForDonation(request, pk):
-    try:
-        donation = get_object_or_404(models.Donation, pk=signing.loads(pk))
-    except:
-        order = models.Order.objects.first()
+    donation = get_object_or_404(models.Donation, pk=pk)
 
     bill = {}
     bill['id'] = donation.id
