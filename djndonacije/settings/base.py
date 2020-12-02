@@ -128,6 +128,9 @@ MAIL_TEMPLATES = {
     'DONATION_WITH_GIFT': 5,
     'DONATION_WITHOUT_GIFT': 25,
 
+    'DONATION_WITH_GIFT_UPN': 239,
+    'DONATION_WITHOUT_GIFT_UPN': 240,
+
     # donation gifts
     'GIFT_SENT': 26,
     'GIFT_WITH_GIFT': 27,
@@ -140,7 +143,7 @@ MAIL_TEMPLATES = {
 
 SEGMENTS = {
     'agrument': 1,
-    'monthly': 12,
+    'mesecne-novice-nov-segment': 12,
     'general': 2,
     'parlameter': 3,
     'donations': 4
