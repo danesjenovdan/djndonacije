@@ -214,8 +214,11 @@ class Donate(views.APIView):
 
         # add to mailing if they agreed
         if add_to_mailing:
-            segment_id = settings.SEGMENTS.get('donations', None)
+            segment_id = settings.SEGMENTS.get('general', None)
             response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
+
+        segment_id = settings.SEGMENTS.get('donations', None)
+        response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
 
         if payment_type == 'upn':
             # TODO UPN
@@ -461,8 +464,11 @@ class GiftDonate(views.APIView):
 
         # add to mailing if they agreed
         if add_to_mailing:
-            segment_id = settings.SEGMENTS.get('donations', None)
+            segment_id = settings.SEGMENTS.get('general', None)
             response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
+
+        segment_id = settings.SEGMENTS.get('donations', None)
+        response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
 
         # finally connect gift to person
         gift = models.Gift.objects.get(nonce=nonce)
@@ -765,8 +771,11 @@ class RecurringDonate(views.APIView):
 
         # add to mailing if they agreed
         if add_to_mailing:
-            segment_id = settings.SEGMENTS.get('donations', None)
+            segment_id = settings.SEGMENTS.get('general', None)
             response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
+
+        segment_id = settings.SEGMENTS.get('donations', None)
+        response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
 
         result = payment.create_subscription(nonce, customer_id, float(amount))
         if result.is_success:
