@@ -224,9 +224,6 @@ class Pay(APIView):
                     settings.MAIL_TEMPLATES['SHOP_BT_PP'],
                     mautic_id,
                     {
-                        'tokens': {
-                            'upload_image': donation.image.get_upload_url()
-                        }
                     }
                 )
             else:
