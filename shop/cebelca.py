@@ -129,19 +129,32 @@ class Cebelca(object):
             response, response_status = mautic_api.saveAsset('racun', response['file']['name'])
             asset_id = response['asset']['id']
 
-            response_contact, response_status = mautic_api.createContact(email, name, '')
+            response, response_status = mautic_api.getEmail(settings.MAIL_TEMPLATES['SHOP_BT_PP'])
+            content = response["email"]["customHtml"]
+            subject = response["email"]["subject"]
+
             response_mail, response_status = mautic_api.createEmail(
-                'racun-' + email,
-                '',
-                title,
-                body,
-                'To je mail z racunom',
-                assetAttachments=[asset_id]
+                subject + ' copy-for ' + name,
+                subject,
+                subject,
+                customHtml=content,
+                #emailType='list',
+                description='email shop with UPN',
+                assetAttachments=[asset_id],
+                template='cards',
+                #lists=[1],
+                fromAddress=response["email"]["fromAddress"],
+                fromName=response["email"]["fromName"]
             )
-            mautic_api.sendEmail(
+
+            response_contact, response_status = mautic_api.getContactByEmail(email)
+            contacts = response_contact['contacts']
+            mautic_id = list(contacts.keys())[0]
+            response, response_status = mautic_api.sendEmail(
                 response_mail['email']['id'],
-                response_contact['contact']['id'],
-                {}
+                mautic_id,
+                {
+                }
             )
 
             return True, 'Sent'

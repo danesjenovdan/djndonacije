@@ -216,16 +216,7 @@ class Pay(APIView):
             if pay_response.is_success:
                 order.is_payed=True
                 order.save()
-                response_contact, response_status = mautic_api.getContactByEmail(order.email)
-                contacts = response_contact['contacts']
-                mautic_id = list(contacts.keys())[0]
                 msg = order.name + " je nekaj naročil/-a in plačal/-a s kartico: \n"
-                response, response_status = mautic_api.sendEmail(
-                    settings.MAIL_TEMPLATES['SHOP_BT_PP'],
-                    mautic_id,
-                    {
-                    }
-                )
             else:
                 return JsonResponse({'msg': 'failed',
                                      'error': [error.message for error in pay_response.errors.deep_errors]},
