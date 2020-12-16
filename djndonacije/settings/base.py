@@ -139,6 +139,8 @@ MAIL_TEMPLATES = {
     'CUSTOM_GIFT': 24,
     # or?
     'GIFT': 15, # done
+    'SHOP_BT_PP' :289,
+    'SHOP_UPN': 288,
 }
 
 SEGMENTS = {

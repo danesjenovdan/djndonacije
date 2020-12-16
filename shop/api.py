@@ -171,7 +171,7 @@ class Checkout(APIView):
             mautic_id = subscriber.mautic_id
 
         if add_to_mailing:
-            segment_id = settings.SEGMENTS.get('donations', None)
+            segment_id = settings.SEGMENTS.get('general', None)
             response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
 
 
@@ -216,7 +216,19 @@ class Pay(APIView):
             if pay_response.is_success:
                 order.is_payed=True
                 order.save()
+                response_contact, response_status = mautic_api.getContactByEmail(order.email)
+                contacts = response_contact['contacts']
+                mautic_id = list(contacts.keys())[0]
                 msg = order.name + " je nekaj naročil/-a in plačal/-a s kartico: \n"
+                response, response_status = mautic_api.sendEmail(
+                    settings.MAIL_TEMPLATES['SHOP_BT_PP'],
+                    mautic_id,
+                    {
+                        'tokens': {
+                            'upload_image': donation.image.get_upload_url()
+                        }
+                    }
+                )
             else:
                 return JsonResponse({'msg': 'failed',
                                      'error': [error.message for error in pay_response.errors.deep_errors]},
@@ -275,13 +287,30 @@ class Pay(APIView):
             contacts = response_contact['contacts']
             mautic_id = list(contacts.keys())[0]
 
+            # response_mail, response_status = mautic_api.createEmail(
+            #     'upn-' + order.email,
+            #     '',
+            #     'Položnica za tvoj nakup <3',
+            #     html_content,
+            #     'To je mail za kupca ki, bo/je plačal s položnico',
+            #     assetAttachments=[asset_id]
+            # )
+            email_id = settings.MAIL_TEMPLATES['SHOP_UPN']
+            response, response_status = mautic_api.getEmail(email_id)
+            content = response["email"]["customHtml"]
+            subject = response["email"]["subject"]
             response_mail, response_status = mautic_api.createEmail(
-                'upn-' + order.email,
-                '',
-                'Položnica za tvoj nakup <3',
-                html_content,
-                'To je mail za kupca ki, bo/je plačal s položnico',
-                assetAttachments=[asset_id]
+                subject + ' copy-upn-shop ' + to_name,
+                subject,
+                subject,
+                customHtml=content,
+                #emailType='list',
+                description='',
+                assetAttachments=[asset_id],
+                template='cards',
+                #lists=[1],
+                fromAddress=response["email"]["fromAddress"],
+                fromName=response["email"]["fromName"]
             )
             mautic_api.sendEmail(
                 response_mail['email']['id'],
