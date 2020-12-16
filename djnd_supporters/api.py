@@ -305,8 +305,11 @@ class Donate(views.APIView):
             mautic_api.sendEmail(
                 response_mail['email']['id'],
                 mautic_id,
-                {}
-            )
+                {
+                    'tokens': {
+                        'upload_image': donation.image.get_upload_url()
+                    }
+                })
 
         elif payment_type == 'braintree':
             result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
@@ -593,9 +596,9 @@ class AssignGift(views.APIView):
 class DonationsStats(views.APIView):
     def get(self, request):
         return Response({
-            'donations': models.Donation.objects.count(),
-            'collected': sum(models.Donation.objects.values_list('amount', flat=True)),
-            'max-donation': max(models.Donation.objects.values_list('amount', flat=True))
+            'donations': models.Donation.objects.filter(created__gte=datetime(day=1, month=12, year=2020)).count(),
+            'collected': sum(models.Donation.objects.filter(created__gte=datetime(day=1, month=12, year=2020).values_list('amount', flat=True))),
+            'max-donation': max(models.Donation.objects.filter(created__gte=datetime(day=1, month=12, year=2020).values_list('amount', flat=True)))
         })
 
 
@@ -604,7 +607,7 @@ class ImageViewSet(mixins.RetrieveModelMixin,
                    mixins.UpdateModelMixin,
                    viewsets.GenericViewSet):
     lookup_field = 'token'
-    queryset = models.Image.objects.filter(created__gte=datetime(day=1, month=11, year=2020))
+    queryset = models.Image.objects.filter(created__gte=datetime(day=1, month=12, year=2020))
     serializer_class = serializers.ImageSerializer
 
 
