@@ -74,7 +74,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     def items(self, obj):
         data = [['Item', 'Quantity']]
-        data = data + [[i.article.name, i.quantity] for i in obj.basket.items.all()]
+        data = data + [[i.article.variant_of.name + " --> " + i.article.name if i.article.variant_of else i.article.name, i.quantity] for i in obj.basket.items.all()]
         return mark_safe(
             array2htmltable(data)
         )
