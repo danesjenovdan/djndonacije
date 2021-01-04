@@ -353,7 +353,7 @@ class Donate(views.APIView):
             sc.api_call(
                 "chat.postMessage",
                 json={
-                    'channel': "#danesjenovdan_si",
+                    'channel': "#﻿djnd-bot",
                     'text': msg
                 }
             )
@@ -494,7 +494,7 @@ class GiftDonate(views.APIView):
             sc.api_call(
                 "chat.postMessage",
                 json={
-                    'channel': "#danesjenovdan_si",
+                    'channel': "#﻿djnd-bot",
                     'text': msg
                 }
             )
@@ -829,7 +829,7 @@ class RecurringDonate(views.APIView):
             sc.api_call(
                 "chat.postMessage",
                 json={
-                    'channel': "#danesjenovdan_si",
+                    'channel': "#﻿djnd-bot",
                     'text': msg
                 }
             )

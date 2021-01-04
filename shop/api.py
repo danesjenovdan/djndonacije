@@ -315,7 +315,7 @@ class Pay(APIView):
                 sc.api_call(
                     "chat.postMessage",
                     json={
-                        'channel': "#danesjenovdan_si",
+                        'channel': "#﻿djnd-bot",
                         'text': msg
                     }
                 )
@@ -374,7 +374,7 @@ def checkout(request):
                 try:
                     sc.api_call(
                         "chat.postMessage",
-                        channel="#danesjenovdan_si",
+                        channel="#﻿djnd-bot",
                         text=msg
                     )
                 except:
@@ -402,7 +402,7 @@ def checkout(request):
                 sc.api_call(
                     "chat.postMessage",
                     json={
-                        'channel': "#danesjenovdan_si",
+                        'channel': "#﻿djnd-bot",
                         'text': msg
                     }
                 )
