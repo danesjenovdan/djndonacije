@@ -228,7 +228,7 @@ class Donate(views.APIView):
                 subscriber=subscriber,
                 is_paid=False,
                 payment_method='upn',
-                typ=models.DonationType.DJND)
+                typ=models.DonationType.DJND.value)
             donation.save()
             reference = 'SI00 11' + str(donation.id).zfill(8)
             donation.reference = reference
@@ -319,7 +319,7 @@ class Donate(views.APIView):
             result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
             if result.is_success:
                 # create donation and image object without subscriber
-                donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber, typ=models.DonationType.DJND)
+                donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber, typ=models.DonationType.DJND.value)
                 donation.save()
                 image = models.Image(donation=donation)
                 image.save()
@@ -419,7 +419,7 @@ class GiftDonate(views.APIView):
                         amount=gift_amount,
                         subscriber=new_subscriber,
                         is_assigned=False,
-                        typ=models.DonationType.DJND
+                        typ=models.DonationType.DJND.value
                     )
                     donation.save()
                     image = models.Image(donation=donation)
@@ -533,7 +533,7 @@ class AssignGift(views.APIView):
         subscriber = models.Subscriber.objects.get(token=owner_token)
 
         new_subscriber = models.Subscriber.objects.get(token=subscriber_token)
-        donation = models.Donation.objects.filter(subscriber=new_subscriber, typ=models.DonationType.DJND)
+        donation = models.Donation.objects.filter(subscriber=new_subscriber, typ=models.DonationType.DJND.value)
         if donation:
             donation = donation[0]
             if donation.is_assigned:
@@ -723,7 +723,7 @@ class RecurringDonate(views.APIView):
                     amount=amount,
                     subscriber=subscriber,
                     subscription_id=result.subscription.id,
-                    typ=models.DonationType.DJND
+                    typ=models.DonationType.DJND.value
                 )
                 donation.save()
                 image = models.Image(donation=donation)
@@ -787,7 +787,7 @@ class RecurringDonate(views.APIView):
                 amount=amount,
                 subscriber=subscriber,
                 subscription_id=result.subscription.id,
-                typ=models.DonationType.DJND
+                typ=models.DonationType.DJND.value
             )
             donation.save()
             image = models.Image(donation=donation)
@@ -875,13 +875,13 @@ class DonateForParlameter(views.APIView):
         country = data.get('country', 'sl')
 
         if county == 'hr':
-            donation_type = models.DonationType.PARLAMETER_HR
+            donation_type = models.DonationType.PARL.valueAMETER_HR.value
             parlameter_email_id = settings.MAIL_TEMPLATES['PARLAMETER_HR']
         elif county == 'ba':
-            donation_type = models.DonationType.PARLAMETER_BA
+            donation_type = models.DonationType.PARL.valueAMETER_BA.value
             parlameter_email_id = settings.MAIL_TEMPLATES['PARLAMETER_BA']
         else:
-            donation_type = models.DonationType.PARLAMETER_SI
+            donation_type = models.DonationType.PARL.valueAMETER_SI.value
             parlameter_email_id = settings.MAIL_TEMPLATES['PARLAMETER_SI']
 
         # if no amount deny
