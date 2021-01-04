@@ -141,6 +141,12 @@ MAIL_TEMPLATES = {
     'GIFT': 15, # done
     'SHOP_BT_PP' :289,
     'SHOP_UPN': 288,
+
+    # parlameter tempaltes
+    'PARLAMETER_UPN': 325,
+    'PARLAMETER_SI': 322,
+    'PARLAMETER_HR': 323,
+    'PARLAMETER_BA': 324,
 }
 
 SEGMENTS = {

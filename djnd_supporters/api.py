@@ -227,7 +227,8 @@ class Donate(views.APIView):
                 nonce=nonce,
                 subscriber=subscriber,
                 is_paid=False,
-                payment_method='upn')
+                payment_method='upn',
+                typ=models.DonationType.DJND)
             donation.save()
             reference = 'SI00 11' + str(donation.id).zfill(8)
             donation.reference = reference
@@ -318,7 +319,7 @@ class Donate(views.APIView):
             result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
             if result.is_success:
                 # create donation and image object without subscriber
-                donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber)
+                donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber, typ=models.DonationType.DJND)
                 donation.save()
                 image = models.Image(donation=donation)
                 image.save()
@@ -417,7 +418,8 @@ class GiftDonate(views.APIView):
                     donation = models.Donation(
                         amount=gift_amount,
                         subscriber=new_subscriber,
-                        is_assigned=False
+                        is_assigned=False,
+                        typ=models.DonationType.DJND
                     )
                     donation.save()
                     image = models.Image(donation=donation)
@@ -531,7 +533,7 @@ class AssignGift(views.APIView):
         subscriber = models.Subscriber.objects.get(token=owner_token)
 
         new_subscriber = models.Subscriber.objects.get(token=subscriber_token)
-        donation = models.Donation.objects.filter(subscriber=new_subscriber)
+        donation = models.Donation.objects.filter(subscriber=new_subscriber, typ=models.DonationType.DJND)
         if donation:
             donation = donation[0]
             if donation.is_assigned:
@@ -720,7 +722,8 @@ class RecurringDonate(views.APIView):
                 donation = models.RecurringDonation(
                     amount=amount,
                     subscriber=subscriber,
-                    subscription_id=result.subscription.id
+                    subscription_id=result.subscription.id,
+                    typ=models.DonationType.DJND
                 )
                 donation.save()
                 image = models.Image(donation=donation)
@@ -783,7 +786,8 @@ class RecurringDonate(views.APIView):
             donation = models.RecurringDonation(
                 amount=amount,
                 subscriber=subscriber,
-                subscription_id=result.subscription.id
+                subscription_id=result.subscription.id,
+                typ=models.DonationType.DJND
             )
             donation.save()
             image = models.Image(donation=donation)
@@ -839,3 +843,154 @@ class RecurringDonate(views.APIView):
 
     def update(self, request):
         return Response({})
+
+
+class DonateForParlameter(views.APIView):
+    """
+    GET get client token
+
+    POST json data:
+     - nonce
+     - amount
+    """
+    authentication_classes = [authentication.SubscriberAuthentication]
+    def get(self, request):
+        return Response(payment.client_token())
+
+    '''
+        CHANGE REQUEST
+         - post only nonce and amount process payment with pay_by_3d
+         - upon second request post email, name, add_to_mailing, address
+    '''
+
+    def post(self, request):
+        data = request.data
+        nonce = data.get('nonce', None)
+        amount = data.get('amount', None)
+        email = data.get('email', None)
+        name = data.get('name', '')
+        add_to_mailing = data.get('mailing', False)
+        address = data.get('address', '')
+        payment_type = data.get('payment_type', 'braintree')
+        country = data.get('country', 'sl')
+
+        if county == 'hr':
+            donation_type = models.DonationType.PARLAMETER_HR
+            parlameter_email_id = settings.MAIL_TEMPLATES['PARLAMETER_HR']
+        elif county == 'ba':
+            donation_type = models.DonationType.PARLAMETER_BA
+            parlameter_email_id = settings.MAIL_TEMPLATES['PARLAMETER_BA']
+        else:
+            donation_type = models.DonationType.PARLAMETER_SI
+            parlameter_email_id = settings.MAIL_TEMPLATES['PARLAMETER_SI']
+
+        # if no amount deny
+        if not amount:
+            return Response({'msg': 'Missing amount.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # email and nonce are both present
+        response, response_status = mautic_api.getContactByEmail(email)
+        if response_status == 200:
+            contacts = response['contacts']
+        else:
+            # something went wrong with mautic, return
+            return Response({'msg': response}, status=response_status)
+        print(contacts)
+        mautic_id = None
+        if contacts:
+            # subscriber exists on mautic
+            mautic_id = list(contacts.keys())[0]
+            subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
+            subscriber.name = name
+            subscriber.address = address
+            subscriber.save()
+        else:
+            # subscriber does not exist on mautic
+            subscriber = models.Subscriber.objects.create(name=name, address=address)
+            subscriber.save()
+            response, response_status = subscriber.save_to_mautic(email, send_email=False)
+            if response_status != 200:
+                # something went wrong with saving to mautic, abort
+                return Response({'msg': response}, status=response_status)
+            mautic_id = subscriber.mautic_id
+
+        # add to mailing if they agreed
+        if add_to_mailing:
+            segment_id = settings.SEGMENTS.get('parlameter', None)
+            response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
+
+        if payment_type == 'upn':
+            # TODO UPN
+            donation = models.Donation(
+                amount=amount,
+                nonce=nonce,
+                subscriber=subscriber,
+                is_paid=False,
+                payment_method='upn',
+                typ=donation_type)
+            donation.save()
+            reference = 'SI00 11' + str(donation.id).zfill(8)
+            donation.reference = reference
+            donation.save()
+
+            pdf = getPDForDonation(None, donation.id).render().content
+
+            response, response_status = mautic_api.saveFile('upn.pdf', pdf)
+            response, response_status = mautic_api.saveAsset('upn', response['file']['name'])
+            asset_id = response['asset']['id']
+
+            email_id = settings.MAIL_TEMPLATES['PARLAMETER_UPN']
+            response, response_status = mautic_api.getEmail(email_id)
+            content = response["email"]["customHtml"]
+            subject = response["email"]["subject"]
+            response_mail, response_status = mautic_api.createEmail(
+                subject + ' copy-for ' + name,
+                subject,
+                subject,
+                customHtml=content,
+                #emailType='list',
+                description='email for donation with UPN',
+                assetAttachments=[asset_id],
+                template='cards',
+                #lists=[1],
+                fromAddress=response["email"]["fromAddress"],
+                fromName=response["email"]["fromName"]
+            )
+
+
+            mautic_api.sendEmail(
+                response_mail['email']['id'],
+                mautic_id,
+                {})
+
+        elif payment_type == 'braintree':
+            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
+            if result.is_success:
+                # create donation and image object without subscriber
+                donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber, typ=donation_type)
+                donation.save()
+
+                response, response_status = mautic_api.sendEmail(
+                    parlameter_email_id,
+                    subscriber.mautic_id,
+                    {}
+                )
+            else:
+                return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        try:
+            msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila donacijo za parlameter v višini: ' + str(donation.amount)
+            sc.api_call(
+                "chat.postMessage",
+                json={
+                    'channel': "#danesjenovdan_si",
+                    'text': msg
+                }
+            )
+        except:
+            pass
+
+        return Response({
+            'msg': 'Thanks <3',
+        })

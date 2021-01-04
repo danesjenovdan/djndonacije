@@ -13,7 +13,19 @@ from djnd_supporters import mautic_api
 import os.path
 from PIL import Image as PILImage
 from io import BytesIO
+from enum import Enum
 # Create your models here.
+
+
+class DonationType(Enum):
+    PARLAMETER_SI = "PARLAMETER_SI"
+    PARLAMETER_HR = "PARLAMETER_HR"
+    PARLAMETER_BA = "PARLAMETER_BA"
+    DJND = "DJND"
+
+    @classmethod
+    def choices(cls):
+        return tuple((i.name, i.value) for i in cls)
 
 
 class OptionalSchemeURLValidator(URLValidator):
@@ -72,6 +84,8 @@ class Donation(Timestamped):
     reference = models.CharField(max_length=50, null=True, blank=True)
     # is_assigned is helper atrribut using for group donations.
     is_assigned = models.BooleanField(default=True)
+    typ = models.CharField(max_length=255, choices=DonationType.choices(), default=DonationType.DJND)
+
 
     def __str__(self):
         return (self.subscriber.name if self.subscriber else '?') + ' -> ' + str(self.amount)
