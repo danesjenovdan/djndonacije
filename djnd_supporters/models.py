@@ -84,7 +84,7 @@ class Donation(Timestamped):
     reference = models.CharField(max_length=50, null=True, blank=True)
     # is_assigned is helper atrribut using for group donations.
     is_assigned = models.BooleanField(default=True)
-    typ = models.CharField(max_length=255, choices=DonationType.choices(), default=DonationType.DJND)
+    campaign = models.ForeignKey('DonationCampaign', on_delete=models.SET_NULL, null=True, blank=True)
 
 
     def __str__(self):
@@ -167,3 +167,15 @@ class RecurringDonation(Donation):
 
     def __str__(self):
         return (self.subscriber.name if self.subscriber else '?') + ' -> ' + str(self.amount)
+
+
+class DonationCampaign(Timestamped):
+    name = models.CharField(max_length=32, help_text='Name of donation campaign')
+    has_upn = models.BooleanField(default=True, help_text='Enable UPN donation')
+    has_braintree = models.BooleanField(default=True, help_text='Enable braintree donation')
+    upn_email_template = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for UPN donation')
+    bt_email_template = models.IntegerField(null=True, blank=True,  help_text='Id of email tempalte on mautic for braintree donation')
+    add_to_mailing = models.IntegerField(null=True, blank=True, help_text='Add email to this mailing ID')
+
+    def __str__(self):
+        return self.name

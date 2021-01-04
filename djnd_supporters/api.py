@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 from rest_framework import status, views, permissions, mixins, viewsets
 from rest_framework.response import Response
@@ -353,7 +354,7 @@ class Donate(views.APIView):
             sc.api_call(
                 "chat.postMessage",
                 json={
-                    'channel': "#﻿djnd-bot",
+                    'channel': "#djnd-bot",
                     'text': msg
                 }
             )
@@ -494,7 +495,7 @@ class GiftDonate(views.APIView):
             sc.api_call(
                 "chat.postMessage",
                 json={
-                    'channel': "#﻿djnd-bot",
+                    'channel': "#djnd-bot",
                     'text': msg
                 }
             )
@@ -829,7 +830,7 @@ class RecurringDonate(views.APIView):
             sc.api_call(
                 "chat.postMessage",
                 json={
-                    'channel': "#﻿djnd-bot",
+                    'channel': "#djnd-bot",
                     'text': msg
                 }
             )
@@ -845,7 +846,7 @@ class RecurringDonate(views.APIView):
         return Response({})
 
 
-class DonateForParlameter(views.APIView):
+class GenericDonationCampaign(views.APIView):
     """
     GET get client token
 
@@ -854,8 +855,13 @@ class DonateForParlameter(views.APIView):
      - amount
     """
     authentication_classes = [authentication.SubscriberAuthentication]
-    def get(self, request):
-        return Response(payment.client_token())
+    def get(self, request, campaign_id=0):
+        # TODO return specifications of donation campaign
+        print(campaign_id)
+        donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
+        donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
+        donation_obj.update(payment.client_token())
+        return Response(donation_obj)
 
     '''
         CHANGE REQUEST
@@ -872,17 +878,10 @@ class DonateForParlameter(views.APIView):
         add_to_mailing = data.get('mailing', False)
         address = data.get('address', '')
         payment_type = data.get('payment_type', 'braintree')
-        country = data.get('country', 'sl')
+        campaign_id = data.get('campaign_id', -1)
+        # country = data.get('country', 'sl')
 
-        if county == 'hr':
-            donation_type = models.DonationType.PARL.valueAMETER_HR.value
-            parlameter_email_id = settings.MAIL_TEMPLATES['PARLAMETER_HR']
-        elif county == 'ba':
-            donation_type = models.DonationType.PARL.valueAMETER_BA.value
-            parlameter_email_id = settings.MAIL_TEMPLATES['PARLAMETER_BA']
-        else:
-            donation_type = models.DonationType.PARL.valueAMETER_SI.value
-            parlameter_email_id = settings.MAIL_TEMPLATES['PARLAMETER_SI']
+        donation_campaign = get_object_or_404(models.DonationCampaign, campaign_id)
 
         # if no amount deny
         if not amount:
@@ -915,12 +914,14 @@ class DonateForParlameter(views.APIView):
             mautic_id = subscriber.mautic_id
 
         # add to mailing if they agreed
-        if add_to_mailing:
-            segment_id = settings.SEGMENTS.get('parlameter', None)
-            response, response_status = mautic_api.addContactToASegment(segment_id, mautic_id)
+        if add_to_mailing and donation_campaign.add_to_mailing:
+            response, response_status = mautic_api.addContactToASegment(donation_campaign.add_to_mailing, mautic_id)
+
 
         if payment_type == 'upn':
-            # TODO UPN
+            # check if campaign supports upn payments
+            if not donation_campaign.has_upn:
+                return Response({'msg': 'This campaign does not support UPN payments.'}, status=status.HTTP_400_BAD_REQUEST)
             donation = models.Donation(
                 amount=amount,
                 nonce=nonce,
@@ -939,7 +940,8 @@ class DonateForParlameter(views.APIView):
             response, response_status = mautic_api.saveAsset('upn', response['file']['name'])
             asset_id = response['asset']['id']
 
-            email_id = settings.MAIL_TEMPLATES['PARLAMETER_UPN']
+            email_id = donation_campaign.upn_email_template
+
             response, response_status = mautic_api.getEmail(email_id)
             content = response["email"]["customHtml"]
             subject = response["email"]["subject"]
@@ -963,28 +965,36 @@ class DonateForParlameter(views.APIView):
                 mautic_id,
                 {})
 
+
         elif payment_type == 'braintree':
+            # check if campaign supports braintree payments
+            if not donation_campaign.has_braintree:
+                return Response({'msg': 'This campaign does not support braintree payments.'}, status=status.HTTP_400_BAD_REQUEST)
+
             result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
             if result.is_success:
                 # create donation and image object without subscriber
                 donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber, typ=donation_type)
                 donation.save()
 
-                response, response_status = mautic_api.sendEmail(
-                    parlameter_email_id,
-                    subscriber.mautic_id,
-                    {}
-                )
+                # send email if tempalte is setted in donation campaign
+                if donation_campaign.bt_email_template:
+                    response, response_status = mautic_api.sendEmail(
+                        donation_campaign.bt_email_template,
+                        subscriber.mautic_id,
+                        {}
+                    )
             else:
                 return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
 
 
+        # send slack msg
         try:
-            msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila donacijo za parlameter v višini: ' + str(donation.amount)
+            msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila donacijo za ' + donation_campaign.name + ' v višini: ' + str(donation.amount)
             sc.api_call(
                 "chat.postMessage",
                 json={
-                    'channel': "#danesjenovdan_si",
+                    'channel': "#djnd-bot",
                     'text': msg
                 }
             )

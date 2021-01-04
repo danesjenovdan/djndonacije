@@ -11,3 +11,9 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'image', 'thumbnail', 'url', 'donation_amount']
     def get_donation_amount(self, obj):
         return obj.donation.amount
+
+
+class DonationCampaignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.DonationCampaign
+        fields = ['id', 'has_upn', 'has_braintree', 'add_to_mailing']

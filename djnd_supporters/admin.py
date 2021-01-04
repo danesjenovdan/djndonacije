@@ -1,10 +1,10 @@
 from django.contrib import admin
-from djnd_supporters.models import Gift, Donation
+from djnd_supporters.models import Gift, Donation, DonationCampaign
 
 class DonationAdmin(admin.ModelAdmin):
     readonly_fields = ('address',)
-    list_display = ('amount', 'subscriberName', 'address', 'created', 'payment_method', 'typ')
-    list_filter = ('amount', 'typ')
+    list_display = ('amount', 'subscriberName', 'address', 'created', 'payment_method', 'campaign')
+    list_filter = ('amount', 'campaign')
 
     def subscriberName(self, obj):
         if obj.subscriber:
@@ -20,3 +20,4 @@ class DonationAdmin(admin.ModelAdmin):
 
 admin.site.register(Donation, DonationAdmin)
 admin.site.register(Gift)
+admin.site.register(DonationCampaign)

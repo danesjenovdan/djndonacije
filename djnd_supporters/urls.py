@@ -1,5 +1,5 @@
 from rest_framework import routers
-from django.urls import path, include
+from django.urls import path, re_path, include
 
 from djnd_supporters import api, views
 
@@ -19,7 +19,7 @@ urlpatterns = [
     path('donations-stats/', api.DonationsStats.as_view()),
     path('send-agrument-mail/', api.AgrumentMailApiView.as_view()),
     path('monthly-donation/', api.RecurringDonate.as_view()),
-    path('parlameter-donation/', api.DonateForParlameter.as_view()),
+    re_path('generic-donation/(?:(?P<campaign_id>\w+)/)?$', api.GenericDonationCampaign.as_view()),
 
     path('users/', api.UsersImport.as_view()),
 
