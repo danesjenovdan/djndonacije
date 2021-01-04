@@ -19,6 +19,7 @@ urlpatterns = [
     path('donations-stats/', api.DonationsStats.as_view()),
     path('send-agrument-mail/', api.AgrumentMailApiView.as_view()),
     path('monthly-donation/', api.RecurringDonate.as_view()),
+    path('parlameter-donation/', api.DonateForParlameter.as_view()),
 
     path('users/', api.UsersImport.as_view()),
 

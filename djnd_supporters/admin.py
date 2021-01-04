@@ -3,8 +3,8 @@ from djnd_supporters.models import Gift, Donation
 
 class DonationAdmin(admin.ModelAdmin):
     readonly_fields = ('address',)
-    list_display = ('amount', 'subscriberName', 'address', 'created', 'payment_method')
-    list_filter = ('amount',)
+    list_display = ('amount', 'subscriberName', 'address', 'created', 'payment_method', 'typ')
+    list_filter = ('amount', 'typ')
 
     def subscriberName(self, obj):
         if obj.subscriber:
