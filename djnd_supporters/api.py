@@ -228,8 +228,7 @@ class Donate(views.APIView):
                 nonce=nonce,
                 subscriber=subscriber,
                 is_paid=False,
-                payment_method='upn',
-                typ=models.DonationType.DJND.value)
+                payment_method='upn')
             donation.save()
             reference = 'SI00 11' + str(donation.id).zfill(8)
             donation.reference = reference
@@ -320,7 +319,7 @@ class Donate(views.APIView):
             result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
             if result.is_success:
                 # create donation and image object without subscriber
-                donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber, typ=models.DonationType.DJND.value)
+                donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber)
                 donation.save()
                 image = models.Image(donation=donation)
                 image.save()
@@ -419,8 +418,7 @@ class GiftDonate(views.APIView):
                     donation = models.Donation(
                         amount=gift_amount,
                         subscriber=new_subscriber,
-                        is_assigned=False,
-                        typ=models.DonationType.DJND.value
+                        is_assigned=False
                     )
                     donation.save()
                     image = models.Image(donation=donation)
@@ -534,7 +532,7 @@ class AssignGift(views.APIView):
         subscriber = models.Subscriber.objects.get(token=owner_token)
 
         new_subscriber = models.Subscriber.objects.get(token=subscriber_token)
-        donation = models.Donation.objects.filter(subscriber=new_subscriber, typ=models.DonationType.DJND.value)
+        donation = models.Donation.objects.filter(subscriber=new_subscriber)
         if donation:
             donation = donation[0]
             if donation.is_assigned:
@@ -723,8 +721,7 @@ class RecurringDonate(views.APIView):
                 donation = models.RecurringDonation(
                     amount=amount,
                     subscriber=subscriber,
-                    subscription_id=result.subscription.id,
-                    typ=models.DonationType.DJND.value
+                    subscription_id=result.subscription.id
                 )
                 donation.save()
                 image = models.Image(donation=donation)
@@ -787,8 +784,7 @@ class RecurringDonate(views.APIView):
             donation = models.RecurringDonation(
                 amount=amount,
                 subscriber=subscriber,
-                subscription_id=result.subscription.id,
-                typ=models.DonationType.DJND.value
+                subscription_id=result.subscription.id
             )
             donation.save()
             image = models.Image(donation=donation)
