@@ -16,4 +16,4 @@ class ImageSerializer(serializers.ModelSerializer):
 class DonationCampaignSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.DonationCampaign
-        fields = ['id', 'has_upn', 'has_braintree', 'has_braintree_subscription', 'add_to_mailing']
+        fields = ['id', 'has_upn', 'has_braintree', 'has_braintree_subscription', 'add_to_mailing', 'name']
