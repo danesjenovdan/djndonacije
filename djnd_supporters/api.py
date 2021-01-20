@@ -844,11 +844,16 @@ class RecurringDonate(views.APIView):
 
 class GenericDonationCampaign(views.APIView):
     """
-    GET get client token
+    GET get client token and donation specifics
 
     POST json data:
      - nonce
      - amount
+     - email
+     - name
+     - mailing
+     - address
+     - payment_type
     """
     authentication_classes = [authentication.SubscriberAuthentication]
     def get(self, request, campaign_id=0):
@@ -859,11 +864,6 @@ class GenericDonationCampaign(views.APIView):
         donation_obj.update(payment.client_token())
         return Response(donation_obj)
 
-    '''
-        CHANGE REQUEST
-         - post only nonce and amount process payment with pay_by_3d
-         - upon second request post email, name, add_to_mailing, address
-    '''
 
     def post(self, request, campaign_id=0):
         data = request.data
@@ -985,6 +985,94 @@ class GenericDonationCampaign(views.APIView):
         # send slack msg
         try:
             msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila donacijo za ' + donation_campaign.name + ' v višini: ' + str(donation.amount)
+            sc.api_call(
+                "chat.postMessage",
+                json={
+                    'channel': "#djnd-bot",
+                    'text': msg
+                }
+            )
+        except:
+            pass
+
+        return Response({
+            'msg': 'Thanks <3',
+        })
+
+class GenericSubscribableDonationCampaign(views.APIView):
+    """
+    GET get client token
+
+    POST json data:
+     - nonce
+     - amount
+    """
+    authentication_classes = [authentication.SubscriberAuthentication]
+    def post(self, request, campaign_id=0):
+        data = request.data
+        nonce = data.get('nonce', None)
+        amount = data.get('amount', None)
+        email = data.get('email', None)
+        name = data.get('name', '')
+        add_to_mailing = data.get('mailing', False)
+        address = data.get('address', '')
+        payment_type = data.get('payment_type', 'braintree')
+
+        donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
+
+        # if no amount deny
+        if not amount:
+            return Response({'msg': 'Missing amount.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        response, response_status = mautic_api.getContactByEmail(email)
+        if response_status == 200:
+            contacts = response['contacts']
+        else:
+            # something went wrong with mautic, return
+            return Response({'msg': response}, status=response_status)
+        print(contacts)
+        mautic_id = None
+        if contacts:
+            # subscriber exists on mautic
+            mautic_id = list(contacts.keys())[0]
+            subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
+            subscriber.name = name
+            subscriber.address = address
+            subscriber.save()
+        else:
+            # subscriber does not exist on mautic
+            subscriber = models.Subscriber.objects.create(name=name, address=address)
+            subscriber.save()
+            response, response_status = subscriber.save_to_mautic(email, send_email=False)
+            if response_status != 200:
+                # something went wrong with saving to mautic, abort
+                return Response({'msg': response}, status=response_status)
+            mautic_id = subscriber.mautic_id
+
+        # add to mailing if they agreed
+        if add_to_mailing and donation_campaign.add_to_mailing:
+            response, response_status = mautic_api.addContactToASegment(donation_campaign.add_to_mailing, mautic_id)
+
+        # check if campaign supports braintree payments
+        if not donation_campaign.has_braintree_subscription:
+            return Response({'msg': 'This campaign does not support braintree payments.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        result = payment.create_subscription(nonce, customer_id, float(amount))
+        if result.is_success:
+            # create donation without subscriber
+            donation = models.RecurringDonation(
+                amount=amount,
+                subscriber=subscriber,
+                subscription_id=result.subscription.id,
+                campaign=donation_campaign,
+            )
+        else:
+            return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        # send slack msg
+        try:
+            msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila mesecno donacijo za ' + donation_campaign.name + ' v višini: ' + str(donation.amount)
             sc.api_call(
                 "chat.postMessage",
                 json={
