@@ -865,7 +865,7 @@ class GenericDonationCampaign(views.APIView):
          - upon second request post email, name, add_to_mailing, address
     '''
 
-    def post(self, request):
+    def post(self, request, campaign_id=0):
         data = request.data
         nonce = data.get('nonce', None)
         amount = data.get('amount', None)
@@ -874,8 +874,6 @@ class GenericDonationCampaign(views.APIView):
         add_to_mailing = data.get('mailing', False)
         address = data.get('address', '')
         payment_type = data.get('payment_type', 'braintree')
-        campaign_id = data.get('campaign_id', -1)
-        # country = data.get('country', 'sl')
 
         donation_campaign = get_object_or_404(models.DonationCampaign, campaign_id)
 
