@@ -1017,6 +1017,7 @@ class GenericSubscribableDonationCampaign(views.APIView):
         add_to_mailing = data.get('mailing', False)
         address = data.get('address', '')
         payment_type = data.get('payment_type', 'braintree')
+        customer_id = data.get('customer_id', '')
 
         donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
 
