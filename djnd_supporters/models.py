@@ -173,9 +173,10 @@ class DonationCampaign(Timestamped):
     name = models.CharField(max_length=32, help_text='Name of donation campaign')
     has_upn = models.BooleanField(default=True, help_text='Enable UPN donation')
     has_braintree = models.BooleanField(default=True, help_text='Enable braintree donation')
-    has_braintree_subscription = models.BooleanField(default=True, help_text='Enable braintree donation')
+    has_braintree_subscription = models.BooleanField(default=True, help_text='Enable braintree subscription donation')
     upn_email_template = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for UPN donation')
     bt_email_template = models.IntegerField(null=True, blank=True,  help_text='Id of email tempalte on mautic for braintree donation')
+    bt_subscription_email_template = models.IntegerField(null=True, blank=True,  help_text='Id of email tempalte on mautic for braintree subscription donation')
     add_to_mailing = models.IntegerField(null=True, blank=True, help_text='Add email to this mailing ID')
 
     def __str__(self):

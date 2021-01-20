@@ -1066,6 +1066,13 @@ class GenericSubscribableDonationCampaign(views.APIView):
                 subscription_id=result.subscription.id,
                 campaign=donation_campaign,
             )
+            donation.save()
+            if donation_campaign.bt_subscription_email_template:
+                response, response_status = mautic_api.sendEmail(
+                    donation_campaign.bt_subscription_email_template,
+                    subscriber.mautic_id,
+                    {}
+                )
         else:
             return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
 
