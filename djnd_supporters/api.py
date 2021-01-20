@@ -875,7 +875,7 @@ class GenericDonationCampaign(views.APIView):
         address = data.get('address', '')
         payment_type = data.get('payment_type', 'braintree')
 
-        donation_campaign = get_object_or_404(models.DonationCampaign, campaign_id)
+        donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
 
         # if no amount deny
         if not amount:
@@ -922,7 +922,7 @@ class GenericDonationCampaign(views.APIView):
                 subscriber=subscriber,
                 is_paid=False,
                 payment_method='upn',
-                typ=donation_type)
+                campaign=donation_campaign)
             donation.save()
             reference = 'SI00 11' + str(donation.id).zfill(8)
             donation.reference = reference
@@ -968,7 +968,7 @@ class GenericDonationCampaign(views.APIView):
             result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
             if result.is_success:
                 # create donation and image object without subscriber
-                donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber, typ=donation_type)
+                donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber, campaign=donation_campaign)
                 donation.save()
 
                 # send email if tempalte is setted in donation campaign
