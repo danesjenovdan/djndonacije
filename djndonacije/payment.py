@@ -132,7 +132,7 @@ def update_subscription(donation, costum_price=None):
 
     return result
 
-def pay_bt_3d(nonce, amount, taxExempt=False):
+def pay_bt_3d(nonce, amount, taxExempt=False, description=''):
     print({
         'amount': str(amount),
         'payment_method_nonce': nonce,
@@ -149,7 +149,8 @@ def pay_bt_3d(nonce, amount, taxExempt=False):
         'tax_exempt': taxExempt,
         'options': {
             'submit_for_settlement': True,
-        }
+        },
+        'description': description
 
     })
     print(result)

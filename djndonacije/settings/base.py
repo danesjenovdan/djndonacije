@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'wkhtmltopdf',
     'tinymce',
+    'import_export',
     # apps
     'djnd_supporters',
     'shop'
