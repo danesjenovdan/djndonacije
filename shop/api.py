@@ -212,7 +212,7 @@ class Pay(APIView):
         url = "https://podpri.djnd.si/admin/shop/order/" + str(order.id) + "/change/"
         if payment_type == 'braintree':
             nonce = data.get('nonce', None)
-            pay_response = payment.pay_bt_3d(nonce, order.basket.total)
+            pay_response = payment.pay_bt_3d(nonce, order.basket.total, description='Shop')
             if pay_response.is_success:
                 order.is_payed=True
                 order.save()
@@ -360,7 +360,7 @@ def checkout(request):
         if payment_type == 'braintree':
             nonce = request.POST.get('nonce', None)
 
-            is_ok, log = payment.pay_bt_3d(nonce, order.basket.total)
+            is_ok, log = payment.pay_bt_3d(nonce, order.basket.total, description='Shop')
             if is_ok:
                 order.is_payed=True
                 order.save()

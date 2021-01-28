@@ -316,7 +316,7 @@ class Donate(views.APIView):
                 })
 
         elif payment_type == 'braintree':
-            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
+            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True, description='DJND donacija')
             if result.is_success:
                 # create donation and image object without subscriber
                 donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber)
@@ -347,7 +347,10 @@ class Donate(views.APIView):
             else:
                 return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
 
-
+        try:
+            name = name.split(' ')[0]
+        except:
+            pass
         try:
             msg = ( name if name else 'Dinozaver' ) + ' nam je podarila donacijo v višini: ' + str(donation.amount)
             sc.api_call(
@@ -406,7 +409,7 @@ class GiftDonate(views.APIView):
             if not gifts_amounts:
                 return Response({'msg': 'Missing gifts_amounts.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
+            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True, description='Gift donate')
             new_subscribers = []
             if result.is_success:
                 # create donation and image object without subscriber
@@ -820,7 +823,10 @@ class RecurringDonate(views.APIView):
         #     subscriber.mautic_id,
         #     {}
         # )
-
+        try:
+            name = name.split(' ')[0]
+        except:
+            pass
         try:
             msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila mesečno donacijo v višini: ' + str(donation.amount)
             sc.api_call(
@@ -965,7 +971,7 @@ class GenericDonationCampaign(views.APIView):
             if not donation_campaign.has_braintree:
                 return Response({'msg': 'This campaign does not support braintree payments.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True)
+            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True, description=donation_campaign.name)
             if result.is_success:
                 # create donation and image object without subscriber
                 donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber, campaign=donation_campaign)
@@ -984,7 +990,11 @@ class GenericDonationCampaign(views.APIView):
 
         # send slack msg
         try:
-            msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila donacijo za ' + donation_campaign.name + ' v višini: ' + str(donation.amount)
+            name = name.split(' ')[0]
+        except:
+            pass
+        try:
+            msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila donacijo za [ ' + donation_campaign.name + ' ] v višini: ' + str(donation.amount)
             sc.api_call(
                 "chat.postMessage",
                 json={
@@ -1079,6 +1089,10 @@ class GenericSubscribableDonationCampaign(views.APIView):
 
 
         # send slack msg
+        try:
+            name = name.split(' ')[0]
+        except:
+            pass
         try:
             msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila mesecno donacijo za ' + donation_campaign.name + ' v višini: ' + str(donation.amount)
             sc.api_call(
