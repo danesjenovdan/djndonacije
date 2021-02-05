@@ -19,11 +19,18 @@ class BaseArticleSerializer(serializers.ModelSerializer):
         return [i.image.url for i in obj.images.all() if i.image]
 
 
+class InStockListSerializer(serializers.ListSerializer):
+    def to_representation(self, data):
+        data = data.filter(stock__gte=1)
+        return super().to_representation(data)
+
+
 class VariantArticleSerializer(BaseArticleSerializer):
     name = serializers.SerializerMethodField()
     variant = serializers.SerializerMethodField()
 
     class Meta(BaseArticleSerializer.Meta):
+        list_serializer_class = InStockListSerializer
         fields = BaseArticleSerializer.Meta.fields + ('variant',)
 
     def get_name(self, obj):
