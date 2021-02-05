@@ -150,7 +150,6 @@ def pay_bt_3d(nonce, amount, taxExempt=False, description=''):
         'options': {
             'submit_for_settlement': True,
         },
-        'description': description
 
     })
     print(result)
