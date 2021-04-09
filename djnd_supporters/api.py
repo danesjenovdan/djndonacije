@@ -59,7 +59,8 @@ class Subscribe(views.APIView):
                     response, response_status = mautic_api.sendEmail(
                         settings.MAIL_TEMPLATES['EDIT_SUBSCRIPTIPNS'],
                         mautic_id,
-                        {}
+                        {
+                        }
                     )
                     return Response({'msg': 'mail sent'})
                 else:
@@ -973,8 +974,14 @@ class GenericDonationCampaign(views.APIView):
 
             result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True, description=donation_campaign.name)
             if result.is_success:
+                transaction_id = result.id
                 # create donation and image object without subscriber
-                donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber, campaign=donation_campaign)
+                donation = models.Donation(
+                    amount=amount,
+                    nonce=nonce,
+                    subscriber=subscriber,
+                    campaign=donation_campaign,
+                    transaction_id=transaction_id)
                 donation.save()
 
                 # send email if tempalte is setted in donation campaign

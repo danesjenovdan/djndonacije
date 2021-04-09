@@ -85,6 +85,7 @@ class Donation(Timestamped):
     # is_assigned is helper atrribut using for group donations.
     is_assigned = models.BooleanField(default=True)
     campaign = models.ForeignKey('DonationCampaign', on_delete=models.SET_NULL, null=True, blank=True)
+    transaction_id = models.CharField(max_length=128, null=True, blank=True)
 
 
     def __str__(self):
