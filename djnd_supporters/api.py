@@ -43,9 +43,31 @@ class UsersImport(views.APIView):
             return Response({"contact added": True})
         return Response({"email missing": True})
 
+
+class GetOrAddSubscriber(views.APIView):
+    def get_subscriber_id(self, email, send_email=False):
+        mautic_id = None
+        response, response_status = mautic_api.getContactByEmail(email)
+        if response_status == 200:
+            contacts = response['contacts']
+            if contacts:
+                mautic_id = list(contacts.keys())[0]
+            else:
+                subscriber = models.Subscriber.objects.create()
+                subscriber.save()
+                response, response_status = subscriber.save_to_mautic(email, send_email)
+                if response_status != 200:
+                    return Response({'msg': response}, status=response_status)
+                else:
+                    mautic_id = subscriber.mautic_id
+        return mautic_id
+
 class Subscribe(views.APIView):
     """
-    This endpoint is for make braintree subscription
+    Add subscriber od edit subscriptions
+    POST:
+        email
+        segment
     """
     def post(self, request, format=None):
         data = request.data
@@ -1120,3 +1142,26 @@ class GenericSubscribableDonationCampaign(views.APIView):
         return Response({
             'msg': 'Thanks <3',
         })
+
+
+class SendEmailApiView(GetOrAddSubscriber):
+    """
+    POST json data:
+     - email
+     - email_template_id
+
+    Authorization:
+        athorization token
+    """
+    def post(self, request, campaign_id=0):
+        data = request.data
+        email = data.get('email', None)
+        email_template_id = data.get('email_template_id', None)
+        token = request.META.get('HTTP_AUTHORIZATION')
+        if token != settings.EMAIL_TOKEN:
+            return Response({'msg': 'You dont have permissions for send emails'}, status=403)
+        if not email or not email_template_id:
+            return Response({'msg': 'Try again'}, status=status.HTTP_400_BAD_REQUEST)
+        user_mautic_id = self.get_subscriber_id(email)
+        mautic_api.sendEmail(email_template_id, user_mautic_id, {})
+        return Response({'msg': 'mail sent'})
