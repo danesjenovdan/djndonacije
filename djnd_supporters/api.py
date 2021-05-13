@@ -974,7 +974,7 @@ class GenericDonationCampaign(views.APIView):
 
             result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True, description=donation_campaign.name)
             if result.is_success:
-                transaction_id = result.id
+                transaction_id = result.transaction.id
                 # create donation and image object without subscriber
                 donation = models.Donation(
                     amount=amount,
