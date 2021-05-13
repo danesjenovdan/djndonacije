@@ -19,8 +19,10 @@ urlpatterns = [
     path('donations-stats/', api.DonationsStats.as_view()),
     path('send-agrument-mail/', api.AgrumentMailApiView.as_view()),
     path('monthly-donation/', api.RecurringDonate.as_view()),
+    path('send-email/', api.SendEmailApiView.as_view()),
     re_path('generic-donation/subscription/(?:(?P<campaign_id>\w+)/)?$', api.GenericSubscribableDonationCampaign.as_view()),
     re_path('generic-donation/(?:(?P<campaign_id>\w+)/)?$', api.GenericDonationCampaign.as_view()),
+    
 
     path('users/', api.UsersImport.as_view()),
 
