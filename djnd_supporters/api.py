@@ -50,12 +50,15 @@ class Subscribe(views.APIView):
     def post(self, request, format=None):
         data = request.data
         email = data.get('email', None)
+        segment = data.get('segment', None)
         if email:
             response, response_status = mautic_api.getContactByEmail(email)
             if response_status == 200:
                 contacts = response['contacts']
                 if contacts:
                     mautic_id = list(contacts.keys())[0]
+                    if segment:
+                        mautic_api.addContactToASegment(segment, mautic_id)
                     response, response_status = mautic_api.sendEmail(
                         settings.MAIL_TEMPLATES['EDIT_SUBSCRIPTIPNS'],
                         mautic_id,
@@ -70,6 +73,8 @@ class Subscribe(views.APIView):
                     if response_status != 200:
                         return Response({'msg': response}, status=response_status)
                     else:
+                        if segment:
+                            mautic_api.addContactToASegment(segment, subscriber.mautic_id)
                         response, response_status = mautic_api.sendEmail(
                             settings.MAIL_TEMPLATES['WELLCOME_MAIL'],
                             subscriber.mautic_id,
