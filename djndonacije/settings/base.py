@@ -155,5 +155,6 @@ SEGMENTS = {
     'mesecne-novice-nov-segment': 12,
     'general': 2,
     'parlameter': 3,
-    'donations': 4
+    'donations': 4,
+    'huda-pobuda': 17
 }
