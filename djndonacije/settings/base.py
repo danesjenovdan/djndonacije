@@ -156,5 +156,6 @@ SEGMENTS = {
     'general': 2,
     'parlameter': 3,
     'donations': 4,
-    'huda-pobuda': 17
+    'huda-pobuda': 17,
+    'obljuba-dela-dolg': 18,
 }
