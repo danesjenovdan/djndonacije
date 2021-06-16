@@ -684,7 +684,7 @@ class AgrumentMailApiView(views.APIView):
                 assetAttachments=None,
                 template='cards',
                 lists=[1],
-                fromAddress='agrument@agrument.danesjenovdan.si',
+                fromAddress='agrument@posta.danesjenovdan.si',
                 fromName='Agrument'
             )
             if response_status == 200:
