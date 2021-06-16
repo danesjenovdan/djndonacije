@@ -81,8 +81,9 @@ class Subscribe(views.APIView):
                     mautic_id = list(contacts.keys())[0]
                     if segment:
                         mautic_api.addContactToASegment(segment, mautic_id)
+                    edit_subscriptopn_template = settings.EDIT_SUBSCRIPTIPNS_TEMPLATES.get(segment, settings.MAIL_TEMPLATES['EDIT_SUBSCRIPTIPNS'])
                     response, response_status = mautic_api.sendEmail(
-                        settings.MAIL_TEMPLATES['EDIT_SUBSCRIPTIPNS'],
+                        edit_subscriptopn_template,
                         mautic_id,
                         {
                         }

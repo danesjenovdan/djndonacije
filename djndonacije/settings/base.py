@@ -159,3 +159,6 @@ SEGMENTS = {
     'huda-pobuda': 17,
     'obljuba-dela-dolg': 18,
 }
+EDIT_SUBSCRIPTIPNS_TEMPLATES = {
+    18: 557
+}
