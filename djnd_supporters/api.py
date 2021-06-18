@@ -348,7 +348,12 @@ class Donate(views.APIView):
             result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True, description='DJND donacija')
             if result.is_success:
                 # create donation and image object without subscriber
-                donation = models.Donation(amount=amount, nonce=nonce, subscriber=subscriber)
+                transaction_id = result.transaction.id
+                donation = models.Donation(
+                    amount=amount,
+                    nonce=nonce,
+                    subscriber=subscriber,
+                    transaction_id=transaction_id)
                 donation.save()
                 image = models.Image(donation=donation)
                 image.save()
