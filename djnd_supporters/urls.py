@@ -20,6 +20,7 @@ urlpatterns = [
     path('send-agrument-mail/', api.AgrumentMailApiView.as_view()),
     path('monthly-donation/', api.RecurringDonate.as_view()),
     path('send-email/', api.SendEmailApiView.as_view()),
+    path('create-and-send-custom-email/', api.CreateAndSendMailApiView.as_view()),
     re_path('generic-donation/subscription/(?:(?P<campaign_id>\w+)/)?$', api.GenericSubscribableDonationCampaign.as_view()),
     re_path('generic-donation/(?:(?P<campaign_id>\w+)/)?$', api.GenericDonationCampaign.as_view()),
     

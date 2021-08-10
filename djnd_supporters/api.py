@@ -1171,3 +1171,57 @@ class SendEmailApiView(GetOrAddSubscriber):
         user_mautic_id = self.get_subscriber_id(email)
         mautic_api.sendEmail(email_template_id, user_mautic_id, {})
         return Response({'msg': 'mail sent'})
+
+
+class CreateAndSendMailApiView(views.APIView):
+    def post(self, request):
+        data = request.data
+        if settings.AGRUM_TOKEN != request.META.get('HTTP_AUTHORIZATION', None):
+            return Response({
+                    'msg': 'You have no permissions for do that.'
+                }, status=403)
+
+
+        # create new email
+        response, response_status = mautic_api.createEmail(
+            data['title'],
+            data['title'],
+            data['title'],
+            customHtml=data['content'],
+            emailType='list',
+            description=data["description"],
+            assetAttachments=None,
+            template='cards',
+            lists=data['segments'],
+        )
+        if response_status == 200:
+            new_email_id = response['email']['id']
+
+            if response_status == 200:
+                #print(mautic_api.sendEmail(42, 315, {
+                #    'tokens': {
+                #        "content": data['content_html'],
+                #        "image": data['image_url'],
+                #        "short_url": short_url_response.text
+                #    }
+                #}))
+                print(
+                    mautic_api.sendEmailToSegment(
+                        new_email_id, {}
+                    )
+                )
+            else:
+                return Response({
+                    'msg': 'cannot send email'
+                    },
+                    status=409
+                )
+        else:
+            return Response({
+                'msg': 'cannot send email'
+                },
+                status=409
+            )
+    return Response({
+        'msg': 'sent'
+    })
