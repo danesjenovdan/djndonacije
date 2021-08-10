@@ -158,6 +158,7 @@ SEGMENTS = {
     'donations': 4,
     'huda-pobuda': 17,
     'obljuba-dela-dolg': 18,
+    'newsgradient': 19
 }
 EDIT_SUBSCRIPTIPNS_TEMPLATES = {
     18: 557
