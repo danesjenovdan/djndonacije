@@ -1222,6 +1222,6 @@ class CreateAndSendMailApiView(views.APIView):
                 },
                 status=409
             )
-    return Response({
-        'msg': 'sent'
-    })
+        return Response({
+            'msg': 'sent'
+        })
