@@ -1164,7 +1164,7 @@ class SendEmailApiView(GetOrAddSubscriber):
         email = data.get('email', None)
         email_template_id = data.get('email_template_id', None)
         token = request.META.get('HTTP_AUTHORIZATION')
-        if token != settings.EMAIL_TOKEN:
+        if token not in [settings.EMAIL_TOKEN, settings.AGRUM_TOKEN]:
             return Response({'msg': 'You dont have permissions for send emails'}, status=403)
         if not email or not email_template_id:
             return Response({'msg': 'Try again'}, status=status.HTTP_400_BAD_REQUEST)
@@ -1176,6 +1176,7 @@ class SendEmailApiView(GetOrAddSubscriber):
 class CreateAndSendMailApiView(views.APIView):
     def post(self, request):
         data = request.data
+        print(data)
         if settings.AGRUM_TOKEN != request.META.get('HTTP_AUTHORIZATION', None):
             return Response({
                     'msg': 'You have no permissions for do that.'
@@ -1218,7 +1219,7 @@ class CreateAndSendMailApiView(views.APIView):
                 )
         else:
             return Response({
-                'msg': 'cannot send email'
+                'msg': response
                 },
                 status=409
             )
