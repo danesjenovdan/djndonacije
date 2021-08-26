@@ -349,11 +349,18 @@ class Donate(views.APIView):
             if result.is_success:
                 # create donation and image object without subscriber
                 transaction_id = result.transaction.id
+                payment_instrument_type = result.transaction.payment_instrument_type
+                if payment_instrument_type == 'paypal_account':
+                    payment_method = 'braintree-paypal'
+                else:
+                    payment_method = 'braintree'
                 donation = models.Donation(
                     amount=amount,
                     nonce=nonce,
                     subscriber=subscriber,
-                    transaction_id=transaction_id)
+                    transaction_id=transaction_id,
+                    payment_method=payment_method
+                )
                 donation.save()
                 image = models.Image(donation=donation)
                 image.save()
