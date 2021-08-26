@@ -27,7 +27,7 @@ def getPDForDonation(request, pk):
     bill['code'] = "ADCS"
     bill['purpose'] = "Donacija"
     if donation.campaign and donation.campaign.upn_name:
-        bill['purpose'] += donation.campaign.upn_name
+        bill['purpose'] = donation.campaign.upn_name
 
     address = donation.subscriber.address.split(',')
 
