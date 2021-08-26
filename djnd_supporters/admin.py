@@ -32,6 +32,7 @@ class DonationInline(admin.TabularInline):
 class RecurringDonationInline(admin.TabularInline):
     readonly_fields = ['created']
     #fields = ['created', 'email_content']
+    #search_fields = ['subscriber__token']
     model = RecurringDonation
     extra = 0
 
@@ -50,6 +51,7 @@ class DonationAdmin(ImportExportModelAdmin):
     list_display = ('amount', 'subscriberName', 'address', 'is_paid', 'created', 'payment_method', 'campaign')
     list_filter = ('amount', 'campaign', 'is_paid', 'payment_method')
     resource_class = DonationResource
+    search_fields = ['subscriber__token', 'transaction_id']
 
     def subscriberName(self, obj):
         if obj.subscriber:
@@ -69,7 +71,7 @@ class RecurringDonationAdmin(ImportExportModelAdmin):
     list_display = ('amount', 'subscriberName', 'address', 'is_paid', 'created', 'payment_method', 'campaign')
     list_filter = ('amount', 'campaign', 'is_paid')
     resource_class = RecurringDonationResource
-
+    search_fields = ['subscriber__token', 'subscription_id']
     def subscriberName(self, obj):
         if obj.subscriber:
             return obj.subscriber.name
