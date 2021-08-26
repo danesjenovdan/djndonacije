@@ -48,7 +48,7 @@ class SubscriberAdmin(ImportExportModelAdmin):
 class DonationAdmin(ImportExportModelAdmin):
     readonly_fields = ('address',)
     list_display = ('amount', 'subscriberName', 'address', 'is_paid', 'created', 'payment_method', 'campaign')
-    list_filter = ('amount', 'campaign', 'is_paid')
+    list_filter = ('amount', 'campaign', 'is_paid', 'payment_method')
     resource_class = DonationResource
 
     def subscriberName(self, obj):

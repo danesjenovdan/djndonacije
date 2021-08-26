@@ -84,7 +84,7 @@ class Donation(Timestamped):
     reference = models.CharField(max_length=50, null=True, blank=True)
     # is_assigned is helper atrribut using for group donations.
     is_assigned = models.BooleanField(default=True)
-    campaign = models.ForeignKey('DonationCampaign', on_delete=models.SET_NULL, null=True, blank=True)
+    campaign = models.ForeignKey('DonationCampaign', related_name='donations', on_delete=models.SET_NULL, null=True, blank=True)
     transaction_id = models.CharField(max_length=128, null=True, blank=True)
 
 
@@ -172,6 +172,7 @@ class RecurringDonation(Donation):
 
 class DonationCampaign(Timestamped):
     name = models.CharField(max_length=32, help_text='Name of donation campaign')
+    upn_name = models.CharField(max_length=32, help_text='Name for upn description')
     has_upn = models.BooleanField(default=True, help_text='Enable UPN donation')
     has_braintree = models.BooleanField(default=True, help_text='Enable braintree donation')
     has_braintree_subscription = models.BooleanField(default=True, help_text='Enable braintree subscription donation')

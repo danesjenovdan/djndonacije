@@ -882,6 +882,20 @@ class RecurringDonate(views.APIView):
         return Response({})
 
 
+class DonationCampaignStatistics(views.APIView):
+    """
+    GET get statistics of campaign
+    """
+    authentication_classes = [authentication.SubscriberAuthentication]
+    def get(self, request, campaign_id=0):
+        donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
+        donations = donation_campaign.donations.fitler(is_paid=True)
+        return Response({
+            'donation-amount': sum(donations.values_list('amount', flat=True)),
+            'donation-count': donations.count()
+        })
+
+
 class GenericDonationCampaign(views.APIView):
     """
     GET get client token and donation specifics
@@ -1005,16 +1019,28 @@ class GenericDonationCampaign(views.APIView):
             if not donation_campaign.has_braintree:
                 return Response({'msg': 'This campaign does not support braintree payments.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            result = payment.pay_bt_3d(nonce, float(amount), taxExempt=True, description=donation_campaign.name)
+            result = payment.pay_bt_3d(
+                nonce,
+                float(amount),
+                taxExempt=True,
+                description=donation_campaign.name,
+                campaign=donation_campaign.name,
+            )
             if result.is_success:
                 transaction_id = result.transaction.id
+                payment_instrument_type = result.transaction.payment_instrument_type
+                if payment_instrument_type == 'paypal_account':
+                    payment_method = 'braintree-paypal'
+                else:
+                    payment_method = 'braintree'
                 # create donation and image object without subscriber
                 donation = models.Donation(
                     amount=amount,
                     nonce=nonce,
                     subscriber=subscriber,
                     campaign=donation_campaign,
-                    transaction_id=transaction_id)
+                    transaction_id=transaction_id,
+                    payment_method=payment_method)
                 donation.save()
 
                 # send email if tempalte is setted in donation campaign
