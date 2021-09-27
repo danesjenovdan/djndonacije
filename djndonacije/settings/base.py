@@ -163,5 +163,6 @@ SEGMENTS = {
 }
 EDIT_SUBSCRIPTIPNS_TEMPLATES = {
     18: 557,
+    19: 732,
     20: 642
 }
