@@ -172,7 +172,7 @@ class RecurringDonation(Donation):
 
 class DonationCampaign(Timestamped):
     name = models.CharField(max_length=32, help_text='Name of donation campaign')
-    upn_name = models.CharField(max_length=32, help_text='Name for upn description')
+    upn_name = models.CharField(max_length=32, help_text='Name for upn description', default="Donacija")
     has_upn = models.BooleanField(default=True, help_text='Enable UPN donation')
     has_braintree = models.BooleanField(default=True, help_text='Enable braintree donation')
     has_braintree_subscription = models.BooleanField(default=True, help_text='Enable braintree subscription donation')
