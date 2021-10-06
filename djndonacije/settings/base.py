@@ -121,6 +121,8 @@ THUMB_SIZE = (50, 50)
 
 UPLOAD_IMAGE_URL = 'https://danesjenovdan.si/doniraj/hvala?token='
 
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+
 MAIL_TEMPLATES = {
     'EDIT_SUBSCRIPTIPNS': 1,
     'WELLCOME_MAIL': 2,

@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.core import signing
 #from .payments_braintree import client_token
@@ -40,7 +40,7 @@ def poloznica(request):
 
     qr_code = "\n".join(qr_code.split("\n")[2:])
 
-    return render_to_response('poloznica.html', {'victim': victim,
+    return render('poloznica.html', {'victim': victim,
                                                  'bill': bill,
                                                  'upn_id': data.get('upn_id'),
                                                  'qr_code': qr_code})
@@ -86,9 +86,3 @@ def getPDFodOrder(request, pk):
                                context={'victim': victim, 'bill': bill, 'pdf': True, 'qr_code': qr_code},
                                show_content_in_browser=True,
                                )
-
-
-#def bt_test(request):
-#    return render_to_response('braintree_test.html', {
-#        'token': client_token()
-#    })
