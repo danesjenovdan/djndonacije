@@ -162,9 +162,15 @@ SEGMENTS = {
     'obljuba-dela-dolg': 18,
     'newsgradient': 19,
     'stanovanja-najemniski-sos': 20,
+    'huda-pobuda-pusca-na-pomoc': 23,
+    'huda-pobuda-glas-skupnosti': 24,
+    'huda-pobuda-zapisimo-spomine': 25,
 }
 EDIT_SUBSCRIPTIPNS_TEMPLATES = {
     18: 557,
     19: 732,
-    20: 642
+    20: 642,
+    23: 767,
+    24: 180,
+    25: 781,
 }
