@@ -1,7 +1,7 @@
 # djndonacije
 
 ## local setup
-
+```
 docker-compose up --build -d
 docker-compose exec donacije python manage.py migrate
 docker-compose exec donacije python manage.py createsupseruser
@@ -19,7 +19,7 @@ open page in browser: localhost:8080
     Enable HTTP basic auth -> Yes
 * gear -> Users
   create new user test@test.si with password `password`
-
+```
 
 after instalation delete cache folder of Mautic:
 
