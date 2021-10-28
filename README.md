@@ -5,6 +5,7 @@
 docker-compose up --build -d
 docker-compose exec donacije python manage.py migrate
 docker-compose exec donacije python manage.py createsupseruser
+docker-compose exec donacije python manage.py seeds
 
 open page in browser: localhost:8080
 * finish instalation of mautic
