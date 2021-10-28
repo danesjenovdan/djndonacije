@@ -1,4 +1,1 @@
-try:
-	from .prod import *
-except:
-	from .dev import *
+from .k8s import *

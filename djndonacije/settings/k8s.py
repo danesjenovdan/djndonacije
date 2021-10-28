@@ -11,9 +11,53 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import braintree
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+env = dict(
+    SECRET_KEY=os.getenv('DJANGO_SECRET_KEY', 'r^&^$8c*g$6db1s!s7uk9c!v%*ps)_0)h$!f3m7$%(o4b+5qwk'),
+    DEBUG=os.getenv('DJANGO_DEBUG', True),
+    DATABASE_HOST=os.getenv('DJANGO_DATABASE_HOST', 'localhost'),
+    DATABASE_PORT=os.getenv('DJANGO_DATABASE_PORT', '5432'),
+    DATABASE_NAME=os.getenv('DJANGO_DATABASE_NAME', 'donacije'),
+    DATABASE_USER=os.getenv('DJANGO_DATABASE_USER', 'postgres'),
+    DATABASE_PASSWORD=os.getenv('DJANGO_DATABASE_PASSWORD', 'postgres'),
+    STATIC_ROOT=os.getenv('DJANGO_STATIC_ROOT', os.path.join(BASE_DIR, '../static')),
+    STATIC_URL=os.getenv('DJANGO_STATIC_URL_BASE', '/static/'),
+    MEDIA_ROOT=os.getenv('DJANGO_MEDIA_ROOT', '/media/'),
+    MEDIA_URL=os.getenv('DJANGO_MEDIA_URL_BASE', '/media/'),
+    SOLR_URL=os.getenv('PARLAMETER_SOLR_URL', ''),
+    MAUTIC_URL=os.getenv('MAUTIC_URL', ''),
+    MAUTIC_USER=os.getenv('MAUTIC_USER', ''),
+    MAUTIC_PASSWORD=os.getenv('MAUTIC_PASSWORD', ''),
+    BRAINTREE_ENV=os.getenv('BRAINTREE_ENV', 'Sandbox'),
+    BRAINTREE_MERCHANT_ID=os.getenv('BRAINTREE_MERCHANT_ID', ''),
+    BRAINTREE_PUBLIC_KEY=os.getenv('BRAINTREE_PUBLIC_KEY', ''),
+    BRAINTREE_PRIVATE_KEY=os.getenv('BRAINTREE_PRIVATE_KEY', ''),
+)
+
+
+
+ALLOWED_HOSTS = []
+CORS_ORIGIN_ALLOW_ALL = True
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env['SECRET_KEY']
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env['DEBUG']
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'HOST': env['DATABASE_HOST'],
+        'PORT': env['DATABASE_PORT'],
+        'NAME': env['DATABASE_NAME'],
+        'USER': env['DATABASE_USER'],
+        'PASSWORD': env['DATABASE_PASSWORD'],
+    }
+}
 
 
 # Quick-start development settings - unsuitable for production
@@ -107,6 +151,54 @@ USE_L10N = True
 USE_TZ = True
 
 
+# static files for development
+#STATIC_URL = '/static/'
+STATIC_ROOT = env['STATIC_ROOT']
+
+# static files for production
+STATIC_URL = env['STATIC_URL']
+
+MEDIA_ROOT = env['MEDIA_ROOT']
+MEDIA_URL = env['MEDIA_URL']
+
+SOLR_URL = env['SOLR_URL']
+
+
+MAUTIC_URL = f'{env["MAUTIC_URL"]}/api/'
+
+SALT = 'something/stupid'
+
+BASE_URL = 'http://localhost:8888/'
+
+SUPPORT_MAIL = 'vsi@danesjenovdan.si'
+
+FROM_MAIL = 'postar@danesjenovdan.si'
+
+
+MAUTIC_USER = env['MAUTIC_USER']
+MAUTIC_PASS = env['MAUTIC_PASSWORD']
+
+CEBELCA_KEY = ""
+SLACK_KEY = ""
+
+IBAN = 'SI56 6100 0000 5740 710'
+TO_NAME = 'Danes je nov dan'
+TO_ADDRESS1 = 'Parmova 20'
+TO_ADDRESS2 = '1000 Ljubljana'
+EMAIL_TOKEN = ''
+
+
+
+GATEWAY = braintree.BraintreeGateway(
+  braintree.Configuration(
+    environment=getattr(braintree.Environment, env['BRAINTREE_ENV']),
+    merchant_id=env['BRAINTREE_MERCHANT_ID'],
+    public_key=env['BRAINTREE_PUBLIC_KEY'],
+    private_key=env['BRAINTREE_PRIVATE_KEY']
+  )
+)
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
@@ -119,7 +211,7 @@ REST_FRAMEWORK = {
 
 THUMB_SIZE = (50, 50)
 
-UPLOAD_IMAGE_URL = 'https://danesjenovdan.si/doniraj/hvala?token='
+UPLOAD_IMAGE_URL = ''
 
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 

@@ -2,14 +2,7 @@ import braintree
 from django.conf import settings
 from datetime import date, timedelta
 
-gateway = braintree.BraintreeGateway(
-    braintree.Configuration(
-        braintree.Environment.Production,
-        merchant_id=settings.MERCHANT_ID,
-        public_key=settings.PUBLIC_KEY,
-        private_key=settings.PRIVATE_KEY
-    )
-)
+gateway = settings.GATEWAY
 
 def client_token(user=None):
     if not user:
@@ -24,20 +17,11 @@ def client_token(user=None):
     if user.braintree_id:
         customer_id = user.braintree_id
     else:
-        print({
-            'first_name': user.name,
-            'last_name': user.surname,
-            'company': '',
-            'email': user.email,
-            #'phone': '',
-            #'fax': '',
-            #'website': ''
-        })
         result = gateway.customer.create({
-            'first_name': user.name,
-            'last_name': user.surname,
+            'first_name': '',
+            'last_name': '',
             #'company': '',
-            'email': user.email,
+            'email': '',
             #'phone': '',
             #'fax': '',
             #'website': ''
@@ -46,10 +30,13 @@ def client_token(user=None):
             user.braintree_id = result.customer.id
             user.save()
             customer_id = result.customer.id
-
-    return gateway.client_token.generate({
-        'customer_id': customer_id
-    })
+    return {
+            'token': gateway.client_token.generate(
+                {
+                    'customer_id': customer_id
+                }),
+            'customer_id': customer_id
+        }
 
 # def create_subscription(nonce, user, costum_price=None):
 #     data = {
@@ -160,3 +147,7 @@ def pay_bt_3d(nonce, amount, taxExempt=False, description='', campaign='DJND'):
 def get_hook(signature, payload):
     webhook_notification = gateway.webhook_notification.parse(signature, payload)
     return webhook_notification
+
+
+def cancel_subscription(subscription_id):
+    return gateway.subscription.cancel(subscription_id)

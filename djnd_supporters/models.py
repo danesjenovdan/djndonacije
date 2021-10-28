@@ -41,7 +41,8 @@ class Subscriber(User, Timestamped):
     name = models.CharField(default="Anonimnež_ica", max_length=128)
     mautic_id = models.IntegerField(null=True, blank=True, unique=True)
     address = models.TextField(null=True, blank=True)
-    #email = models.EmailField()
+    uid = models.TextField(null=True, blank=True)
+    braintree_id = models.TextField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -165,6 +166,7 @@ class Gift(Timestamped):
 
 class RecurringDonation(Donation):
     subscription_id = models.CharField(max_length=128, null=True, blank=True)
+    is_active = models.BooleanField(default=False)
 
     def __str__(self):
         return (self.subscriber.name if self.subscriber else '?') + ' -> ' + str(self.amount)

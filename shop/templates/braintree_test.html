@@ -23,7 +23,7 @@
         onPaymentMethodReceived: function (obj) {
                 console.log(obj);
                 client.verify3DS({
-                    amount: '50',
+                    amount: '43',
                     creditCard: obj.nonce
                     }, function (err, response) {
                     // Send response.nonce to use in your transaction

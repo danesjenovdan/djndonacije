@@ -20,7 +20,7 @@
                 </p>
                 </header>
 
-                <form id="payment-form" method="post" action="/checkouts">
+                <form id="payment-form" method="post" action="/api/generic-donation/subscription/1/">
                 <section>
                     <label for="amount">
                     <span class="input-label">Amount</span>
@@ -45,47 +45,52 @@
             //$.ajaxSetup({
             //    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
             //});
-
+            var uid = "123123";
+            $.get({url:"/api/generic-donation/1/?uid="+uid, success: function( get_data ) {
             var form = document.querySelector('#payment-form');
-            braintree.dropin.create({
-                authorization: "{{token}}",
-                container: '#bt-dropin',
-                paypal: {
-                flow: 'vault'
-                }
-            }, function (createErr, instance) {
-                form.addEventListener('submit', function (event) {
-                    event.preventDefault();
-                    instance.requestPaymentMethod(function (err, payload) {
-                        if (err) {
-                        console.log('Error', err);
-                        return;
-                        }
-                        // Add the nonce to the form and submit
-                        document.querySelector('#nonce').value = payload.nonce;
-                        $.post({
-                            url:"/api/donate/",
-                            data: JSON.stringify({
-                                "nonce": payload.nonce,
-                                "amount": 50,
-                                "email": 'cofek0@gmail.com',
-                                "csrfmiddlewaretoken": "{{ csrf_token }}"
-                            }),
-                            headers:{
-                                "Content-Type": "application/json",
-                                "Accept": "*/*",
-                                "Cache-Control": "no-cache",
-                                "Host": "localhost:8000",
-                                "accept-encoding": "gzip, deflate",
-                                "content-length": "185",
-                                "Connection": "keep-alive",
-                                "cache-control": "no-cache",
-                                "X-CSRFToken":  "{{ csrf_token }}"
+                braintree.dropin.create({
+                    authorization: get_data.token,
+                    container: '#bt-dropin',
+                    paypal: {
+                    flow: 'vault'
+                    }
+                }, function (createErr, instance) {
+                    form.addEventListener('submit', function (event) {
+                        event.preventDefault();
+                        instance.requestPaymentMethod(function (err, payload) {
+                            if (err) {
+                            console.log('Error', err);
+                            return;
                             }
+                            // Add the nonce to the form and submit
+                            document.querySelector('#nonce').value = payload.nonce;
+                            $.post({
+                                url:"/api/generic-donation/subscription/1/",
+                                data: JSON.stringify({
+                                    "nonce": payload.nonce,
+                                    "email": "tomazkunst@gmail.com",
+                                    "amount": "43",
+                                    "uid": uid,
+                                    "name": "Tomaž",
+                                    "address": "asd",
+                                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                                }),
+                                headers:{
+                                    "Content-Type": "application/json",
+                                    "Accept": "*/*",
+                                    "Cache-Control": "no-cache",
+                                    "Host": "localhost:8000",
+                                    "accept-encoding": "gzip, deflate",
+                                    "content-length": "185",
+                                    "Connection": "keep-alive",
+                                    "cache-control": "no-cache",
+                                    "X-CSRFToken":  "{{ csrf_token }}"
+                                }
+                            });
                         });
                     });
                 });
-            });
+            }});
         </script>
     </body>
 </html>

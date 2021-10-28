@@ -22,6 +22,7 @@ urlpatterns = [
     path('send-email/', api.SendEmailApiView.as_view()),
     path('create-and-send-custom-email/', api.CreateAndSendMailApiView.as_view()),
     re_path('generic-donation/subscription/(?:(?P<campaign_id>\w+)/)?$', api.GenericSubscribableDonationCampaign.as_view()),
+    re_path('generic-donation/cancel-subscription/', api.CancelSubscription.as_view()),
     re_path('generic-donation/(?:(?P<campaign_id>\w+)/)?$', api.GenericDonationCampaign.as_view()),
     re_path('donation-statistics/(?:(?P<campaign_id>\w+)/)?$', api.DonationCampaignStatistics.as_view()),
 

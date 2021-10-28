@@ -918,13 +918,22 @@ class GenericDonationCampaign(views.APIView):
     """
     authentication_classes = [authentication.SubscriberAuthentication]
     def get(self, request, campaign_id=0):
-        # TODO return specifications of donation campaign
         print(campaign_id)
+        uid = request.GET.get('uid', None)
+        if uid:
+            subscriber = models.Subscriber.objects.filter(uid=uid)
+            if subscriber:
+                subscriber = subscriber[0]
+            else:
+                subscriber = models.Subscriber(uid=uid)
+                subscriber.save()
+        else:
+            subscriber = None
+
         donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
         donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
-        donation_obj.update(payment.client_token())
+        donation_obj.update(payment.client_token(subscriber))
         return Response(donation_obj)
-
 
     def post(self, request, campaign_id=0):
         data = request.data
@@ -1082,6 +1091,7 @@ class GenericDonationCampaign(views.APIView):
             'msg': 'Thanks <3',
         })
 
+
 class GenericSubscribableDonationCampaign(views.APIView):
     """
     GET get client token
@@ -1101,6 +1111,7 @@ class GenericSubscribableDonationCampaign(views.APIView):
         address = data.get('address', '')
         payment_type = data.get('payment_type', 'braintree')
         customer_id = data.get('customer_id', '')
+        uid = data.get('uid', None)
 
         donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
 
@@ -1119,13 +1130,32 @@ class GenericSubscribableDonationCampaign(views.APIView):
         if contacts:
             # subscriber exists on mautic
             mautic_id = list(contacts.keys())[0]
-            subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
-            subscriber.name = name
-            subscriber.address = address
-            subscriber.save()
+            subscriber = models.Subscriber.objects.filter(mautic_id=mautic_id)
+            if subscriber:
+                subscriber = subscriber[0]
+                if uid and subscriber.uid != uid:
+                    # TODO merge subsribers
+                    subscriber.uid = uid
+                    models.Subscriber.objects.filter(uid=uid).delete()
+                subscriber.name = name
+                subscriber.address = address
+                subscriber.save()
+            else:
+                if uid:
+                    subscriber = models.Subscriber.objects.get(uid=uid)
+                    subscriber.mautic_id = mautic_id
+                    subscriber.save()
+                else:
+                    return Response({'msg': 'WTF'}, status=status.HTTP_400_BAD_REQUEST)
+
         else:
             # subscriber does not exist on mautic
-            subscriber = models.Subscriber.objects.create(name=name, address=address)
+            if uid:
+                subscriber, created = models.Subscriber.objects.get_or_create(uid=uid)
+                subscriber.name = name
+                subscriber.name = address
+            else:
+                subscriber = models.Subscriber.objects.create(name=name, address=address)
             subscriber.save()
             response, response_status = subscriber.save_to_mautic(email, send_email=False)
             if response_status != 200:
@@ -1149,6 +1179,7 @@ class GenericSubscribableDonationCampaign(views.APIView):
                 subscriber=subscriber,
                 subscription_id=result.subscription.id,
                 campaign=donation_campaign,
+                is_active=True
             )
             donation.save()
             if donation_campaign.bt_subscription_email_template:
@@ -1159,7 +1190,6 @@ class GenericSubscribableDonationCampaign(views.APIView):
                 )
         else:
             return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
-
 
         # send slack msg
         try:
@@ -1180,7 +1210,72 @@ class GenericSubscribableDonationCampaign(views.APIView):
 
         return Response({
             'msg': 'Thanks <3',
+            'subscription_id': result.subscription.id,
+            'token': subscriber.token
         })
+
+
+class CancelSubscription(views.APIView):
+    """
+    POST json data:
+     - token
+     - subscription_id
+    """
+    authentication_classes = [authentication.SubscriberAuthentication]
+    def post(self, request):
+        data = request.data
+
+        token = data.get('token', None)
+        uid = data.get('uid', None)
+        subscription_id = data.get('subscription_id', None)
+
+        if token:
+            subscriber = get_object_or_404(
+                models.Subscriber,
+                token=token
+            )
+        elif uid:
+            subscriber = get_object_or_404(
+                models.Subscriber,
+                uid=uid
+            )
+        else:
+            return Response(
+                {
+                    'msg': 'You need to post uid or token of user.'
+                },
+                status=409
+            )
+
+        recurring_donation = get_object_or_404(
+            models.RecurringDonation,
+            subscription_id=subscription_id
+        )
+        if recurring_donation.subscriber == subscriber:
+            result = payment.cancel_subscription(subscription_id)
+            print(vars(result))
+            if result.is_success:
+                recurring_donation.subscription_id = None
+                recurring_donation.is_active = False
+                recurring_donation.save()
+                return Response(
+                    {
+                        'msg': 'subscription canceled'
+                    }
+                )
+            else:
+                return Response(
+                    {
+                        'msg': result.message
+                    }
+                )
+        else:
+            return Response(
+                {
+                    'msg': 'You dont have permissions for cancel subscription'
+                },
+                status=403
+            )
 
 
 class SendEmailApiView(GetOrAddSubscriber):
