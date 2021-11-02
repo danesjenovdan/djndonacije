@@ -1119,6 +1119,7 @@ class GenericSubscribableDonationCampaign(views.APIView):
         if not amount:
             return Response({'msg': 'Missing amount.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # get user with this email from mautic
         response, response_status = mautic_api.getContactByEmail(email)
         if response_status == 200:
             contacts = response['contacts']
@@ -1276,6 +1277,30 @@ class CancelSubscription(views.APIView):
                 },
                 status=403
             )
+
+
+class BraintreeWebhookApiView(views.APIView):
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        webhook_notification = payment.get_hook(str(data['bt_signature']), data['bt_payload'])
+
+        event = webhook_notification.kind
+        try:
+            subscription_id = webhook_notification.subject['subscription']['id']
+            plan_id = webhook_notification.subject['subscription']['plan_id']
+            # TODO create magic for created of failed transactions
+        except:
+            details = "UNKNOWN?"
+            proj = None
+
+        sc.api_call(
+            "chat.postMessage",
+            json={
+                'channel': "#djnd-bot",
+                'text': f':bell:  Event "{event}" was triggered on braintree.'
+            }
+        )
+        return Response(status=204)
 
 
 class SendEmailApiView(GetOrAddSubscriber):

@@ -25,6 +25,7 @@ urlpatterns = [
     re_path('generic-donation/cancel-subscription/', api.CancelSubscription.as_view()),
     re_path('generic-donation/(?:(?P<campaign_id>\w+)/)?$', api.GenericDonationCampaign.as_view()),
     re_path('donation-statistics/(?:(?P<campaign_id>\w+)/)?$', api.DonationCampaignStatistics.as_view()),
+    re_path('braintree-webhook/'. BraintreeWebhookApiView.as_view()),
 
     path('users/', api.UsersImport.as_view()),
 
