@@ -166,6 +166,7 @@ SEGMENTS = {
     'huda-pobuda-glas-skupnosti': 24,
     'huda-pobuda-zapisimo-spomine': 25,
     'pravna-mreza': 26,
+    'glas-ljudstva': 27,
 }
 EDIT_SUBSCRIPTIPNS_TEMPLATES = {
     18: 557,
