@@ -1078,9 +1078,18 @@ class GenericDonationCampaign(views.APIView):
         except:
             pass
 
-        return Response({
+        response = {
             'msg': 'Thanks <3',
-        })
+        }
+        if donation_campaign.has_upload_image:
+            image = models.Image(donation=donation)
+            image.save()
+            response.update({
+                'upload_token': image.token
+            })
+
+
+        return Response(response)
 
 class GenericSubscribableDonationCampaign(views.APIView):
     """
