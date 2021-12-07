@@ -1224,19 +1224,26 @@ class CreateAndSendMailApiView(views.APIView):
                     'msg': 'You have no permissions for do that.'
                 }, status=403)
 
+        email_data = {
+            'name': data['title'],
+            'title': data['title'],
+            'subject': data['title'],
+            'customHtml': data['content'],
+            'emailType': 'list',
+            'description': data["description"],
+            'assetAttachments': None,
+            'template': 'cards',
+            'lists': data['segments'],
+        }
+
+        if 'fromName' in data.keys():
+            email_data.update(fromName=data['fromName'])
+
+        if 'fromAddress' in data.keys():
+            email_data.update(fromAddress=data['fromAddress'])
 
         # create new email
-        response, response_status = mautic_api.createEmail(
-            data['title'],
-            data['title'],
-            data['title'],
-            customHtml=data['content'],
-            emailType='list',
-            description=data["description"],
-            assetAttachments=None,
-            template='cards',
-            lists=data['segments'],
-        )
+        response, response_status = mautic_api.createEmail(**email_data)
         if response_status == 200:
             new_email_id = response['email']['id']
 
