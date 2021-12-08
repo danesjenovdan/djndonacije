@@ -898,7 +898,7 @@ class DonationCampaignStatistics(views.APIView):
         donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
         donations = donation_campaign.donations.filter(is_paid=True)
         return Response({
-            'donation-amount': sum(donations.values_list('amount', flat=True)),
+            'donation-amount': sum([d.get_amount() for d in donations]),
             'donation-count': donations.count()
         })
 

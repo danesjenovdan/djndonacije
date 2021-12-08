@@ -87,9 +87,15 @@ class Donation(Timestamped):
     campaign = models.ForeignKey('DonationCampaign', related_name='donations', on_delete=models.SET_NULL, null=True, blank=True)
     transaction_id = models.CharField(max_length=128, null=True, blank=True)
 
-
     def __str__(self):
         return (self.subscriber.name if self.subscriber else '?') + ' -> ' + str(self.amount)
+
+    def get_amount(self):
+        try:
+            amount = self.__getattribute__("recurringdonation").amount * 12
+        except:
+            amount = self.amount
+        return amount
 
 
 class Image(Timestamped):
