@@ -71,20 +71,19 @@ class Subscriber(User, Timestamped):
         return "Subscriber_" + str(self.name)
 
 
-class Donation(Timestamped):
+class Transaction(Timestamped):
     subscriber = models.ForeignKey(
         'Subscriber',
         on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
+        related_name='transactions'
     )
     nonce = models.TextField(null=True, blank=True)
     amount = models.DecimalField(default=0.0, decimal_places=1, max_digits=20)
     is_paid = models.BooleanField(default=True)
     payment_method = models.CharField(max_length=50, default='braintree')
     reference = models.CharField(max_length=50, null=True, blank=True)
-    # is_assigned is helper atrribut using for group donations.
-    is_assigned = models.BooleanField(default=True)
     campaign = models.ForeignKey('DonationCampaign', related_name='donations', on_delete=models.SET_NULL, null=True, blank=True)
     transaction_id = models.CharField(max_length=128, null=True, blank=True)
 
@@ -99,8 +98,30 @@ class Donation(Timestamped):
         return amount
 
 
+class Subscription(Timestamped):
+    subscriber = models.ForeignKey(
+        'Subscriber',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='subscriptions'
+    )
+    token = models.TextField(null=True, blank=True)
+    amount = models.DecimalField(default=0.0, decimal_places=1, max_digits=20)
+    subscription_id = models.CharField(max_length=128, null=True, blank=True)
+    campaign = models.ForeignKey(
+        'DonationCampaign',
+        related_name='subscriptions',
+        on_delete=models.SET_NULL,
+        null=True, blank=True)
+    is_active = models.BooleanField(default=False)
+
+    def __str__(self):
+        return (self.subscriber.name if self.subscriber else '?') + ' -> ' + str(self.amount)
+
+
 class Image(Timestamped):
-    donation = models.OneToOneField('Donation', on_delete=models.CASCADE)
+    donation = models.OneToOneField('Transaction', on_delete=models.CASCADE)
     token = models.TextField(blank=False, null=False, default='1234567890')
     image = models.ImageField(upload_to='images')
     url = models.CharField(max_length=200, null=True, blank=True, validators=[OptionalSchemeURLValidator()])
@@ -152,30 +173,6 @@ class Image(Timestamped):
         temp_thumb.close()
 
         return True
-
-
-class Gift(Timestamped):
-    subscriber = models.ForeignKey(
-        'Subscriber',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='gifts'
-    )
-    nonce = models.TextField(null=True, blank=True)
-    amount = models.DecimalField(default=0.0, decimal_places=1, max_digits=20)
-    gifts = models.ManyToManyField('Donation', related_name='gifts')
-
-    def __str__(self):
-        return (self.subscriber.name if self.subscriber else '?') + ' -> ' + str(self.amount)
-
-
-class RecurringDonation(Donation):
-    subscription_id = models.CharField(max_length=128, null=True, blank=True)
-    is_active = models.BooleanField(default=False)
-
-    def __str__(self):
-        return (self.subscriber.name if self.subscriber else '?') + ' -> ' + str(self.amount)
 
 
 class DonationCampaign(Timestamped):

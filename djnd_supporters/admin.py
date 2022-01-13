@@ -1,19 +1,19 @@
 from django.contrib import admin
-from djnd_supporters.models import Gift, Donation, DonationCampaign, RecurringDonation, Subscriber
+from djnd_supporters.models import Transaction, DonationCampaign, Subscription, Subscriber
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
 
-class DonationResource(resources.ModelResource):
+class TransactionResource(resources.ModelResource):
 
     class Meta:
-        model = Donation
+        model = Transaction
 
 
-class RecurringDonationResource(resources.ModelResource):
+class SubscriptionResource(resources.ModelResource):
 
     class Meta:
-        model = RecurringDonation
+        model = Subscription
 
 
 class SubscriberResource(resources.ModelResource):
@@ -22,18 +22,18 @@ class SubscriberResource(resources.ModelResource):
         model = Subscriber
 
 
-class DonationInline(admin.TabularInline):
+class TransactionInline(admin.TabularInline):
     readonly_fields = ['created']
     #fields = ['created', 'email_content']
-    model = Donation
+    model = Transaction
     extra = 0
 
 
-class RecurringDonationInline(admin.TabularInline):
+class SubscriptionInline(admin.TabularInline):
     readonly_fields = ['created']
     #fields = ['created', 'email_content']
     #search_fields = ['subscriber__token']
-    model = RecurringDonation
+    model = Subscription
     extra = 0
 
 
@@ -42,15 +42,15 @@ class SubscriberAdmin(ImportExportModelAdmin):
     search_fields = ['token', 'mautic_id']
 
     inlines = (
-        DonationInline, RecurringDonationInline
+        TransactionInline, SubscriptionInline
     )
 
 
-class DonationAdmin(ImportExportModelAdmin):
+class TransactionAdmin(ImportExportModelAdmin):
     readonly_fields = ('address',)
     list_display = ('amount', 'subscriberName', 'address', 'is_paid', 'created', 'payment_method', 'campaign')
     list_filter = ('amount', 'campaign', 'is_paid', 'payment_method')
-    resource_class = DonationResource
+    resource_class = TransactionResource
     search_fields = ['subscriber__token', 'transaction_id']
 
     def subscriberName(self, obj):
@@ -66,11 +66,11 @@ class DonationAdmin(ImportExportModelAdmin):
             return ''
 
 
-class RecurringDonationAdmin(ImportExportModelAdmin):
+class SubscriptionAdmin(ImportExportModelAdmin):
     readonly_fields = ('address',)
-    list_display = ('amount', 'subscriberName', 'address', 'is_paid', 'created', 'payment_method', 'campaign')
-    list_filter = ('amount', 'campaign', 'is_paid')
-    resource_class = RecurringDonationResource
+    list_display = ('amount', 'subscriberName', 'address', 'created', 'campaign', 'subscription_id')
+    list_filter = ('amount', 'campaign')
+    resource_class = SubscriptionResource
     search_fields = ['subscriber__token', 'subscription_id']
     def subscriberName(self, obj):
         if obj.subscriber:
@@ -84,8 +84,7 @@ class RecurringDonationAdmin(ImportExportModelAdmin):
         else:
             return ''
 
-admin.site.register(Donation, DonationAdmin)
-admin.site.register(RecurringDonation, RecurringDonationAdmin)
-admin.site.register(Gift)
+admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(DonationCampaign)
 admin.site.register(Subscriber, SubscriberAdmin)

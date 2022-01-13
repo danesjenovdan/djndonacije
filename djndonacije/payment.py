@@ -6,6 +6,7 @@ gateway = settings.GATEWAY
 
 def client_token(user=None):
     if not user:
+        # create empty user
         result = gateway.customer.create({})
         return {
             'token': gateway.client_token.generate(
@@ -17,15 +18,8 @@ def client_token(user=None):
     if user.braintree_id:
         customer_id = user.braintree_id
     else:
-        result = gateway.customer.create({
-            'first_name': '',
-            'last_name': '',
-            #'company': '',
-            'email': '',
-            #'phone': '',
-            #'fax': '',
-            #'website': ''
-        })
+        # create empty user
+        result = gateway.customer.create({})
         if result.is_success:
             user.braintree_id = result.customer.id
             user.save()

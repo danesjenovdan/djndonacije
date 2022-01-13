@@ -2,6 +2,7 @@ from djnd_supporters import models
 from rest_framework import authentication
 from rest_framework import exceptions
 
+
 class SubscriberAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
         email = request.GET.get('email')
