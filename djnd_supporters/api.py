@@ -898,7 +898,7 @@ class DonationCampaignStatistics(views.APIView):
         donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
         donations = donation_campaign.donations.filter(is_paid=True)
         return Response({
-            'donation-amount': sum(donations.values_list('amount', flat=True)),
+            'donation-amount': sum([d.get_amount() for d in donations]),
             'donation-count': donations.count()
         })
 
@@ -1087,9 +1087,18 @@ class GenericDonationCampaign(views.APIView):
         except:
             pass
 
-        return Response({
+        response = {
             'msg': 'Thanks <3',
-        })
+        }
+        if donation_campaign.has_upload_image:
+            image = models.Image(donation=donation)
+            image.save()
+            response.update({
+                'upload_token': image.token
+            })
+
+
+        return Response(response)
 
 
 class GenericSubscribableDonationCampaign(views.APIView):
@@ -1335,19 +1344,26 @@ class CreateAndSendMailApiView(views.APIView):
                     'msg': 'You have no permissions for do that.'
                 }, status=403)
 
+        email_data = {
+            'name': data['title'],
+            'title': data['title'],
+            'subject': data['title'],
+            'customHtml': data['content'],
+            'emailType': 'list',
+            'description': data["description"],
+            'assetAttachments': None,
+            'template': 'cards',
+            'lists': data['segments'],
+        }
+
+        if 'fromName' in data.keys():
+            email_data.update(fromName=data['fromName'])
+
+        if 'fromAddress' in data.keys():
+            email_data.update(fromAddress=data['fromAddress'])
 
         # create new email
-        response, response_status = mautic_api.createEmail(
-            data['title'],
-            data['title'],
-            data['title'],
-            customHtml=data['content'],
-            emailType='list',
-            description=data["description"],
-            assetAttachments=None,
-            template='cards',
-            lists=data['segments'],
-        )
+        response, response_status = mautic_api.createEmail(**email_data)
         if response_status == 200:
             new_email_id = response['email']['id']
 
