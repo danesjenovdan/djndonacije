@@ -188,6 +188,7 @@ class DonationCampaign(Timestamped):
     add_to_mailing = models.IntegerField(null=True, blank=True, help_text='Add email to this mailing ID')
     has_upload_image = models.BooleanField(default=False, help_text='Has donation uploading image')
     web_hook_url = models.CharField(max_length=32, help_text='Web hook for subscription events', null=True, blank=True)
+    braintee_subscription_plan_id = models.CharField(max_length=32, help_text='Braintree subscription plan id', null=True, blank=True)
 
     def __str__(self):
         return self.name

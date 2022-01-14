@@ -481,13 +481,7 @@ class GenericCampaignSubscription(views.APIView):
         customer_id = data.get('customer_id', '')
         token = data.get('token', None)
 
-        # TODO use customer_id instead of customer_id
-
         donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
-
-        # if no amount deny
-        if not amount:
-            return Response({'msg': 'Missing amount.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # get user with this email from mautic
         response, response_status = mautic_api.getContactByEmail(email)
@@ -544,7 +538,13 @@ class GenericCampaignSubscription(views.APIView):
         if not donation_campaign.has_braintree_subscription:
             return Response({'msg': 'This campaign does not support braintree payments.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        result = payment.create_subscription(nonce, customer_id, float(amount))
+        # get plan id from campaing
+        plan_id = donation_campaign.braintee_subscription_plan_id
+        if not plan_id:
+            plan_id = 'djnd'
+
+        # create and save subscription if success
+        result = payment.create_subscription(nonce, customer_id, plan_id=plan_id, costum_price=amount)
         if result.is_success:
             # create donation without subscriber
             donation = models.Subscription(
