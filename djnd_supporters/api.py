@@ -435,7 +435,7 @@ class GenericDonationCampaign(views.APIView):
             sc.api_call(
                 "chat.postMessage",
                 json={
-                    'channel': "#djnd-bot",
+                    'channel': donation_campaign.slack_report_channel,
                     'text': msg
                 }
             )
@@ -575,7 +575,7 @@ class GenericCampaignSubscription(views.APIView):
             sc.api_call(
                 "chat.postMessage",
                 json={
-                    'channel': "#djnd-bot",
+                    'channel': donation_campaign.slack_report_channel,
                     'text': msg
                 }
             )

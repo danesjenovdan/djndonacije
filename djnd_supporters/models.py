@@ -189,6 +189,7 @@ class DonationCampaign(Timestamped):
     has_upload_image = models.BooleanField(default=False, help_text='Has donation uploading image')
     web_hook_url = models.CharField(max_length=32, help_text='Web hook for subscription events', null=True, blank=True)
     braintee_subscription_plan_id = models.CharField(max_length=32, help_text='Braintree subscription plan id', null=True, blank=True)
+    slack_report_channel = models.TextField(blank=False, null=False, default='#djnd-bot', help_text='Slack channel for events reporting. Starts with #')
 
     def __str__(self):
         return self.name
