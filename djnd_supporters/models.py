@@ -41,8 +41,9 @@ class Subscriber(User, Timestamped):
     name = models.CharField(default="Anonimnež_ica", max_length=128)
     mautic_id = models.IntegerField(null=True, blank=True, unique=True)
     address = models.TextField(null=True, blank=True)
-    uid = models.TextField(null=True, blank=True)
-    braintree_id = models.TextField(null=True, blank=True)
+    customer_id = models.TextField(
+        null=True, blank=True,
+        help_text='Braintree customer id')
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -186,6 +187,7 @@ class DonationCampaign(Timestamped):
     bt_subscription_email_template = models.IntegerField(null=True, blank=True,  help_text='Id of email tempalte on mautic for braintree subscription donation')
     add_to_mailing = models.IntegerField(null=True, blank=True, help_text='Add email to this mailing ID')
     has_upload_image = models.BooleanField(default=False, help_text='Has donation uploading image')
+    web_hook_url = models.CharField(max_length=32, help_text='Web hook for subscription events', null=True, blank=True)
 
     def __str__(self):
         return self.name

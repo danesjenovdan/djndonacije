@@ -45,8 +45,8 @@
             //$.ajaxSetup({
             //    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
             //});
-            var uid = "123123";
-            $.get({url:"/api/generic-donation/1/?uid="+uid, success: function( get_data ) {
+            var customer_id = "123123";
+            $.get({url:"/api/generic-donation/1/?customer_id="+customer_id, success: function( get_data ) {
             var form = document.querySelector('#payment-form');
                 braintree.dropin.create({
                     authorization: get_data.token,
@@ -70,7 +70,7 @@
                                     "nonce": payload.nonce,
                                     "email": "tomazkunst@gmail.com",
                                     "amount": "43",
-                                    "uid": uid,
+                                    "customer_id": customer_id,
                                     "name": "Tomaž",
                                     "address": "asd",
                                     "csrfmiddlewaretoken": "{{ csrf_token }}"

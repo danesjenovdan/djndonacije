@@ -274,13 +274,13 @@ class GenericDonationCampaign(views.APIView):
     authentication_classes = [authentication.SubscriberAuthentication]
     def get(self, request, campaign_id=0):
         print(campaign_id)
-        uid = request.GET.get('uid', None)
-        if uid:
-            subscriber = models.Subscriber.objects.filter(uid=uid)
+        customer_id = request.GET.get('customer_id', None)
+        if customer_id:
+            subscriber = models.Subscriber.objects.filter(customer_id=customer_id)
             if subscriber:
                 subscriber = subscriber[0]
             else:
-                subscriber = models.Subscriber(uid=uid)
+                subscriber = models.Subscriber(customer_id=customer_id)
                 subscriber.save()
         else:
             subscriber = None
@@ -463,6 +463,11 @@ class GenericCampaignSubscription(views.APIView):
     POST json data:
      - nonce
      - amount
+     - email
+     - name
+     - mailing
+     - address
+     - customer_id
     """
     authentication_classes = [authentication.SubscriberAuthentication]
     def post(self, request, campaign_id=0):
@@ -474,9 +479,9 @@ class GenericCampaignSubscription(views.APIView):
         add_to_mailing = data.get('mailing', False)
         address = data.get('address', '')
         customer_id = data.get('customer_id', '')
-        uid = data.get('uid', None)
+        token = data.get('token', None)
 
-        # TODO find Subscriber with customer_id
+        # TODO use customer_id instead of customer_id
 
         donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
 
@@ -491,6 +496,7 @@ class GenericCampaignSubscription(views.APIView):
         else:
             # something went wrong with mautic, return
             return Response({'msg': response}, status=response_status)
+
         print(contacts)
         mautic_id = None
         if contacts:
@@ -499,25 +505,26 @@ class GenericCampaignSubscription(views.APIView):
             subscriber = models.Subscriber.objects.filter(mautic_id=mautic_id)
             if subscriber:
                 subscriber = subscriber[0]
-                if uid and subscriber.uid != uid:
-                    # TODO merge subsribers
-                    subscriber.uid = uid
-                    models.Subscriber.objects.filter(uid=uid).delete()
+                if customer_id and subscriber.customer_id != customer_id:
+                    # TODO sentry log error, maybe wee need to merge people for some special cases?
+                    subscriber.customer_id = customer_id
+                    models.Subscriber.objects.filter(customer_id=customer_id).delete()
                 subscriber.name = name
                 subscriber.address = address
                 subscriber.save()
             else:
-                if uid:
-                    subscriber = models.Subscriber.objects.get(uid=uid)
+                if customer_id:
+                    subscriber = models.Subscriber.objects.get(customer_id=customer_id)
                     subscriber.mautic_id = mautic_id
                     subscriber.save()
                 else:
+                    # TODO sentry log error
                     return Response({'msg': 'WTF'}, status=status.HTTP_400_BAD_REQUEST)
 
         else:
             # subscriber does not exist on mautic
-            if uid:
-                subscriber, created = models.Subscriber.objects.get_or_create(uid=uid)
+            if customer_id:
+                subscriber, created = models.Subscriber.objects.get_or_create(customer_id=customer_id)
                 subscriber.name = name
                 subscriber.name = address
             else:
@@ -587,6 +594,7 @@ class CancelSubscription(views.APIView):
     """
     POST json data:
      - token
+     - customer_id
      - subscription_id
     """
     authentication_classes = [authentication.SubscriberAuthentication]
@@ -594,7 +602,7 @@ class CancelSubscription(views.APIView):
         data = request.data
 
         token = data.get('token', None)
-        uid = data.get('uid', None)
+        customer_id = data.get('customer_id', None)
         subscription_id = data.get('subscription_id', None)
 
         if token:
@@ -602,15 +610,15 @@ class CancelSubscription(views.APIView):
                 models.Subscriber,
                 token=token
             )
-        elif uid:
+        elif customer_id:
             subscriber = get_object_or_404(
                 models.Subscriber,
-                uid=uid
+                customer_id=customer_id
             )
         else:
             return Response(
                 {
-                    'msg': 'You need to post uid or token of user.'
+                    'msg': 'You need to post customer_id or token of user.'
                 },
                 status=409
             )

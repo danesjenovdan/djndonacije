@@ -15,13 +15,13 @@ def client_token(user=None):
                 }),
             'customer_id': result.customer.id
         }
-    if user.braintree_id:
-        customer_id = user.braintree_id
+    if user.customer_id:
+        customer_id = user.customer_id
     else:
         # create empty user
         result = gateway.customer.create({})
         if result.is_success:
-            user.braintree_id = result.customer.id
+            user.customer_id = result.customer.id
             user.save()
             customer_id = result.customer.id
     return {
@@ -73,7 +73,7 @@ def client_token(user=None):
 
 #     return result
 
-def create_subscription(nonce, customer_id, costum_price=None):
+def create_subscription(nonce, customer_id, plan_id='djnd', costum_price=None):
     #result = gateway.payment_method.create({
     #    "customer_id": customer_id,
     #    "payment_method_nonce": nonce
@@ -83,7 +83,7 @@ def create_subscription(nonce, customer_id, costum_price=None):
 
     data = {
         'payment_method_nonce': nonce,
-        'plan_id': 'djnd',
+        'plan_id': plan_id,
     }
 
     if costum_price:
