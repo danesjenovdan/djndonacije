@@ -6,17 +6,16 @@ from rest_framework.response import Response
 
 from djnd_supporters import models, mautic_api, authentication, serializers
 from djndonacije import payment
+from djndonacije.slack_utils import send_slack_msg
 
 from datetime import datetime
 
-import slack
 import requests
+import braintree
 
 from djnd_supporters.views import getPDForDonation
 from django.template.loader import get_template
 from django.core import signing
-
-sc = slack.WebClient(settings.SLACK_KEY, timeout=30)
 
 
 class GetOrAddSubscriber(views.APIView):
@@ -430,17 +429,9 @@ class GenericDonationCampaign(views.APIView):
             name = name.split(' ')[0]
         except:
             pass
-        try:
-            msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila donacijo za [ ' + donation_campaign.name + ' ] v višini: ' + str(donation.amount)
-            sc.api_call(
-                "chat.postMessage",
-                json={
-                    'channel': donation_campaign.slack_report_channel,
-                    'text': msg
-                }
-            )
-        except:
-            pass
+
+        msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila donacijo za [ ' + donation_campaign.name + ' ] v višini: ' + str(donation.amount)
+        send_slack_msg(msg, donation_campaign.slack_report_channel)
 
         response = {
             'msg': 'Thanks <3',
@@ -570,17 +561,9 @@ class GenericCampaignSubscription(views.APIView):
             name = name.split(' ')[0]
         except:
             pass
-        try:
+
             msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila mesecno donacijo za ' + donation_campaign.name + ' v višini: ' + str(donation.amount)
-            sc.api_call(
-                "chat.postMessage",
-                json={
-                    'channel': donation_campaign.slack_report_channel,
-                    'text': msg
-                }
-            )
-        except:
-            pass
+            send_slack_msg(msg, donation_campaign.slack_report_channel)
 
         return Response({
             'msg': 'Thanks <3',
@@ -631,7 +614,7 @@ class CancelSubscription(views.APIView):
             result = payment.cancel_subscription(subscription_id)
             print(vars(result))
             if result.is_success:
-                subscription.subscription_id = None
+                #subscription.subscription_id = None
                 subscription.is_active = False
                 subscription.save()
                 return Response(
@@ -658,23 +641,47 @@ class BraintreeWebhookApiView(views.APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
         webhook_notification = payment.get_hook(str(data['bt_signature']), data['bt_payload'])
+        subscription = None
 
         event = webhook_notification.kind
         try:
             subscription_id = webhook_notification.subject['subscription']['id']
-            plan_id = webhook_notification.subject['subscription']['plan_id']
-            # TODO create magic for created of failed transactions
-        except:
+            if event == braintree.WebhookNotification.Kind.SubscriptionChargedSuccessfully:
+                for transaction in webhook_notification.subject['subscription']['transactions']:
+                    if transaction['processor_response_text'] == 'Approved' and transaction['status'] == 'submitted_for_settlement':
+                        print('create_transaction')
+                        subscription = models.Subscription.objects.filter(subscription_id=subscription_id).first()
+                        transaction_id = transaction['id']
+                        new_transaction = models.Transaction(
+                            amount=transaction['amount'],
+                            subscriber=subscription.subscriber,
+                            campaign=subscription.campaign,
+                            transaction_id=transaction_id,
+                            payment_method='braintree-subscription'
+                        )
+                        new_transaction.save()
+
+            elif event == braintree.WebhookNotification.Kind.SubscriptionChargedUnsuccessfully:
+                subscription_id = webhook_notification.subject['subscription']['id']
+                subscription = models.Subscription.objects.filter(subscription_id=subscription_id).first()
+                # TODO send email
+
+            elif event == braintree.WebhookNotification.Kind.SubscriptionCanceled:
+                subscription_id = webhook_notification.subject['subscription']['id']
+                subscription = models.Subscription.objects.filter(subscription_id=subscription_id).first()
+                subscription.is_active = False
+                subscription.save()
+                # TODO send email
+
+        except Exception as e:
+            print(e)
+            # TODO send sentry error
             details = "UNKNOWN?"
             proj = None
 
-        sc.api_call(
-            "chat.postMessage",
-            json={
-                'channel': "#djnd-bot",
-                'text': f':bell:  Event "{event}" was triggered on braintree.'
-            }
-        )
+        if subscription:
+            send_slack_msg(f':bell:  Event "{event}" was triggered on braintree.', subscription.campaign.slack_report_channel)
+
         return Response(status=204)
 
 

@@ -68,7 +68,7 @@ class TransactionAdmin(ImportExportModelAdmin):
 
 class SubscriptionAdmin(ImportExportModelAdmin):
     readonly_fields = ('address',)
-    list_display = ('amount', 'subscriberName', 'address', 'created', 'campaign', 'subscription_id')
+    list_display = ('amount', 'subscriberName', 'address', 'created', 'campaign', 'subscription_id', 'is_active')
     list_filter = ('amount', 'campaign')
     resource_class = SubscriptionResource
     search_fields = ['subscriber__token', 'subscription_id']

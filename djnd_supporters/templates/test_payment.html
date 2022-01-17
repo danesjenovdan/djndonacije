@@ -45,8 +45,8 @@
             //$.ajaxSetup({
             //    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
             //});
-            var customer_id = "123123";
-            $.get({url:"/api/generic-donation/1/?customer_id="+customer_id, success: function( get_data ) {
+            var customer_id = "634512587";
+            $.get({url:"/api/generic-donation/1/?customer_id=634512587", success: function( get_data ) {
             var form = document.querySelector('#payment-form');
                 braintree.dropin.create({
                     authorization: get_data.token,

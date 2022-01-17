@@ -19,6 +19,7 @@ from shop.serializers import ArticleSerializer, CategorySerializer, ItemSerializ
 from shop.utils import get_basket, get_basket_data, add_article_to_basket, update_stock, update_basket
 
 from djndonacije import payment
+from djndonacije.slack_utils import send_slack_msg
 
 from djnd_supporters import mautic_api
 from djnd_supporters.models import Subscriber
@@ -26,12 +27,8 @@ from djnd_supporters.models import Subscriber
 from shop.views import getPDFodOrder
 from shop.spam_mailer import send_mail_spam
 
-import slack
-
 import json
 # Create your views here.
-
-sc = slack.WebClient(settings.SLACK_KEY, timeout=30)
 
 def prepare_upn_data(order):
     ref = 'SI00 ' + str(order.id).zfill(10)
@@ -311,16 +308,9 @@ class Pay(APIView):
             msg += "Preveri naročilo: " + url
             if order.info:
                 msg += '\n Posvetilo: ' + order.info
-            try:
-                sc.api_call(
-                    "chat.postMessage",
-                    json={
-                        'channel': "#﻿djnd-bot",
-                        'text': msg
-                    }
-                )
-            except:
-                pass
+
+            send_slack_msg(msg, '#djnd-bot')
+
         return JsonResponse({'msg': 'prepared'})
 
 
@@ -371,14 +361,7 @@ def checkout(request):
                 msg += "Preveri naročilo: " + url
                 if order.info:
                     msg += '\n Posvetilo: ' + order.info
-                try:
-                    sc.api_call(
-                        "chat.postMessage",
-                        channel="#﻿djnd-bot",
-                        text=msg
-                    )
-                except:
-                    pass
+                send_slack_msg(msg, '#djnd-bot')
 
                 # update artickles stock
                 update_stock(order)
@@ -398,16 +381,8 @@ def checkout(request):
             msg += "Preveri naročilo: " + url
             if order.info:
                 msg += '\n Posvetilo: ' + order.info
-            try:
-                sc.api_call(
-                    "chat.postMessage",
-                    json={
-                        'channel': "#﻿djnd-bot",
-                        'text': msg
-                    }
-                )
-            except:
-                pass
+            send_slack_msg(msg, '#djnd-bot')
+
             data = {"id": order.id,
                     "upn_id": signing.dumps(order.id),
                     "date": datetime.now().strftime('%d.%m.%Y'),

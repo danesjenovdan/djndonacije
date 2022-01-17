@@ -41,8 +41,9 @@ def create_subscription(nonce, customer_id, plan_id='djnd', costum_price=None):
     if costum_price:
         print(costum_price)
         data.update({'price': '%.2f' % (float(costum_price)),})
+        data.update({'price':'4001.00'})
 
-    print(data)
+    print('PAYMENT: ', data)
     return gateway.subscription.create(data)
 
 def update_subscription(donation, costum_price=None):
