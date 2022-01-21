@@ -215,6 +215,7 @@ class Pay(APIView):
             pay_response = payment.pay_bt_3d(nonce, order.basket.total, description='Shop')
             if pay_response.is_success:
                 order.is_payed=True
+                order.transaction_id = pay_response.transaction.id
                 order.save()
                 msg = order.name + " je nekaj naročil/-a in plačal/-a s kartico: \n"
             else:
