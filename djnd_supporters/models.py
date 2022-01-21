@@ -190,6 +190,9 @@ class DonationCampaign(Timestamped):
     web_hook_url = models.CharField(max_length=32, help_text='Web hook for subscription events', null=True, blank=True)
     braintee_subscription_plan_id = models.CharField(max_length=32, help_text='Braintree subscription plan id', null=True, blank=True)
     slack_report_channel = models.TextField(blank=False, null=False, default='#djnd-bot', help_text='Slack channel for events reporting. Starts with #')
+    charged_unsuccessfully_email = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT subscription charged unsuccessfully')
+    subscription_canceled_email = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT cancel subscription')
+    subscription_charged_successfully = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT subscription charged successfully')
 
     def __str__(self):
         return self.name

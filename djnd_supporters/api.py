@@ -660,18 +660,36 @@ class BraintreeWebhookApiView(views.APIView):
                             payment_method='braintree-subscription'
                         )
                         new_transaction.save()
+                        if campagin.subscription_charged_successfully:
+                            response, response_status = mautic_api.sendEmail(
+                                campagin.subscription_charged_successfully,
+                                subscription.subscriber.mautic_id,
+                                {}
+                            )
 
             elif event == braintree.WebhookNotification.Kind.SubscriptionChargedUnsuccessfully:
                 subscription_id = webhook_notification.subject['subscription']['id']
                 subscription = models.Subscription.objects.filter(subscription_id=subscription_id).first()
-                # TODO send email
+                campagin = subscription.campaign
+                if campagin.charged_unsuccessfully_email:
+                    response, response_status = mautic_api.sendEmail(
+                        campagin.charged_unsuccessfully_email,
+                        subscription.subscriber.mautic_id,
+                        {}
+                    )
 
             elif event == braintree.WebhookNotification.Kind.SubscriptionCanceled:
                 subscription_id = webhook_notification.subject['subscription']['id']
                 subscription = models.Subscription.objects.filter(subscription_id=subscription_id).first()
                 subscription.is_active = False
                 subscription.save()
-                # TODO send email
+                campagin = subscription.campaign
+                if campagin.subscription_canceled_email:
+                    response, response_status = mautic_api.sendEmail(
+                        campagin.subscription_canceled_email,
+                        subscription.subscriber.mautic_id,
+                        {}
+                    )
 
         except Exception as e:
             print(e)
