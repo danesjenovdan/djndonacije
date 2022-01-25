@@ -47,13 +47,13 @@ class Subscribe(views.APIView):
     def post(self, request, format=None):
         data = request.data
         email = data.get('email', None)
-        segment = data.get('segment', None)
-        campaign = data.get('campaign', None)
+        segment = data.get('segment_id', None)
+        campaign = data.get('campaign_id', None)
 
         if campaign:
             campaign = models.DonationCampaign.objects.filter(id=campaign).first()
 
-        # segment from argument has priority on segment from campaing
+        # segment from argument has priority on segment from campaign
         if not segment and campaign:
             if campaign.segment:
                 segment = campaign.segment
@@ -552,7 +552,7 @@ class GenericCampaignSubscription(views.APIView):
         if not donation_campaign.has_braintree_subscription:
             return Response({'msg': 'This campaign does not support braintree payments.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # get plan id from campaing
+        # get plan id from campaign
         plan_id = donation_campaign.braintee_subscription_plan_id
         if not plan_id:
             plan_id = 'djnd'
@@ -683,9 +683,9 @@ class BraintreeWebhookApiView(views.APIView):
                             payment_method='braintree-subscription'
                         )
                         new_transaction.save()
-                        if campagin.subscription_charged_successfully:
+                        if subscription.campaign.subscription_charged_successfully:
                             response, response_status = mautic_api.sendEmail(
-                                campagin.subscription_charged_successfully,
+                                subscription.campaign.subscription_charged_successfully,
                                 subscription.subscriber.mautic_id,
                                 {}
                             )
