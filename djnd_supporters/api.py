@@ -41,12 +41,23 @@ class Subscribe(views.APIView):
     Add subscriber od edit subscriptions
     POST:
         email
-        segment
+        segment / če pride zraven segment overide-i segment iz campaigna
+        campaign
     """
     def post(self, request, format=None):
         data = request.data
         email = data.get('email', None)
         segment = data.get('segment', None)
+        campaign = data.get('campaign', None)
+
+        if campaign:
+            campaign = models.DonationCampaign.objects.filter(id=campaign).first()
+
+        # segment from argument has priority on segment from campaing
+        if not segment and campaign:
+            if campaign.segment:
+                segment = campaign.segment
+
         if email:
             response, response_status = mautic_api.getContactByEmail(email)
             if response_status == 200:
@@ -55,14 +66,20 @@ class Subscribe(views.APIView):
                     mautic_id = list(contacts.keys())[0]
                     if segment:
                         mautic_api.addContactToASegment(segment, mautic_id)
-                    edit_subscriptopn_template = settings.EDIT_SUBSCRIPTIPNS_TEMPLATES.get(segment, settings.MAIL_TEMPLATES['EDIT_SUBSCRIPTIPNS'])
-                    response, response_status = mautic_api.sendEmail(
-                        edit_subscriptopn_template,
-                        mautic_id,
-                        {
-                        }
-                    )
-                    return Response({'msg': 'mail sent'})
+
+                    if campaign and campaign.edit_subscriptions_email_tempalte:
+                        response, response_status = mautic_api.sendEmail(
+                            campaign.edit_subscriptions_email_tempalte,
+                            mautic_id,
+                            {
+                            }
+                        )
+                        return Response({'msg': 'mail sent'})
+                    else:
+                        # TODO think about this case
+                        pass
+                        return Response({'msg': 'mail not sent'})
+
                 else:
                     subscriber = models.Subscriber.objects.create()
                     subscriber.save()
@@ -72,12 +89,18 @@ class Subscribe(views.APIView):
                     else:
                         if segment:
                             mautic_api.addContactToASegment(segment, subscriber.mautic_id)
-                        response, response_status = mautic_api.sendEmail(
-                            settings.MAIL_TEMPLATES['WELLCOME_MAIL'],
-                            subscriber.mautic_id,
-                            {}
-                        )
-                        return Response({'msg': 'mail sent'})
+
+                        if campaign and campaign.welcome_email_tempalte:
+                            response, response_status = mautic_api.sendEmail(
+                                campaign.welcome_email_tempalte,
+                                subscriber.mautic_id,
+                                {}
+                            )
+                            return Response({'msg': 'mail sent'})
+                        else:
+                            # TODO think about this case
+                            pass
+                            return Response({'msg': 'mail not sent'})
             else:
                 return Response({'msg': response}, status=response_status)
         return Response({'error': 'Missing email and/or token.'}, status=status.HTTP_409_CONFLICT)

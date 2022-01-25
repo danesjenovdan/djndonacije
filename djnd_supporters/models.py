@@ -183,7 +183,7 @@ class DonationCampaign(Timestamped):
     has_braintree = models.BooleanField(default=True, help_text='Enable braintree donation')
     has_braintree_subscription = models.BooleanField(default=True, help_text='Enable braintree subscription donation')
     upn_email_template = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for UPN donation')
-    bt_email_template = models.IntegerField(null=True, blank=True,  help_text='Id of email tempalte on mautic for braintree donation')
+    bt_email_template = models.IntegerField(null=True, blank=True,  help_text='ID of email tempalte on mautic for braintree donation')
     bt_subscription_email_template = models.IntegerField(null=True, blank=True,  help_text='Id of email tempalte on mautic for braintree subscription donation')
     add_to_mailing = models.IntegerField(null=True, blank=True, help_text='Add email to this mailing ID')
     has_upload_image = models.BooleanField(default=False, help_text='Has donation uploading image')
@@ -193,6 +193,10 @@ class DonationCampaign(Timestamped):
     charged_unsuccessfully_email = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT subscription charged unsuccessfully')
     subscription_canceled_email = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT cancel subscription')
     subscription_charged_successfully = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT subscription charged successfully')
+    segment = models.IntegerField(null=True, blank=True, help_text='ID of default segment of this campaign')
+    welcome_email_tempalte = models.IntegerField(null=True, blank=True, help_text='ID of email tempalte on mautic to send on user registration')
+    edit_subscriptions_email_tempalte = models.IntegerField(null=True, blank=True, help_text='ID of email tempalte on mautic for edit subscrptions')
+
 
     def __str__(self):
         return self.name

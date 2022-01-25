@@ -126,3 +126,4 @@ dmypy.json
 /static/*
 /media/*
 prod.py
+.vscode
