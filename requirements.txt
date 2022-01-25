@@ -18,3 +18,4 @@ psycopg2_binary==2.9.1
 gunicorn==20.1.0
 ipython
 sentry-sdk
+boto3
