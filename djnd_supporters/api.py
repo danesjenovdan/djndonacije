@@ -63,9 +63,12 @@ class Subscribe(views.APIView):
             if response_status == 200:
                 contacts = response['contacts']
                 if contacts:
+                    # user already exists on mautic
                     mautic_id = list(contacts.keys())[0]
                     if segment:
                         mautic_api.addContactToASegment(segment, mautic_id)
+
+                    # TODO: tu je treba poslat welcome mail, tudi če user že obstaja ampak ga še ni na tem segmentu
 
                     if campaign and campaign.edit_subscriptions_email_tempalte:
                         response, response_status = mautic_api.sendEmail(
@@ -81,6 +84,7 @@ class Subscribe(views.APIView):
                         return Response({'msg': 'mail not sent'})
 
                 else:
+                    # user does not exist on mautic, create new 
                     subscriber = models.Subscriber.objects.create()
                     subscriber.save()
                     response, response_status = subscriber.save_to_mautic(email)
