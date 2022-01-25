@@ -6,7 +6,11 @@ resources:
   - mautic/service.yaml
   - mautic/ingress.yaml
 
-# images:
-#   - name: djndonacija
-#     newName: blabla/replaceme
-#     newTag: 'latest'
+  - podpri/deployment.yaml
+  - podpri/service.yaml
+  - podpri/ingress.yaml
+
+images:
+  - name: podpri
+    newName: rg.fr-par.scw.cloud/djnd/podpri
+    newTag: 'latest'

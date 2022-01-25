@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: podpri-deployment
+  labels:
+    app: podpri
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: podpri
+  template:
+    metadata:
+      labels:
+        app: podpri
+    spec:
+      initContainers:
+        - name: collectstatic
+          image: podpri
+          command:
+            - python
+            - manage.py
+            - collectstatic
+            - --no-input
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: djndonacije.settings.k8s
+          envFrom:
+            - secretRef:
+                name: podpri-credentials
+            - secretRef:
+                name: podpri-sentry
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 200m
+            limits:
+              memory: 200Mi
+              cpu: 200m
+        - name: migrate
+          image: podpri
+          command:
+            - python
+            - manage.py
+            - migrate
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: djndonacije.settings.k8s
+          envFrom:
+            - secretRef:
+                name: podpri-credentials
+            - secretRef:
+                name: podpri-sentry
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 200m
+            limits:
+              memory: 200Mi
+              cpu: 200m
+      containers:
+        - name: podpri
+          image: podpri
+          command:
+            - gunicorn
+            - djndonacije.wsgi:application
+            - -b
+            - 0.0.0.0:8000
+            - --log-level
+            - DEBUG
+            - --workers
+            - "1"
+            - --threads
+            - "3"
+            - --timeout
+            - "120"
+          ports:
+            - containerPort: 8000
+          envFrom:
+              - secretRef:
+                  name: podpri-credentials
+              - secretRef:
+                  name: podpri-sentry
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: djndonacije.settings.k8s
+            - name: DJND_IBAN
+              value: 'SI56 6100 0000 5740 710'
+            - name: DJND_UPN_TO_NAME
+              value: 'Danes je nov dan'
+            - name: DJND_UPN_TO_ADDRESS1
+              value: 'Parmova 20'
+            - name: DJND_TO_ADDRESS2
+              value: '1000 Ljubljana'
+          resources:
+            requests:
+              memory: 400Mi
+              cpu: 200m
+            limits:
+              memory: 400Mi
+              cpu: 200m
