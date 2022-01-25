@@ -36,11 +36,17 @@ env = dict(
     BRAINTREE_MERCHANT_ID=os.getenv('BRAINTREE_MERCHANT_ID', ''),
     BRAINTREE_PUBLIC_KEY=os.getenv('BRAINTREE_PUBLIC_KEY', ''),
     BRAINTREE_PRIVATE_KEY=os.getenv('BRAINTREE_PRIVATE_KEY', ''),
+    SALT=os.getenv('SALT', ''),
+    DJANGO_BASE_URL=os.getenv('DJANGO_BASE_URL', 'http://localhost:8000'),
+    IBAN=os.getenv('DJANGO_BASE_URL', 'SI56 6100 0000 5740 710'),
+    TO_NAME=os.getenv('DJND_IBAN', 'Danes je nov dan'),
+    TO_ADDRESS1=os.getenv('DJND_UPN_TO_ADDRESS1', 'Parmova 20'),
+    TO_ADDRESS2=os.getenv('DJND_UPN_TO_ADDRESS2', '1000 Ljubljana'),
+    EMAIL_TOKEN=os.getenv('EMAIL_TOKEN', ''),
+    AGRUM_TOKEN=os.getenv('AGRUM_TOKEN', ''),
 )
 
-
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -58,7 +64,6 @@ DATABASES = {
         'PASSWORD': env['DATABASE_PASSWORD'],
     }
 }
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -161,31 +166,25 @@ STATIC_URL = env['STATIC_URL']
 MEDIA_ROOT = env['MEDIA_ROOT']
 MEDIA_URL = env['MEDIA_URL']
 
-SOLR_URL = env['SOLR_URL']
 
 
-MAUTIC_URL = f'{env["MAUTIC_URL"]}/api/'
+SALT = env['SALT']
+BASE_URL = env['DJANGO_BASE_URL']
 
-SALT = 'something/stupid'
-
-BASE_URL = 'http://localhost:8888/'
-
-SUPPORT_MAIL = 'vsi@danesjenovdan.si'
-
-FROM_MAIL = 'postar@danesjenovdan.si'
-
-
+# mautic credentials
 MAUTIC_USER = env['MAUTIC_USER']
 MAUTIC_PASS = env['MAUTIC_PASSWORD']
 
+# third party services
 CEBELCA_KEY = ""
 SLACK_KEY = ""
 
-IBAN = 'SI56 6100 0000 5740 710'
-TO_NAME = 'Danes je nov dan'
-TO_ADDRESS1 = 'Parmova 20'
-TO_ADDRESS2 = '1000 Ljubljana'
-EMAIL_TOKEN = ''
+IBAN = env['IBAN']
+TO_NAME = env['TO_NAME']
+TO_ADDRESS1 = env['TO_ADDRESS1']
+TO_ADDRESS2 = env['TO_ADDRESS2']
+EMAIL_TOKEN = env['EMAIL_TOKEN']
+AGRUM_TOKEN = env['AGRUM_TOKEN']
 
 
 
@@ -215,6 +214,29 @@ UPLOAD_IMAGE_URL = ''
 
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
+WKHTMLTOPDF_CMD_OPTIONS = {
+    'quiet': False,
+}
+
+WKHTMLTOPDF_CMD = 'xvfb-run -a wkhtmltopdf'
+
+if sentry_url := os.getenv('DJANGO_SENTRY_URL', False):
+    # imports should only happen if necessary
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        sentry_url,
+        integrations=[DjangoIntegration()],
+
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=0.1,
+        send_default_pii=True,
+    )
+
+# TODO deprecate this objects
 MAIL_TEMPLATES = {
     'EDIT_SUBSCRIPTIPNS': 1,
     'WELLCOME_MAIL': 2,

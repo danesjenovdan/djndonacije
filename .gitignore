@@ -127,3 +127,5 @@ dmypy.json
 /media/*
 prod.py
 .vscode
+
+secrets.yaml

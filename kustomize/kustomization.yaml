@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: shared
+resources:
+  - mautic/deployment.yaml
+  - mautic/service.yaml
+  - mautic/ingress.yaml
+
+  - podpri/deployment.yaml
+  - podpri/service.yaml
+  - podpri/ingress.yaml
+
+images:
+  - name: podpri
+    newName: rg.fr-par.scw.cloud/djnd/podpri
+    newTag: 'latest'
