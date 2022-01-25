@@ -5,7 +5,6 @@ resources:
   - mautic/deployment.yaml
   - mautic/service.yaml
   - mautic/ingress.yaml
-
   - podpri/deployment.yaml
   - podpri/service.yaml
   - podpri/ingress.yaml
