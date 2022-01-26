@@ -17,6 +17,8 @@ from djnd_supporters.views import getPDForDonation
 from django.template.loader import get_template
 from django.core import signing
 
+from sentry_sdk import capture_message
+
 
 class GetOrAddSubscriber(views.APIView):
     def get_subscriber_id(self, email, send_email=False):
@@ -65,26 +67,42 @@ class Subscribe(views.APIView):
                 if contacts:
                     # user already exists on mautic
                     mautic_id = list(contacts.keys())[0]
+                    mail_to_send = None
                     if segment:
-                        mautic_api.addContactToASegment(segment, mautic_id)
+                        # user is not on a segment then welcome mail
+                        response, response_status = mautic_api.getSegmentsOfContact(mautic_id)
+                        if response_status == 200:
+                            segments = response['lists'].keys()
+                            if segments and segment in segments.keys():
+                                mail_to_send = 'edit'
+                            else:
+                                mail_to_send = 'welcome'
+                                mautic_api.addContactToASegment(segment, mautic_id)
 
-                    # TODO: tu je treba poslat welcome mail, tudi če user že obstaja ampak ga še ni na tem segmentu
+                    if campaign:
+                        if mail_to_send == 'edit' and campaign.edit_subscriptions_email_tempalte:
+                            email_id = campaign.edit_subscriptions_email_tempalte
+                        elif mail_to_send == 'welcome':
+                            if campaign.welcome_email_tempalte:
+                                email_id = campaign.welcome_email_tempalte
+                            elif campaign.edit_subscriptions_email_tempalte:
+                                email_id = campaign.edit_subscriptions_email_tempalte
+                            else:
+                                capture_message(f'Campaign {campaign.name} has empty edit_subscriptions_email_tempalte and welcome_email_tempalte')
 
-                    if campaign and campaign.edit_subscriptions_email_tempalte:
                         response, response_status = mautic_api.sendEmail(
-                            campaign.edit_subscriptions_email_tempalte,
+                            email_id,
                             mautic_id,
                             {
                             }
                         )
                         return Response({'msg': 'mail sent'})
                     else:
-                        # TODO think about this case
-                        pass
+                        capture_message(f'Each segment needs to belong to campaign')
                         return Response({'msg': 'mail not sent'})
 
                 else:
-                    # user does not exist on mautic, create new 
+                    # user does not exist on mautic, create new
                     subscriber = models.Subscriber.objects.create()
                     subscriber.save()
                     response, response_status = subscriber.save_to_mautic(email)
