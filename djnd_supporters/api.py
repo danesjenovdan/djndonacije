@@ -324,8 +324,7 @@ class GenericDonationCampaign(views.APIView):
             if subscriber:
                 subscriber = subscriber[0]
             else:
-                subscriber = models.Subscriber(customer_id=customer_id)
-                subscriber.save()
+                subscriber = None
         else:
             subscriber = None
 
@@ -538,7 +537,6 @@ class GenericCampaignSubscription(views.APIView):
                 if customer_id and subscriber.customer_id != customer_id:
                     # TODO sentry log error, maybe wee need to merge people for some special cases?
                     subscriber.customer_id = customer_id
-                    models.Subscriber.objects.filter(customer_id=customer_id).delete()
                 subscriber.name = name
                 subscriber.address = address
                 subscriber.save()
