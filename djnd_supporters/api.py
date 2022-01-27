@@ -711,6 +711,16 @@ class BraintreeWebhookApiView(views.APIView):
                                 subscription.subscriber.mautic_id,
                                 {}
                             )
+                        if subscription.campaign.web_hook_url:
+                            requests.post(
+                                subscription.campaign.web_hook_url,
+                                {
+                                    'amount': transaction['amount'],
+                                    'subscription_id': subscription_id,
+                                    'customer_id': subscription.subscriber.customer_id,
+                                    'kind': 'subscription_charged_successfully',
+                                }
+                            )
 
             elif event == braintree.WebhookNotification.Kind.SubscriptionChargedUnsuccessfully:
                 subscription_id = webhook_notification.subject['subscription']['id']
