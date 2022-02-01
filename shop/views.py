@@ -63,7 +63,7 @@ def getPDFodOrder(request, pk):
         bill['purpose'] = "Donacija"
     else:
         bill['code'] = "GDSV"
-        bill['purpose'] = "Položnica za račun št. " + str(order.id)
+        bill['purpose'] = "Položnica za naročilo št. " + str(order.id)
 
     address = order.address.split(',')
 

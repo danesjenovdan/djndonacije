@@ -243,7 +243,7 @@ class Pay(APIView):
                 data['purpose'] = "Donacija"
             else:
                 data['code'] = "GDSV"
-                data['purpose'] = "Položnica za račun št. " + str(order.id)
+                data['purpose'] = "Položnica za naročilo št. " + str(order.id)
 
             total = order.basket.total
             reference = order.payment_id
@@ -425,7 +425,7 @@ def checkout(request):
                 data['purpose'] = "Donacija"
             else:
                 data['code'] = "GDSV"
-                data['purpose'] = "Položnica za račun št. " + str(order.id)
+                data['purpose'] = "Položnica za naročilo št. " + str(order.id)
 
             total = order.basket.total
             reference = order.payment_id
