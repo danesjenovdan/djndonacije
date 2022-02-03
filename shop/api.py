@@ -161,7 +161,7 @@ class Checkout(APIView):
             # subscriber does not exist on mautic
             subscriber = Subscriber.objects.create(name=name, address=address)
             subscriber.save()
-            response, response_status = subscriber.save_to_mautic(email, send_email=False)
+            response, response_status = subscriber.save_to_mautic(email)
             if response_status != 200:
                 # something went wrong with saving to mautic, abort
                 return Response({'msg': response}, status=response_status)
