@@ -251,32 +251,8 @@ if sentry_url := os.getenv('DJANGO_SENTRY_URL', False):
 
 # TODO deprecate this objects
 MAIL_TEMPLATES = {
-    'EDIT_SUBSCRIPTIPNS': 1,
-    'WELLCOME_MAIL': 2,
-    'SHOP_THANKSGIVING_UPN': 6,
-
-    'DONATION_WITH_GIFT': 40,
-    'DONATION_WITHOUT_GIFT': 40,
-
-    'DONATION_WITH_GIFT_UPN': 240,
-    'DONATION_WITHOUT_GIFT_UPN': 240,
-
-    # donation gifts
-    'GIFT_SENT': 26,
-    'GIFT_WITH_GIFT': 27,
-    'GIFT_WITHOUT_GIFT': 4,
-
-    'CUSTOM_GIFT': 24,
-    # or?
-    'GIFT': 15, # done
     'SHOP_BT_PP' :289,
     'SHOP_UPN': 288,
-
-    # parlameter tempaltes
-    'PARLAMETER_UPN': 325,
-    'PARLAMETER_SI': 322,
-    'PARLAMETER_HR': 323,
-    'PARLAMETER_BA': 324,
 }
 
 SEGMENTS = {
@@ -294,13 +270,4 @@ SEGMENTS = {
     'huda-pobuda-zapisimo-spomine': 25,
     'pravna-mreza': 26,
     'glas-ljudstva': 27,
-}
-EDIT_SUBSCRIPTIPNS_TEMPLATES = {
-    18: 557,
-    19: 732,
-    20: 642,
-    23: 767,
-    24: 780,
-    25: 781,
-    26: 864,
 }

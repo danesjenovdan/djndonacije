@@ -51,19 +51,11 @@ class Subscriber(User, Timestamped):
             self.username = self.token
         super(Subscriber, self).save(*args, **kwargs)
 
-    def save_to_mautic(self, email, send_email=True):
+    def save_to_mautic(self, email):
         response, response_status = mautic_api.createContact(email=email, name=self.name, token=self.token)
         if response_status == 200:
             self.mautic_id = response['contact']['id']
             self.save()
-            if send_email:
-                response, response_status = mautic_api.sendEmail(
-                    settings.MAIL_TEMPLATES['WELLCOME_MAIL'],
-                    response['contact']['id'],
-                    {
-                        'unsubscribe_text': 'asdasd'
-                    }
-                )
             return self, 200
         else:
             return response, response_status

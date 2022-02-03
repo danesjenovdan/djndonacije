@@ -21,7 +21,7 @@ from sentry_sdk import capture_message
 
 
 class GetOrAddSubscriber(views.APIView):
-    def get_subscriber_id(self, email, send_email=False):
+    def get_subscriber_id(self, email):
         mautic_id = None
         response, response_status = mautic_api.getContactByEmail(email)
         if response_status == 200:
@@ -31,7 +31,7 @@ class GetOrAddSubscriber(views.APIView):
             else:
                 subscriber = models.Subscriber.objects.create()
                 subscriber.save()
-                response, response_status = subscriber.save_to_mautic(email, send_email)
+                response, response_status = subscriber.save_to_mautic(email)
                 if response_status != 200:
                     return Response({'msg': response}, status=response_status)
                 else:
@@ -369,7 +369,7 @@ class GenericDonationCampaign(views.APIView):
             # subscriber does not exist on mautic
             subscriber = models.Subscriber.objects.create(name=name, address=address)
             subscriber.save()
-            response, response_status = subscriber.save_to_mautic(email, send_email=False)
+            response, response_status = subscriber.save_to_mautic(email)
             if response_status != 200:
                 # something went wrong with saving to mautic, abort
                 return Response({'msg': response}, status=response_status)
@@ -558,7 +558,7 @@ class GenericCampaignSubscription(views.APIView):
             else:
                 subscriber = models.Subscriber.objects.create(name=name, address=address)
             subscriber.save()
-            response, response_status = subscriber.save_to_mautic(email, send_email=False)
+            response, response_status = subscriber.save_to_mautic(email)
             if response_status != 200:
                 # something went wrong with saving to mautic, abort
                 return Response({'msg': response}, status=response_status)
