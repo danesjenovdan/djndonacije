@@ -212,6 +212,7 @@ class Pay(APIView):
             pay_response = payment.pay_bt_3d(nonce, order.basket.total, description='Shop')
             if pay_response.is_success:
                 order.is_payed=True
+                order.transaction_id = pay_response.transaction.id
                 order.save()
                 msg = order.name + " je nekaj naročil/-a in plačal/-a s kartico: \n"
             else:
@@ -239,7 +240,7 @@ class Pay(APIView):
                 data['purpose'] = "Donacija"
             else:
                 data['code'] = "GDSV"
-                data['purpose'] = "Položnica za račun št. " + str(order.id)
+                data['purpose'] = "Položnica za naročilo št. " + str(order.id)
 
             total = order.basket.total
             reference = order.payment_id
@@ -399,7 +400,7 @@ def checkout(request):
                 data['purpose'] = "Donacija"
             else:
                 data['code'] = "GDSV"
-                data['purpose'] = "Položnica za račun št. " + str(order.id)
+                data['purpose'] = "Položnica za naročilo št. " + str(order.id)
 
             total = order.basket.total
             reference = order.payment_id
