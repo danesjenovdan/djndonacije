@@ -712,7 +712,7 @@ class BraintreeWebhookApiView(views.APIView):
                         if subscription.campaign.web_hook_url:
                             requests.post(
                                 subscription.campaign.web_hook_url,
-                                {
+                                json={
                                     'amount': transaction['amount'],
                                     'subscription_id': subscription_id,
                                     'customer_id': subscription.subscriber.customer_id,
