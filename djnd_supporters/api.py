@@ -743,6 +743,15 @@ class BraintreeWebhookApiView(views.APIView):
                         subscription.subscriber.mautic_id,
                         {}
                     )
+                if subscription.campaign.web_hook_url:
+                    requests.post(
+                        subscription.campaign.web_hook_url,
+                        json={
+                            'subscription_id': subscription_id,
+                            'customer_id': subscription.subscriber.customer_id,
+                            'kind': 'subscription_canceled',
+                        }
+                    )
 
         except Exception as e:
             print(e)
