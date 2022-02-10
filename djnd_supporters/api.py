@@ -691,34 +691,33 @@ class BraintreeWebhookApiView(views.APIView):
             subscription_id = webhook_notification.subject['subscription']['id']
             if event == braintree.WebhookNotification.Kind.SubscriptionChargedSuccessfully:
                 for transaction in webhook_notification.subject['subscription']['transactions']:
-                    if transaction['processor_response_text'] == 'Approved' and transaction['status'] == 'submitted_for_settlement':
-                        print('create_transaction')
-                        subscription = models.Subscription.objects.filter(subscription_id=subscription_id).first()
-                        transaction_id = transaction['id']
-                        new_transaction = models.Transaction(
-                            amount=transaction['amount'],
-                            subscriber=subscription.subscriber,
-                            campaign=subscription.campaign,
-                            transaction_id=transaction_id,
-                            payment_method='braintree-subscription'
+                    print('create_transaction')
+                    subscription = models.Subscription.objects.filter(subscription_id=subscription_id).first()
+                    transaction_id = transaction['id']
+                    new_transaction = models.Transaction(
+                        amount=transaction['amount'],
+                        subscriber=subscription.subscriber,
+                        campaign=subscription.campaign,
+                        transaction_id=transaction_id,
+                        payment_method='braintree-subscription'
+                    )
+                    new_transaction.save()
+                    if subscription.campaign.subscription_charged_successfully:
+                        response, response_status = mautic_api.sendEmail(
+                            subscription.campaign.subscription_charged_successfully,
+                            subscription.subscriber.mautic_id,
+                            {}
                         )
-                        new_transaction.save()
-                        if subscription.campaign.subscription_charged_successfully:
-                            response, response_status = mautic_api.sendEmail(
-                                subscription.campaign.subscription_charged_successfully,
-                                subscription.subscriber.mautic_id,
-                                {}
-                            )
-                        if subscription.campaign.web_hook_url:
-                            requests.post(
-                                subscription.campaign.web_hook_url,
-                                json={
-                                    'amount': transaction['amount'],
-                                    'subscription_id': subscription_id,
-                                    'customer_id': subscription.subscriber.customer_id,
-                                    'kind': 'subscription_charged_successfully',
-                                }
-                            )
+                    if subscription.campaign.web_hook_url:
+                        requests.post(
+                            subscription.campaign.web_hook_url,
+                            json={
+                                'amount': transaction['amount'],
+                                'subscription_id': subscription_id,
+                                'customer_id': subscription.subscriber.customer_id,
+                                'kind': 'subscription_charged_successfully',
+                            }
+                        )
 
             elif event == braintree.WebhookNotification.Kind.SubscriptionChargedUnsuccessfully:
                 subscription_id = webhook_notification.subject['subscription']['id']
