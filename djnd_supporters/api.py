@@ -17,7 +17,7 @@ from djnd_supporters.views import getPDForDonation
 from django.template.loader import get_template
 from django.core import signing
 
-from sentry_sdk import capture_message
+from sentry_sdk import capture_message, capture_exception
 
 
 class GetOrAddSubscriber(views.APIView):
@@ -535,7 +535,7 @@ class GenericCampaignSubscription(views.APIView):
             if subscriber:
                 subscriber = subscriber[0]
                 if customer_id and subscriber.customer_id != customer_id:
-                    # TODO sentry log error, maybe wee need to merge people for some special cases?
+                    capture_message(f'Subscriber [mautic_id: {mautic_id}] ima drugačen customer_id kot je prišel v request customer_id: {customer_id} ')
                     subscriber.customer_id = customer_id
                 subscriber.name = name
                 subscriber.address = address
@@ -546,7 +546,7 @@ class GenericCampaignSubscription(views.APIView):
                     subscriber.mautic_id = mautic_id
                     subscriber.save()
                 else:
-                    # TODO sentry log error
+                    capture_message(f'User obstaja na mauticu a ni shranjen kot Subscriber. mautic_id: {mautic_id}')
                     return Response({'msg': 'WTF'}, status=status.HTTP_400_BAD_REQUEST)
 
         else:
@@ -561,6 +561,7 @@ class GenericCampaignSubscription(views.APIView):
             response, response_status = subscriber.save_to_mautic(email)
             if response_status != 200:
                 # something went wrong with saving to mautic, abort
+                capture_message(f'Mautic se je odzval z {response_status} ob shranjevanju userja. User: {email} subscriber_id: {subscriber.id}')
                 return Response({'msg': response}, status=response_status)
             mautic_id = subscriber.mautic_id
 
@@ -754,9 +755,10 @@ class BraintreeWebhookApiView(views.APIView):
 
         except Exception as e:
             print(e)
-            # TODO send sentry error
+            capture_exception(e)
             details = "UNKNOWN?"
             proj = None
+            return Response(status=500)
 
         if subscription:
             send_slack_msg(f':bell:  Event "{event}" was triggered on braintree.', subscription.campaign.slack_report_channel)
