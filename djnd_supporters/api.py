@@ -691,10 +691,13 @@ class BraintreeWebhookApiView(views.APIView):
         try:
             subscription_id = webhook_notification.subject['subscription']['id']
             if event == braintree.WebhookNotification.Kind.SubscriptionChargedSuccessfully:
-                for transaction in webhook_notification.subject['subscription']['transactions']:
+                # webhook returns 20 most recent transactions, first is always most recent transaction
+                for transaction in webhook_notification.subject['subscription']['transactions'][:1]:
                     print('create_transaction')
                     subscription = models.Subscription.objects.filter(subscription_id=subscription_id).first()
                     transaction_id = transaction['id']
+                    if models.Transaction.objects.filter(transaction_id=transaction_id).exists():
+                        continue
                     new_transaction = models.Transaction(
                         amount=transaction['amount'],
                         subscriber=subscription.subscriber,
