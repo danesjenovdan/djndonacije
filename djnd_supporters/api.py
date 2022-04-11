@@ -695,6 +695,10 @@ class BraintreeWebhookApiView(views.APIView):
                 for transaction in webhook_notification.subject['subscription']['transactions'][:1]:
                     print('create_transaction')
                     subscription = models.Subscription.objects.filter(subscription_id=subscription_id).first()
+                    # if there is a subscription from old donation installation
+                    if not subscription:
+                        continue
+
                     transaction_id = transaction['id']
                     if models.Transaction.objects.filter(transaction_id=transaction_id).exists():
                         continue
@@ -726,6 +730,10 @@ class BraintreeWebhookApiView(views.APIView):
             elif event == braintree.WebhookNotification.Kind.SubscriptionChargedUnsuccessfully:
                 subscription_id = webhook_notification.subject['subscription']['id']
                 subscription = models.Subscription.objects.filter(subscription_id=subscription_id).first()
+                # if there is a subscription from old donation installation
+                if not subscription:
+                    return Response(status=204)
+
                 campagin = subscription.campaign
                 if campagin.charged_unsuccessfully_email:
                     response, response_status = mautic_api.sendEmail(
@@ -737,6 +745,10 @@ class BraintreeWebhookApiView(views.APIView):
             elif event == braintree.WebhookNotification.Kind.SubscriptionCanceled:
                 subscription_id = webhook_notification.subject['subscription']['id']
                 subscription = models.Subscription.objects.filter(subscription_id=subscription_id).first()
+                # if there is a subscription from old donation installation
+                if not subscription:
+                    return Response(status=204)
+
                 subscription.is_active = False
                 subscription.save()
                 campagin = subscription.campaign
