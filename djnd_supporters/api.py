@@ -535,7 +535,7 @@ class GenericCampaignSubscription(views.APIView):
             if subscriber:
                 subscriber = subscriber[0]
                 if customer_id and subscriber.customer_id != customer_id:
-                    capture_message(f'Subscriber [mautic_id: {mautic_id}] ima drugačen customer_id kot je prišel v request customer_id: {customer_id} ')
+                    capture_message(f'Subscriber [mautic_id: {mautic_id}] ima drugačen customer_id: {subscriber.customer_id} kot je prišel v request customer_id: {customer_id} ')
                     subscriber.customer_id = customer_id
                 subscriber.name = name
                 subscriber.address = address
