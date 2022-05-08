@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mautic
+  labels:
+    app: mautic
+spec:
+  serviceName: mautic-sfc
+  selector:
+    matchLabels:
+      app: mautic
+  template:
+    metadata:
+      labels:
+        app: mautic
+    spec:
+      containers:
+        - name: mautic
+          image: mautic/mautic:v4
+          ports:
+            - containerPort: 80
+          envFrom:
+              - secretRef:
+                  name: mautic-credentials
+          resources:
+            requests:
+              memory: 300Mi
+              cpu: 200m
+            limits:
+              memory: 300Mi
+              cpu: 200m
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: mautic-static
+              subPath: mautic
+      volumes:
+        - name: mautic-static
+          persistentVolumeClaim:
+            claimName: mautic-volumeclaim
+
+  volumeClaimTemplates:
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: mautic-static
+      spec:statefulset
+        accessModes:
+          - "ReadWriteOnce"
+        storageClassName: scw-bssd-retain
+        resources:
+          requests:
+            storage: "1Gi"
