@@ -43,7 +43,7 @@ spec:
       apiVersion: v1
       metadata:
         name: mautic-static
-      spec:statefulset
+      spec:
         accessModes:
           - "ReadWriteOnce"
         storageClassName: scw-bssd-retain
