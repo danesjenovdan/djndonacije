@@ -25,10 +25,10 @@ spec:
           resources:
             requests:
               memory: 300Mi
-              cpu: 200m
+              cpu: 300m
             limits:
               memory: 300Mi
-              cpu: 200m
+              cpu: 300m
           volumeMounts:
             - mountPath: /var/www/html
               name: mautic-static
