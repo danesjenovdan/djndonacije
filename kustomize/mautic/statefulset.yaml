@@ -24,11 +24,11 @@ spec:
                   name: mautic-credentials
           resources:
             requests:
-              memory: 300Mi
-              cpu: 300m
+              memory: 500Mi
+              cpu: 350m
             limits:
-              memory: 300Mi
-              cpu: 300m
+              memory: 500Mi
+              cpu: 350m
           volumeMounts:
             - mountPath: /var/www/html
               name: mautic-static
