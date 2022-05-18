@@ -5,7 +5,7 @@ django-filter==2.4.0
 drf-writable-nested==0.5.1
 django-behaviors==0.4.1
 django-cors-headers==3.10.0
-django-tinymce==2.8.0
+django-tinymce==3.4.0
 django-wkhtmltopdf==3.3.0
 qrcodegen==1.4.0
 Pillow
