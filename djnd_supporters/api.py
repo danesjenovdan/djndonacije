@@ -317,8 +317,12 @@ class GenericDonationCampaign(views.APIView):
     """
     authentication_classes = [authentication.SubscriberAuthentication]
     def get(self, request, campaign_id=0):
-        print(campaign_id)
         customer_id = request.GET.get('customer_id', None)
+        question_id = request.GET.get('question_id', None)
+        answear = request.GET.get('answear', '')
+        if question_id:
+            if not models.VerificationQuestion.objects.filter(id=question_id, answear__iexact=answear.strip()).exists():
+                return Response({'status': 'Odgovor je napačen'}, status.HTTP_403_FORBIDDEN)
         if customer_id:
             subscriber = models.Subscriber.objects.filter(customer_id=customer_id)
             if subscriber:

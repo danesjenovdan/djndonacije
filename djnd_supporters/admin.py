@@ -1,5 +1,5 @@
 from django.contrib import admin
-from djnd_supporters.models import Transaction, DonationCampaign, Subscription, Subscriber
+from djnd_supporters.models import Transaction, DonationCampaign, Subscription, Subscriber, VerificationQuestion
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
@@ -84,7 +84,12 @@ class SubscriptionAdmin(ImportExportModelAdmin):
         else:
             return ''
 
+
+class VerificationQuestionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'question', 'answear' )
+
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(DonationCampaign)
 admin.site.register(Subscriber, SubscriberAdmin)
+admin.site.register(VerificationQuestion, VerificationQuestionAdmin)
