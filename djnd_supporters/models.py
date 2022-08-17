@@ -192,3 +192,11 @@ class DonationCampaign(Timestamped):
 
     def __str__(self):
         return self.name
+
+
+class VerificationQuestion(Timestamped):
+    question = models.TextField(help_text='Question for verification', null=True, blank=True)
+    answer = models.TextField(help_text='Answers for verification', null=True, blank=True)
+
+    def __str__(self):
+        return self.question

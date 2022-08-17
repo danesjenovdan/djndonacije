@@ -132,16 +132,17 @@ class ManageSegments(views.APIView):
     """
     POST/DELETE
 
-    /campaigns/<campaign>/contact/<token>
-    campaign: name of campaign
+    /segments/<segment>/contact/?token=<token>&email=<email>
+    segment: name of segment
     token: user token
+    email: user email
     """
     authentication_classes = [authentication.SubscriberAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, segment, format=None):
         contact_id = request.user.mautic_id
-        segment_id = settings.SEGMENTS.get(segment, None)
+        segment_id = segment
         if not segment_id:
             return Response({'msg': 'Segment doesnt exist'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -156,7 +157,7 @@ class ManageSegments(views.APIView):
 
     def delete(self, request, segment, format=None):
         contact_id = request.user.mautic_id
-        segment_id = settings.SEGMENTS.get(segment, None)
+        segment_id = segment
         if not segment_id:
             return Response({'msg': 'Segment doesnt exist'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -317,8 +318,12 @@ class GenericDonationCampaign(views.APIView):
     """
     authentication_classes = [authentication.SubscriberAuthentication]
     def get(self, request, campaign_id=0):
-        print(campaign_id)
         customer_id = request.GET.get('customer_id', None)
+        question_id = request.GET.get('question_id', None)
+        answer = request.GET.get('answer', '')
+        if question_id:
+            if not models.VerificationQuestion.objects.filter(id=question_id, answer__iexact=answer.strip()).exists():
+                return Response({'status': 'Odgovor je napačen'}, status.HTTP_403_FORBIDDEN)
         if customer_id:
             subscriber = models.Subscriber.objects.filter(customer_id=customer_id)
             if subscriber:
