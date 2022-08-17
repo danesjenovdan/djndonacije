@@ -132,16 +132,17 @@ class ManageSegments(views.APIView):
     """
     POST/DELETE
 
-    /campaigns/<campaign>/contact/<token>
-    campaign: name of campaign
+    /segments/<segment>/contact/?token=<token>&email=<email>
+    segment: name of segment
     token: user token
+    email: user email
     """
     authentication_classes = [authentication.SubscriberAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, segment, format=None):
         contact_id = request.user.mautic_id
-        segment_id = settings.SEGMENTS.get(segment, None)
+        segment_id = segment
         if not segment_id:
             return Response({'msg': 'Segment doesnt exist'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -156,7 +157,7 @@ class ManageSegments(views.APIView):
 
     def delete(self, request, segment, format=None):
         contact_id = request.user.mautic_id
-        segment_id = settings.SEGMENTS.get(segment, None)
+        segment_id = segment
         if not segment_id:
             return Response({'msg': 'Segment doesnt exist'}, status=status.HTTP_404_NOT_FOUND)
 
