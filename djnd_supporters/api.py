@@ -320,9 +320,9 @@ class GenericDonationCampaign(views.APIView):
     def get(self, request, campaign_id=0):
         customer_id = request.GET.get('customer_id', None)
         question_id = request.GET.get('question_id', None)
-        answear = request.GET.get('answear', '')
+        answer = request.GET.get('answer', '')
         if question_id:
-            if not models.VerificationQuestion.objects.filter(id=question_id, answear__iexact=answear.strip()).exists():
+            if not models.VerificationQuestion.objects.filter(id=question_id, answer__iexact=answer.strip()).exists():
                 return Response({'status': 'Odgovor je napačen'}, status.HTTP_403_FORBIDDEN)
         if customer_id:
             subscriber = models.Subscriber.objects.filter(customer_id=customer_id)

@@ -86,7 +86,7 @@ class SubscriptionAdmin(ImportExportModelAdmin):
 
 
 class VerificationQuestionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'question', 'answear' )
+    list_display = ('id', 'question', 'answer' )
 
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)
