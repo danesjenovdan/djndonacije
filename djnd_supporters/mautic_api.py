@@ -52,6 +52,13 @@ def deleteContact(contact_id):
         method='delete'
     )
 
+def patchContact(id, data):
+    return mauticRequest(
+        f'/contacts/{id}/edit',
+        method='patch',
+        data=data
+    )
+
 def addContactToACampaign(campagin_id, contact_id):
     return mauticRequest(
         'campaigns/%s/contact/%s/add' % (campagin_id, contact_id),
