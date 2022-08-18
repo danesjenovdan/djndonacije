@@ -60,6 +60,9 @@ class Subscribe(views.APIView):
             if campaign.segment:
                 segment = campaign.segment
 
+        if segment and not campaign:
+            campaign = models.DonationCampaign.objects.filter(segment=segment).first()
+
         if email:
             response, response_status = mautic_api.getContactByEmail(email)
             if response_status == 200:
@@ -99,7 +102,7 @@ class Subscribe(views.APIView):
                         return Response({'msg': 'mail sent'})
                     else:
                         capture_message(f'Each segment needs to belong to campaign')
-                        return Response({'msg': 'mail not sent'})
+                        return Response({'msg': 'mail not sent'}, status=status.HTTP_409_CONFLICT)
 
                 else:
                     # user does not exist on mautic, create new
@@ -122,7 +125,7 @@ class Subscribe(views.APIView):
                         else:
                             # TODO think about this case
                             pass
-                            return Response({'msg': 'mail not sent'})
+                            return Response({'msg': 'mail not sent'}, status=status.HTTP_409_CONFLICT)
             else:
                 return Response({'msg': response}, status=response_status)
         return Response({'error': 'Missing email and/or token.'}, status=status.HTTP_409_CONFLICT)
