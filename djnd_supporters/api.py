@@ -75,7 +75,7 @@ class Subscribe(views.APIView):
                         # user is not on a segment then welcome mail
                         response, response_status = mautic_api.getSegmentsOfContact(mautic_id)
                         if response_status == 200:
-                            segments = response['lists'].keys()
+                            segments = response['lists']
                             if segments and segment in segments.keys():
                                 mail_to_send = 'edit'
                             else:
