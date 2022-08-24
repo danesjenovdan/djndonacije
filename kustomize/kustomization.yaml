@@ -13,4 +13,4 @@ resources:
 images:
   - name: podpri
     newName: rg.fr-par.scw.cloud/djnd/podpri
-    newTag: '9e26868ed95e09bc3ac01dca4e323d9188deb6ae'
+    newTag: '8e7b31e5f43976b2dd9dcb4b015f7a1c2a63dad5'
