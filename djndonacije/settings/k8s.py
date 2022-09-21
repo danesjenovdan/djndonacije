@@ -49,7 +49,7 @@ env = dict(
 ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
-    'sentry-trace', # client side sentry can send this header
+    'sentry-trace', 'baggage', # client side sentry can send this header
 ]
 
 # SECURITY WARNING: keep the secret key used in production secret!
