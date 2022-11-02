@@ -8,7 +8,7 @@ from django.conf import settings
 from secrets import token_hex
 from behaviors.behaviors import Timestamped, Published
 
-from djnd_supporters import mautic_api
+from djnd_supporters.mautic_api import MauticApi
 
 import os.path
 from PIL import Image as PILImage
@@ -16,7 +16,7 @@ from io import BytesIO
 from enum import Enum
 # Create your models here.
 
-
+mautic_api = MauticApi()
 class DonationType(Enum):
     PARLAMETER_SI = "PARLAMETER_SI"
     PARLAMETER_HR = "PARLAMETER_HR"

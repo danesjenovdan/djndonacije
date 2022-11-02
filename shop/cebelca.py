@@ -7,7 +7,9 @@ from django.utils.html import strip_tags
 
 from datetime import datetime, timedelta
 
-from djnd_supporters import mautic_api
+from djnd_supporters.mautic_api import MauticApi
+
+mautic_api = MauticApi()
 
 class Cebelca(object):
     def __init__(self, api_type='test'):
