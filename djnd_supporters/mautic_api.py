@@ -64,18 +64,6 @@ class MauticApi(object):
             data=data
         )
 
-def patchContact(id, data):
-    return mauticRequest(
-        f'/contacts/{id}/edit',
-        method='patch',
-        data=data
-    )
-
-def addContactToACampaign(campagin_id, contact_id):
-    return mauticRequest(
-        'campaigns/%s/contact/%s/add' % (campagin_id, contact_id),
-    )
-
     def deleteContact(self, contact_id):
         return self.mauticRequest(
             'contacts/%s/delete' % contact_id,
