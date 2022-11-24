@@ -55,6 +55,7 @@ class Subscribe(views.APIView):
         if campaign:
             campaign = models.DonationCampaign.objects.filter(id=campaign).first()
 
+        # TODO upokoji to ko se uredi pp kampanja. Preveri na Nov dan če se morda uporablja segment_id
         # segment from argument has priority on segment from campaign
         if not segment and campaign:
             if campaign.segment:
