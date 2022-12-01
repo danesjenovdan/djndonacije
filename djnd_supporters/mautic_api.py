@@ -66,6 +66,13 @@ class MauticApi(object):
             data=data
         )
 
+    def getContactByEmail(self, email):
+        print(email)
+        return self.mauticRequest(
+            'contacts?search=email:%s' % email,
+            method='get'
+        )
+
     def deleteContact(self, contact_id):
         return self.mauticRequest(
             'contacts/%s/delete' % contact_id,
