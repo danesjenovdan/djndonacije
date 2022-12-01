@@ -25,7 +25,7 @@ class MauticApi(object):
             print(response.content)
             return response.content, response.status_code
 
-    def createContact(self, email, name='', surname='', token=None):
+    def createContact(self, email, name='', surname='', token=None, password=None):
         data = {
             'email': email,
             'name': name,
@@ -33,6 +33,8 @@ class MauticApi(object):
         }
         if token:
             data.update({'token': token})
+        if password:
+            data.update({'password': password})
         return self.mauticRequest(
             'contacts/new',
             data
