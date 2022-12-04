@@ -4,7 +4,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, views, permissions, mixins, viewsets
 from rest_framework.response import Response
 
-from djnd_supporters import models, mautic_api, authentication, serializers
+from djnd_supporters import models, authentication, serializers
+from djnd_supporters.mautic_api import MauticApi
 from djndonacije import payment
 from djndonacije.slack_utils import send_slack_msg
 
@@ -19,6 +20,7 @@ from django.core import signing
 
 from sentry_sdk import capture_message, capture_exception
 
+mautic_api = MauticApi()
 
 class GetOrAddSubscriber(views.APIView):
     def get_subscriber_id(self, email):

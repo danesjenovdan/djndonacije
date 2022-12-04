@@ -16,8 +16,8 @@ services:
       DJANGO_DATABASE_USER: postgres
       DJANGO_DATABASE_PASSWORD: postgres
       DJANGO_DATABASE_NAME: donacije
-      MAUTIC_URL: http://mautic
-      MAUTIC_USER: test@test.si
+      MAUTIC_URL: http://mautic/api/
+      MAUTIC_USER: api@djnd.si
       MAUTIC_PASSWORD: password
       BRAINTREE_ENV: Sandbox
       BRAINTREE_MERCHANT_ID: rw9qmsd283dw2gy4
@@ -47,7 +47,7 @@ services:
       --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
 
   mautic:
-    image: mautic/mautic:latest
+    image: mautic/mautic:v4
     container_name: mautic
     links:
       - mauticdb:mysql

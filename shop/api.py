@@ -21,7 +21,7 @@ from shop.utils import get_basket, get_basket_data, add_article_to_basket, updat
 from djndonacije import payment
 from djndonacije.slack_utils import send_slack_msg
 
-from djnd_supporters import mautic_api
+from djnd_supporters.mautic_api import MauticApi
 from djnd_supporters.models import Subscriber
 
 from shop.views import getPDFodOrder
@@ -29,6 +29,8 @@ from shop.spam_mailer import send_mail_spam
 
 import json
 # Create your views here.
+
+mautic_api = MauticApi()
 
 def prepare_upn_data(order):
     ref = 'SI00 ' + str(order.id).zfill(10)

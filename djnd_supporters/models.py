@@ -8,7 +8,7 @@ from django.conf import settings
 from secrets import token_hex
 from behaviors.behaviors import Timestamped, Published
 
-from djnd_supporters import mautic_api
+from djnd_supporters.mautic_api import MauticApi
 
 import os.path
 from PIL import Image as PILImage
@@ -16,7 +16,7 @@ from io import BytesIO
 from enum import Enum
 # Create your models here.
 
-
+mautic_api = MauticApi()
 class DonationType(Enum):
     PARLAMETER_SI = "PARLAMETER_SI"
     PARLAMETER_HR = "PARLAMETER_HR"
@@ -46,13 +46,13 @@ class Subscriber(User, Timestamped):
         help_text='Braintree customer id')
 
     def save(self, *args, **kwargs):
-        if not self.pk:
+        if not self.pk and not self.token:
             self.token = token_hex(16)
             self.username = self.token
         super(Subscriber, self).save(*args, **kwargs)
 
     def save_to_mautic(self, email):
-        response, response_status = mautic_api.createContact(email=email, name=self.name, token=self.token)
+        response, response_status = mautic_api.createContact(email=email, name=self.name if self.name else '', token=self.token)
         if response_status == 200:
             self.mautic_id = response['contact']['id']
             self.save()
