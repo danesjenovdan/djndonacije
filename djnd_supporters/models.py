@@ -46,13 +46,13 @@ class Subscriber(User, Timestamped):
         help_text='Braintree customer id')
 
     def save(self, *args, **kwargs):
-        if not self.pk:
+        if not self.pk and not self.token:
             self.token = token_hex(16)
             self.username = self.token
         super(Subscriber, self).save(*args, **kwargs)
 
     def save_to_mautic(self, email):
-        response, response_status = mautic_api.createContact(email=email, name=self.name, token=self.token)
+        response, response_status = mautic_api.createContact(email=email, name=self.name if self.name else '', token=self.token)
         if response_status == 200:
             self.mautic_id = response['contact']['id']
             self.save()
