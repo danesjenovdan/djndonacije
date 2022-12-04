@@ -46,9 +46,11 @@ for category in categories['categories']:
 
 # copy segments
 segments, response_status = old_api.getSegments()
+print('segments')
 for id, segment in segments['lists'].items():
     old_segment_id = segment.pop('id')
-    if not 'filters' in segment.keys():
+    print(segment)
+    if not 'filters' in segment.keys() or not segment['filters']:
         response, response_status = new_api.setSegments(segment)
         segments_map[int(old_segment_id)] = response['list']['id']
 
@@ -63,7 +65,7 @@ for id, email in emails["emails"].items():
     else:
         print('empty list')
         print(email.pop('lists'))
-        email['lists'] = [23]
+        email['lists'] = [6]
 
     assetAttachments = [assets_map[asset] for asset in email['assetAttachments'] if asset in segments_map.keys()]
     if assetAttachments:
@@ -96,7 +98,7 @@ for id, company in companies['companies'].items():
     new_api.setCompany(company)
 
 # copy contacts from csv
-file_name = 'contacts_may-20-2022.csv'
+file_name = 'contacts_december-2-2022.csv'
 with open(file_name) as csvfile:
     csv_contacts = csv.DictReader(csvfile, delimiter=',', quotechar='"')
 
@@ -118,11 +120,19 @@ with open(file_name) as csvfile:
         if contacts:
             # subscriber exists on mautic
             mautic_id = list(contacts.keys())[0]
-            subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
-            subscriber.save()
+            try:
+                subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
+            except:
+                print(mautic_id, contact['email'])
         else:
             # subscriber does not exist on mautic
-            subscriber = models.Subscriber.objects.create()
+            if models.Subscriber.objects.filter(token=contact['token']):
+                subscriber = models.Subscriber(
+                    token=contact['token'],
+                    username=contact['token']
+                )
+            else:
+                subscriber = models.Subscriber.objects.create(username=contact['token'], token=contact['token'])
             subscriber.save()
             response, response_status = subscriber.save_to_mautic(email)
             if response_status != 200:
