@@ -256,8 +256,9 @@ class AgrumentMailApiView(views.APIView):
                 emailType='list',
                 description="Agrument",
                 assetAttachments=None,
-                template='cards',
-                lists=[1],
+                template='brienz',
+                category=14,
+                lists=[5],
                 fromAddress='agrument@posta.danesjenovdan.si',
                 fromName='Agrument'
             )
@@ -620,8 +621,8 @@ class GenericCampaignSubscription(views.APIView):
         except:
             pass
 
-            msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila mesecno donacijo za ' + donation_campaign.name + ' v višini: ' + str(donation.amount)
-            send_slack_msg(msg, donation_campaign.slack_report_channel)
+        msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila mesecno donacijo za ' + donation_campaign.name + ' v višini: ' + str(donation.amount)
+        send_slack_msg(msg, donation_campaign.slack_report_channel)
 
         return Response({
             'msg': 'Thanks <3',
