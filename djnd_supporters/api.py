@@ -329,9 +329,10 @@ class GenericDonationCampaign(views.APIView):
         question_id = request.GET.get('question_id', None)
         answer = request.GET.get('answer', '')
         subscriber = None
-        if question_id:
-            if not models.VerificationQuestion.objects.filter(id=question_id, answer__iexact=answer.strip()).exists():
-                return Response({'status': 'Odgovor je napačen'}, status.HTTP_403_FORBIDDEN)
+
+        if not models.VerificationQuestion.objects.filter(id=question_id, answer__iexact=answer.strip()).exists():
+            return Response({'status': 'Odgovor je napačen'}, status.HTTP_403_FORBIDDEN)
+
         if email and not customer_id:
             response, response_status = mautic_api.getContactByEmail(email)
             if response_status == 200:
@@ -348,8 +349,6 @@ class GenericDonationCampaign(views.APIView):
                 subscriber = subscriber[0]
             else:
                 subscriber = None
-        else:
-            subscriber = None
 
         donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
         donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
