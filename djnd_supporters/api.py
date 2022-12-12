@@ -325,12 +325,24 @@ class GenericDonationCampaign(views.APIView):
     authentication_classes = [authentication.SubscriberAuthentication]
     def get(self, request, campaign_id=0):
         customer_id = request.GET.get('customer_id', None)
+        email = request.GET.get('email', None)
         question_id = request.GET.get('question_id', None)
         answer = request.GET.get('answer', '')
+        subscriber = None
         if question_id:
             if not models.VerificationQuestion.objects.filter(id=question_id, answer__iexact=answer.strip()).exists():
                 return Response({'status': 'Odgovor je napačen'}, status.HTTP_403_FORBIDDEN)
-        if customer_id:
+        if email and not customer_id:
+            response, response_status = mautic_api.getContactByEmail(email)
+            if response_status == 200:
+                contacts = response['contacts']
+                if contacts:
+                    mautic_id = list(contacts.keys())[0]
+                    subscriber = models.Subscriber.objects.filter(mautic_id=mautic_id).first()
+                    if subscriber and subscriber.customer_id:
+                        customer_id = subscriber.customer_id
+
+        if customer_id and not subscriber:
             subscriber = models.Subscriber.objects.filter(customer_id=customer_id)
             if subscriber:
                 subscriber = subscriber[0]
