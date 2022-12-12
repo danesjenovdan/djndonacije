@@ -44,6 +44,8 @@ env = dict(
     TO_ADDRESS2=os.getenv('DJND_UPN_TO_ADDRESS2', '1000 Ljubljana'),
     EMAIL_TOKEN=os.getenv('EMAIL_TOKEN', ''),
     AGRUM_TOKEN=os.getenv('AGRUM_TOKEN', ''),
+    SLACK_KEY=os.getenv('SLACK_KEY', ''),
+    CEBELCA_KEY=os.getenv('CEBELCA_KEY', ''),
 )
 
 ALLOWED_HOSTS = ['*']
@@ -180,8 +182,9 @@ MAUTIC_USER = env['MAUTIC_USER']
 MAUTIC_PASS = env['MAUTIC_PASSWORD']
 
 # third party services
-CEBELCA_KEY = ""
-SLACK_KEY = ""
+CEBELCA_KEY = env['CEBELCA_KEY']
+SLACK_KEY = env['SLACK_KEY']
+
 
 IBAN = env['IBAN']
 TO_NAME = env['TO_NAME']
