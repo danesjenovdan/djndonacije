@@ -487,7 +487,14 @@ class GenericDonationCampaign(views.APIView):
                         {}
                     )
             else:
-                return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
+                try:
+                    code = result.transaction.processor_response_code
+                    text = result.transaction.processor_response_text
+                    deep_mgs = f' {code}: {text}'
+                    capture_message(deep_mgs)
+                except:
+                    deep_mgs = ''
+                return Response({'msg': f'{result.message}{deep_mgs}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
         # send slack msg
@@ -624,7 +631,14 @@ class GenericCampaignSubscription(views.APIView):
                     {}
                 )
         else:
-            return Response({'msg': result.message}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                code = result.transaction.processor_response_code
+                text = result.transaction.processor_response_text
+                deep_mgs = f' {code}:{text}'
+                capture_message(deep_mgs)
+            except:
+                deep_mgs = ''
+            return Response({'msg': f'{result.message}{deep_mgs}'}, status=status.HTTP_400_BAD_REQUEST)
 
         # send slack msg
         try:
