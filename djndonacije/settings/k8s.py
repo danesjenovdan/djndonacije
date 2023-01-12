@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = dict(
     SECRET_KEY=os.getenv('DJANGO_SECRET_KEY', 'r^&^$8c*g$6db1s!s7uk9c!v%*ps)_0)h$!f3m7$%(o4b+5qwk'),
-    DEBUG=os.getenv('DJANGO_DEBUG', True),
+    DEBUG=os.getenv('DJANGO_DEBUG', False),
     DATABASE_HOST=os.getenv('DJANGO_DATABASE_HOST', 'localhost'),
     DATABASE_PORT=os.getenv('DJANGO_DATABASE_PORT', '5432'),
     DATABASE_NAME=os.getenv('DJANGO_DATABASE_NAME', 'donacije'),
