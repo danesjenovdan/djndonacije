@@ -170,6 +170,9 @@ class Image(Timestamped):
 
 class DonationCampaign(Timestamped):
     name = models.CharField(max_length=32, help_text='Name of donation campaign')
+    slug = models.CharField(max_length=32, help_text='Lovercase name without spaces')
+    title = models.CharField(max_length=32, help_text='Title shown in embed')
+    subtitle = models.CharField(max_length=32, help_text='Subtitle shown in embed')
     upn_name = models.CharField(max_length=32, help_text='Name for upn description', default="Donacija")
     has_upn = models.BooleanField(default=True, help_text='Enable UPN donation')
     has_braintree = models.BooleanField(default=True, help_text='Enable braintree donation')
@@ -188,11 +191,17 @@ class DonationCampaign(Timestamped):
     segment = models.IntegerField(null=True, blank=True, help_text='ID of default segment of this campaign')
     welcome_email_tempalte = models.IntegerField(null=True, blank=True, help_text='ID of email tempalte on mautic to send on user registration')
     edit_subscriptions_email_tempalte = models.IntegerField(null=True, blank=True, help_text='ID of email tempalte on mautic for edit subscrptions')
-
+    redirect_url = models.URLField(null=True, blank=True, help_text='Redirect url on success')
+    css_file = models.FileField(upload_to='css', null=True, blank=True)
 
     def __str__(self):
         return self.name
 
+class PredefinedAmount(Timestamped):
+    donation_campaign = models.ForeignKey('DonationCampaign',  related_name='amounts', on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    one_time_amount = models.BooleanField(default=True, help_text='Enable amount for one time donation')
+    recurring_amount = models.BooleanField(default=True, help_text='Enable amount for recurring donation')
 
 class VerificationQuestion(Timestamped):
     question = models.TextField(help_text='Question for verification', null=True, blank=True)
