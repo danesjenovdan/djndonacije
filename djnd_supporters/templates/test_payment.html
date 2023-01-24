@@ -20,7 +20,7 @@
                 </p>
                 </header>
 
-                <form id="payment-form" method="post" action="/api/generic-donation/subscription/1/">
+                <form id="payment-form" method="post" action="/api/generic-donation/subscription/test/">
                 <section>
                     <label for="amount">
                     <span class="input-label">Amount</span>
@@ -46,7 +46,7 @@
             //    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
             //});
             var customer_id = "634512587";
-            $.get({url:"/api/generic-donation/1/?customer_id=634512587", success: function( get_data ) {
+            $.get({url:"/api/generic-donation/test/?answer=ivan&question_id=1", success: function( get_data ) {
             var form = document.querySelector('#payment-form');
                 braintree.dropin.create({
                     authorization: get_data.token,
@@ -65,7 +65,7 @@
                             // Add the nonce to the form and submit
                             document.querySelector('#nonce').value = payload.nonce;
                             $.post({
-                                url:"/api/generic-donation/subscription/1/",
+                                url:"/api/generic-donation/subscription/test/",
                                 data: JSON.stringify({
                                     "nonce": payload.nonce,
                                     "email": "tomazkunst@gmail.com",
