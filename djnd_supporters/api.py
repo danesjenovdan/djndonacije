@@ -309,6 +309,14 @@ class DonationCampaignStatistics(views.APIView):
         })
 
 
+class DonationCampaignInfo(
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet):
+    lookup_field = 'slug'
+    serializer_class = serializers.DonationCampaignSerializer
+    queryset = models.DonationCampaign.objects.all()
+
+
 class GenericDonationCampaign(views.APIView):
     """
     GET get client token and donation specifics

@@ -5,6 +5,8 @@ from djnd_supporters import api, views
 
 router = routers.DefaultRouter()
 router.register(r'images', api.ImageViewSet)
+router.register(r'donation-campaign', api.DonationCampaignInfo)
+
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -21,6 +23,4 @@ urlpatterns = [
     re_path('generic-donation/(?:(?P<campaign_id>\w+)/)?$', api.GenericDonationCampaign.as_view()),
     re_path('donation-statistics/(?:(?P<campaign_id>\w+)/)?$', api.DonationCampaignStatistics.as_view()),
     re_path('braintree-webhook/', api.BraintreeWebhookApiView.as_view()),
-
-    path('test/', views.TestPaymentView.as_view()),
 ]
