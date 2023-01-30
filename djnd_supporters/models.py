@@ -169,10 +169,10 @@ class Image(Timestamped):
 
 
 class DonationCampaign(Timestamped):
-    name = models.CharField(max_length=32, help_text='Name of donation campaign')
+    name = models.CharField(max_length=128, help_text='Name of donation campaign')
     slug = models.CharField(max_length=32, help_text='Lovercase name without spaces')
-    title = models.CharField(max_length=32, help_text='Title shown in embed')
-    subtitle = models.CharField(max_length=32, help_text='Subtitle shown in embed')
+    title = models.CharField(max_length=256, help_text='Title shown in embed')
+    subtitle = models.CharField(max_length=32, null=True, blank=True, help_text='Subtitle shown in embed')
     upn_name = models.CharField(max_length=32, help_text='Name for upn description', default="Donacija")
     has_upn = models.BooleanField(default=True, help_text='Enable UPN donation')
     has_braintree = models.BooleanField(default=True, help_text='Enable braintree donation')
