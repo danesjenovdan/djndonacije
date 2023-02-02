@@ -469,6 +469,7 @@ class GenericDonationCampaign(views.APIView):
                 taxExempt=True,
                 description=donation_campaign.name,
                 campaign=donation_campaign.name,
+                merchant_account_id=donation_campaign.braintree_merchant_account_id
             )
             if result.is_success:
                 transaction_id = result.transaction.id
@@ -620,7 +621,13 @@ class GenericCampaignSubscription(views.APIView):
             plan_id = 'djnd'
 
         # create and save subscription if success
-        result = payment.create_subscription(nonce, customer_id, plan_id=plan_id, costum_price=amount)
+        result = payment.create_subscription(
+            nonce,
+            customer_id,
+            plan_id=plan_id,
+            costum_price=amount,
+            merchant_account_id=donation_campaign.braintree_merchant_account_id
+        )
         if result.is_success:
             # create donation without subscriber
             donation = models.Subscription(

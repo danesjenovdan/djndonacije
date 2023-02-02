@@ -32,11 +32,13 @@ def client_token(user=None):
             'customer_id': customer_id
         }
 
-def create_subscription(nonce, customer_id, plan_id='djnd', costum_price=None):
+def create_subscription(nonce, customer_id, plan_id='djnd', costum_price=None, merchant_account_id=None):
     data = {
         'payment_method_nonce': nonce,
         'plan_id': plan_id,
     }
+    if merchant_account_id:
+        data.update(merchant_account_id=merchant_account_id)
 
     if costum_price:
         print(costum_price)
@@ -65,25 +67,18 @@ def update_subscription(donation, costum_price=None):
 
     return result
 
-def pay_bt_3d(nonce, amount, taxExempt=False, description='', campaign='DJND'):
-    print({
-        'amount': str(amount),
-        'payment_method_nonce': nonce,
-        'options': {
-            'submit_for_settlement': True,
-            'three_d_secure': {
-                'required': True
-            },
-        }
-    })
-    result = gateway.transaction.sale({
+def pay_bt_3d(nonce, amount, taxExempt=False, description='', campaign='DJND', merchant_account_id=None):
+    data = {
         'amount': '%.2f' % (amount),
         'payment_method_nonce': nonce,
         'tax_exempt': taxExempt,
         'options': {
             'submit_for_settlement': True,
         },
-    })
+    }
+    if merchant_account_id:
+        data.update(merchant_account_id=merchant_account_id)
+    result = gateway.transaction.sale(data)
     print(result)
     return result
 

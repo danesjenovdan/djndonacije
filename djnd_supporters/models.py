@@ -193,6 +193,7 @@ class DonationCampaign(Timestamped):
     edit_subscriptions_email_tempalte = models.IntegerField(null=True, blank=True, help_text='ID of email tempalte on mautic for edit subscrptions')
     redirect_url = models.URLField(null=True, blank=True, help_text='Redirect url on success')
     css_file = models.FileField(upload_to='css', null=True, blank=True)
+    braintree_merchant_account_id = models.CharField(null=True, blank=True, max_length=128, help_text='ID of braintree merchant account.')
 
     def __str__(self):
         return self.name
