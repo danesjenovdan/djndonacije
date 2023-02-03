@@ -445,7 +445,7 @@ class GenericDonationCampaign(views.APIView):
                 #emailType='list',
                 description='email for donation with UPN',
                 assetAttachments=[asset_id],
-                template='cards',
+                template=None,
                 #lists=[1],
                 fromAddress=response["email"]["fromAddress"],
                 fromName=response["email"]["fromName"]
