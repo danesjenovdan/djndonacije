@@ -83,6 +83,9 @@ def pay_bt_3d(nonce, amount, taxExempt=False, description='', campaign='DJND'):
         'options': {
             'submit_for_settlement': True,
         },
+        "custom_fields": {
+            "campaign": campaign,
+        },
     })
     print(result)
     return result
