@@ -2,6 +2,7 @@
 FROM node:18-alpine as build
 RUN apk add --update --no-cache python3 make g++
 
+RUN mkdir /app
 WORKDIR /app
 
 # install node modules
