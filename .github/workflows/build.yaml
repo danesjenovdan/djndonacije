@@ -31,6 +31,15 @@ jobs:
             rg.fr-par.scw.cloud/djnd/podpri:${{ github.sha }}
             rg.fr-par.scw.cloud/djnd/podpri:latest
       -
+        name: Build and push podpri-frontend
+        uses: docker/build-push-action@v2
+        with:
+          context: frontend/.
+          push: true
+          tags: |
+            rg.fr-par.scw.cloud/djnd/podpri-frontend:${{ github.sha }}
+            rg.fr-par.scw.cloud/djnd/podpri-frontend:latest
+      -
         name: Update image versions in kustomize/kustomization.yaml
         run: |
           sed -i "s/newTag: .*\+/newTag\: '${{ github.sha }}'/" kustomize/kustomization.yaml
