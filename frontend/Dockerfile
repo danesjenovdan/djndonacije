@@ -6,8 +6,7 @@ RUN mkdir /app
 WORKDIR /app
 
 # install node modules
-# COPY package.json yarn.lock /
-COPY package.json /
+COPY package.json package-lock.json ./
 RUN npm install
 
 # build assets
@@ -22,4 +21,4 @@ FROM nginx:alpine
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 # copy built files from the 'build' container into the nginx container
-COPY --from=build dist /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
