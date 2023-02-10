@@ -75,6 +75,9 @@ def pay_bt_3d(nonce, amount, taxExempt=False, description='', campaign='DJND', m
         'options': {
             'submit_for_settlement': True,
         },
+        "custom_fields": {
+            "campaign": campaign,
+        }
     }
     if merchant_account_id:
         data.update(merchant_account_id=merchant_account_id)
