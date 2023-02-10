@@ -95,7 +95,7 @@ spec:
               value: 'Parmova 20'
             - name: DJND_TO_ADDRESS2
               value: '1000 Ljubljana'
-            -name: DJANGO_STATIC_ROOT
+            - name: DJANGO_STATIC_ROOT
               value: '/storage/static'
             - name: DJANGO_STATIC_URL_BASE
               value: "https://files.podpri.lb.djnd.si/static/"
