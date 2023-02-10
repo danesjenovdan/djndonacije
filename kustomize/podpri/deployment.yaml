@@ -14,9 +14,15 @@ spec:
       labels:
         app: podpri
     spec:
+      volumes:
+        - name: podpri-storage
+          emptyDir: {}
       initContainers:
         - name: collectstatic
           image: podpri
+          volumeMounts:
+            - name: podpri-storage
+              mountPath: /storage
           command:
             - python
             - manage.py
@@ -57,6 +63,9 @@ spec:
       containers:
         - name: podpri
           image: podpri
+          volumeMounts:
+            - name: podpri-storage
+              mountPath: /storage
           command:
             - gunicorn
             - djndonacije.wsgi:application
@@ -86,6 +95,10 @@ spec:
               value: 'Parmova 20'
             - name: DJND_TO_ADDRESS2
               value: '1000 Ljubljana'
+            -name: DJANGO_STATIC_ROOT
+              value: '/storage/static'
+            - name: DJANGO_STATIC_URL_BASE
+              value: "https://files.podpri.lb.djnd.si/static/"
           resources:
             requests:
               memory: 400Mi
@@ -93,3 +106,19 @@ spec:
             limits:
               memory: 400Mi
               cpu: 200m
+        - name: podpri-nginx
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          image: nginx:alpine
+          volumeMounts:
+            - name: podpri-storage
+              mountPath: /usr/share/nginx/html
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 100m
+            limits:
+              memory: 100Mi
+              cpu: 100m
