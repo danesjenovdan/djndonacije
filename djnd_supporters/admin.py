@@ -1,5 +1,5 @@
 from django.contrib import admin
-from djnd_supporters.models import Transaction, DonationCampaign, Subscription, Subscriber, VerificationQuestion
+from djnd_supporters.models import Transaction, DonationCampaign, Subscription, Subscriber, VerificationQuestion, PredefinedAmount
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
@@ -46,6 +46,15 @@ class SubscriberAdmin(ImportExportModelAdmin):
     )
 
 
+class AmountInlineAdmin(admin.TabularInline):
+    readonly_fields = ['created', 'modified']
+    model = PredefinedAmount
+    extra = 0
+
+
+class DonationCampaignAdmin(admin.ModelAdmin):
+    inlines = [AmountInlineAdmin]
+
 class TransactionAdmin(ImportExportModelAdmin):
     readonly_fields = ('address',)
     list_display = ('amount', 'subscriberName', 'address', 'is_paid', 'created', 'payment_method', 'campaign')
@@ -90,6 +99,6 @@ class VerificationQuestionAdmin(admin.ModelAdmin):
 
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)
-admin.site.register(DonationCampaign)
+admin.site.register(DonationCampaign, DonationCampaignAdmin)
 admin.site.register(Subscriber, SubscriberAdmin)
 admin.site.register(VerificationQuestion, VerificationQuestionAdmin)

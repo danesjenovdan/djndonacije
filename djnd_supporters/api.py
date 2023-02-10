@@ -331,7 +331,7 @@ class GenericDonationCampaign(views.APIView):
      - payment_type
     """
     authentication_classes = [authentication.SubscriberAuthentication]
-    def get(self, request, campaign_id=0):
+    def get(self, request, campaign=''):
         customer_id = request.GET.get('customer_id', None)
         email = request.GET.get('email', None)
         question_id = request.GET.get('question_id', None)
@@ -358,12 +358,12 @@ class GenericDonationCampaign(views.APIView):
             else:
                 subscriber = None
 
-        donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
+        donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
         donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
         donation_obj.update(payment.client_token(subscriber))
         return Response(donation_obj)
 
-    def post(self, request, campaign_id=0):
+    def post(self, request, campaign=''):
         data = request.data
         nonce = data.get('nonce', None)
         amount = data.get('amount', None)
@@ -373,7 +373,7 @@ class GenericDonationCampaign(views.APIView):
         address = data.get('address', '')
         payment_type = data.get('payment_type', 'braintree')
 
-        donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
+        donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
 
         # if no amount deny
         if not amount:
@@ -445,7 +445,7 @@ class GenericDonationCampaign(views.APIView):
                 #emailType='list',
                 description='email for donation with UPN',
                 assetAttachments=[asset_id],
-                template='cards',
+                template=None,
                 #lists=[1],
                 fromAddress=response["email"]["fromAddress"],
                 fromName=response["email"]["fromName"]
@@ -469,6 +469,7 @@ class GenericDonationCampaign(views.APIView):
                 taxExempt=True,
                 description=donation_campaign.name,
                 campaign=donation_campaign.name,
+                merchant_account_id=donation_campaign.braintree_merchant_account_id
             )
             if result.is_success:
                 transaction_id = result.transaction.id
@@ -542,7 +543,7 @@ class GenericCampaignSubscription(views.APIView):
      - customer_id
     """
     authentication_classes = [authentication.SubscriberAuthentication]
-    def post(self, request, campaign_id=0):
+    def post(self, request, campaign=''):
         data = request.data
         nonce = data.get('nonce', None)
         amount = data.get('amount', None)
@@ -553,7 +554,7 @@ class GenericCampaignSubscription(views.APIView):
         customer_id = data.get('customer_id', '')
         token = data.get('token', None)
 
-        donation_campaign = get_object_or_404(models.DonationCampaign, pk=campaign_id)
+        donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
 
         # get user with this email from mautic
         response, response_status = mautic_api.getContactByEmail(email)
@@ -620,7 +621,13 @@ class GenericCampaignSubscription(views.APIView):
             plan_id = 'djnd'
 
         # create and save subscription if success
-        result = payment.create_subscription(nonce, customer_id, plan_id=plan_id, costum_price=amount)
+        result = payment.create_subscription(
+            nonce,
+            customer_id,
+            plan_id=plan_id,
+            costum_price=amount,
+            merchant_account_id=donation_campaign.braintree_merchant_account_id
+        )
         if result.is_success:
             # create donation without subscriber
             donation = models.Subscription(

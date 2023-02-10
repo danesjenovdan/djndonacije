@@ -16,23 +16,23 @@ class TestPaymentView(TemplateView):
 
 
 def getPDForDonation(request, pk):
-    donation = get_object_or_404(models.Donation, pk=pk)
+    transaction = get_object_or_404(models.Transaction, pk=pk)
 
     bill = {}
-    bill['id'] = donation.id
+    bill['id'] = transaction.id
     bill['date'] = datetime.now().strftime('%d.%m.%Y')
-    bill['price'] = donation.amount
-    bill['referencemath'] = donation.reference
+    bill['price'] = transaction.amount
+    bill['referencemath'] = transaction.reference
 
     bill['code'] = "ADCS"
     bill['purpose'] = "Donacija"
-    if donation.campaign and donation.campaign.upn_name:
-        bill['purpose'] = donation.campaign.upn_name
+    if transaction.campaign and transaction.campaign.upn_name:
+        bill['purpose'] = transaction.campaign.upn_name
 
-    address = donation.subscriber.address.split(',')
+    address = transaction.subscriber.address.split(',')
 
     victim = {}
-    victim['name'] = donation.subscriber.name
+    victim['name'] = transaction.subscriber.name
     victim['address1'] = address[0]
     victim['address2'] = address[1] if len(address) > 1 else ''
 
