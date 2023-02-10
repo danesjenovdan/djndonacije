@@ -16,7 +16,7 @@ metadata:
   name: podpri-nginx
 spec:
   selector:
-    app: podpri
+    app: podpri-nginx
   ports:
     - protocol: TCP
       port: 80
