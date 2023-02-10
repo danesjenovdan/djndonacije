@@ -180,7 +180,7 @@ const store = createStore({
       return await axios.get(
         `${api}/api/generic-donation/${
           payload.donationSlug
-        }/?question_id=1&answer=${encodeURIComponent(
+        }/?question_id=2&answer=${encodeURIComponent(
           payload.answer
         )}&email=${encodeURIComponent(payload.email)}`
       );
