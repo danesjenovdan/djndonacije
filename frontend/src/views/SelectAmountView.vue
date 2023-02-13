@@ -108,9 +108,15 @@ export default {
       this.loading = true;
 
       this.$store.dispatch('getCampaignData', { donationSlug: this.donationSlug }).then(() => {
-        this.loadCSS(this.CSSFile);
+        if (this.CSSFile) {
+          this.loadCSS(this.CSSFile);
+        }
         this.loading = false;
       });
+    }
+
+    if (this.$route.query.mesecna) {
+      this.$store.commit("setRecurringDonation", true);
     }
   },
   methods: {
