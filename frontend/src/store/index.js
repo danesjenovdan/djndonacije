@@ -27,7 +27,6 @@ const store = createStore({
         token: "",
         customerId: "", 
       }
-      
     };
   },
   getters: {

@@ -90,7 +90,7 @@ export default {
   },
   data() {
     const donationSlug = this.$route.params.donationSlug;
-    const payment = this.$store.getters.getPaymentOptions.oneTime ? 'card' : 'upn'
+    const payment = this.$store.getters.getPaymentOptions.oneTime || this.$store.getters.getPaymentOptions.monthly ? 'card' : 'upn'
 
     return {
       donationSlug,

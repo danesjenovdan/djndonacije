@@ -145,6 +145,10 @@ export default {
       this.$store.commit("setChosenAmount", amount);
     }
 
+    if (this.$route.query.mesecna) {
+      this.$store.commit("setRecurringDonation", true);
+    }
+
     if (this.chosenAmount <= 0) {
       this.$router.push({ name: "selectAmount" });
     }
