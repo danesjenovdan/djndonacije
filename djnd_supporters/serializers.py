@@ -26,3 +26,9 @@ class DonationCampaignSerializer(serializers.ModelSerializer):
         fields = ['id', 'has_upn', 'has_braintree', 'has_braintree_subscription', 'add_to_mailing', 'name', 'amounts', 'title', 'subtitle', 'redirect_url', 'css_file']
 
 
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    campaign = DonationCampaignSerializer()
+    class Meta:
+        model = models.Subscription
+        fields = ['id', 'subscription_id', 'campaign', 'amount', 'created']

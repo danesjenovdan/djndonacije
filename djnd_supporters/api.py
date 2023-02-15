@@ -205,6 +205,16 @@ class UserSegments(views.APIView):
             return Response({'msg': response}, status=response_status)
 
 
+class UserSubscriptions(views.APIView):
+    authentication_classes = [authentication.SubscriberAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        user = request.user
+        subscriptions = user.subscriptions.filter(is_active=True)
+        return Response(serializers.SubscriptionSerializer(subscriptions, many=True).data)
+
+
 class DonationsStats(views.APIView):
     def get(self, request):
         return Response({

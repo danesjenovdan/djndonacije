@@ -65,6 +65,13 @@ services:
       - MAUTIC_DB_NAME=mautic
       - MAUTIC_RUN_CRON_JOBS=true
 
+  podprifrontend:
+    build: frontend/.
+    ports:
+      - 80:8000
+    volumes:
+      - ./frontend/.:/app
+
 volumes:
   mysql_data:
     driver: local
