@@ -16,7 +16,7 @@
         bomo poskusili pomagati.
       </p>
     </div>
-    <checkout-stage stage="payment">
+    <checkout-stage show-terms>
       <template v-slot:title> Plačilo </template>
       <template v-slot:content>
         <div class="payment-container">
@@ -89,11 +89,11 @@ export default {
     PaymentSwitcher,
   },
   data() {
-    const donationSlug = this.$route.params.donationSlug;
+    const campaignSlug = this.$route.params.campaignSlug;
     const payment = this.$store.getters.getPaymentOptions.oneTime || this.$store.getters.getPaymentOptions.monthly ? 'card' : 'upn'
 
     return {
-      donationSlug,
+      campaignSlug,
       error: null,
       payment: payment,
       checkoutLoading: false,
@@ -166,7 +166,7 @@ export default {
 
       this.$store
         .dispatch("onPaymentSuccess", {
-          donationSlug: this.donationSlug,
+          campaignSlug: this.campaignSlug,
           nonce: this.nonce,
         })
         .then((response) => {
