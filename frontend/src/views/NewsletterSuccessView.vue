@@ -1,21 +1,18 @@
 <template>
   <div class="checkout">
-    <checkout-stage no-header>
+    <checkout-stage no-header show-djnd-footer>
       <template v-slot:content>
         <div class="row justify-content-center my-5">
           <div class="col-md-6 col-lg-4">
-            <img
-              class="img-fluid"
-              src="../assets/hvala.svg"
-            />
+            <img class="img-fluid" src="../assets/hvala.svg" />
           </div>
         </div>
         <div class="row justify-content-center">
-          <h2 class="thankyou__title">HVALA ZA DONACIJO!</h2>
+          <h2 class="thankyou__title">Hvala za prijavo na novičnik!</h2>
           <p class="text-center">
-            Tvoja donacija predstavlja še en kamenček podpore v mozaiku našega
-            delovanja. Iskreno upamo, da ti bodo naši projekti še naprej v
-            veselje in ponos.
+            Z zanimivimi temami in novicmai te bomo zalagali vsak mesec, pisali
+            pa ti bomo tudi, kadar naredimo kaj dobrega in kadar se dogaja kaj
+            pomembnega.
           </p>
         </div>
       </template>

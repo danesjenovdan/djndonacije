@@ -1,6 +1,6 @@
 <template>
   <div class="checkout">
-    <checkout-stage stage="select-amount">
+    <checkout-stage show-terms>
       <template v-slot:title>
         {{ title }}
       </template>
@@ -62,10 +62,10 @@ export default {
     CheckoutStage,
   },
   data() {
-    const donationSlug = this.$route.params.donationSlug;
+    const campaignSlug = this.$route.params.campaignSlug;
 
     return {
-      donationSlug,
+      campaignSlug,
       loading: false,
     };
   },
@@ -107,7 +107,7 @@ export default {
     if (this.donationPresets.length === 0) {
       this.loading = true;
 
-      this.$store.dispatch('getCampaignData', { donationSlug: this.donationSlug }).then(() => {
+      this.$store.dispatch('getCampaignData', { campaignSlug: this.campaignSlug }).then(() => {
         if (this.CSSFile) {
           this.loadCSS(this.CSSFile);
         }

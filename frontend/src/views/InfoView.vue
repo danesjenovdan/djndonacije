@@ -1,6 +1,6 @@
 <template>
   <div class="checkout">
-    <checkout-stage stage="info">
+    <checkout-stage show-terms>
       <template v-slot:title> Podatki </template>
       <template v-slot:content>
         <div v-if="loading" class="payment-loader">
@@ -89,10 +89,10 @@ export default {
     CheckoutStage,
   },
   data() {
-    const donationSlug = this.$route.params.donationSlug;
+    const campaignSlug = this.$route.params.campaignSlug;
 
     return {
-      donationSlug,
+      campaignSlug,
       answer: "",
       honeyPotName: "",
       robotError: false,
@@ -161,7 +161,7 @@ export default {
         } else {
           this.loading = true;
           this.$store.dispatch('verifyQuestion', { 
-            donationSlug: this.donationSlug,
+            campaignSlug: this.campaignSlug,
             answer: this.answer,
             email: this.email,
           }).then((checkoutResponse) => {
