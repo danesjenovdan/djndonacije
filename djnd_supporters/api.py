@@ -236,8 +236,18 @@ class DeleteAllUserData(views.APIView):
 
     def delete(self, request, format=None):
         user = request.user
-        mautic_api.deleteContact(user.mautic_id)
-        user.delete()
+        if user.subscriptions.filter(is_active=True).exists():
+            response, response_status = mautic_api.getSegmentsOfContact(user.mautic_id)
+            if response_status == 200:
+                segments = response['lists']
+                if segments:
+                    for id, value in segments.items():
+                        response, response_status = mautic_api.removeContactFromASegment(id, user.mautic_id)
+            else:
+                return Response({'error': 'Missing email and/or token.'}, status=status.HTTP_409_CONFLICT)
+        else:
+            mautic_api.deleteContact(user.mautic_id)
+            user.delete()
         return Response(status=204)
 
 
