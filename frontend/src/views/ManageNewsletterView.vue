@@ -196,7 +196,7 @@ export default {
       this.$store
         .dispatch("deleteUserData")
         .then((response) => {
-          if (response.status === 200) {
+          if (response.status === 204) {
             this.subscriptions = [];
             this.success = true;
           } else {
