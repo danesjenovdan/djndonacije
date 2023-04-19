@@ -208,7 +208,7 @@ class UserSegments(views.APIView):
             segments = response['lists']
             if segments:
                 return Response({
-                    'segments': [value for id, value in segments.items() if not segment or segment==id],
+                    'segments': [value for id, value in segments.items() if not segment or segment==value['id']],
                     'campaign': donation_campagin_data
                 })
             else:
