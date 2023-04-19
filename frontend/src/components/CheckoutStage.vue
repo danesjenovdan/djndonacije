@@ -2,7 +2,6 @@
   <div
     :class="[
       'checkout-stage',
-      `checkout-stage-${stage}`,
     ]"
   >
     <div class="checkout-stage__container">
@@ -20,10 +19,30 @@
         <slot name="footer" />
       </div>
     </div>
-    <div class="checkout-stage__terms">
+    <div v-if="showTerms" class="checkout-stage__terms">
       <a href="https://danesjenovdan.si/pogoji" target="_blank">
         Pogoji poslovanja
       </a>
+    </div>
+    <div v-if="showDjndFooter" class="checkout-stage__footer_djnd">
+      <hr />
+      <div>
+        <img src="../assets/logo-djnd.png" class="logo-djnd" alt="" />
+        <a href="https://danesjenovdan.si/" target="_blank">
+          Pojdi na Danes je nov dan spletno mesto <span class="icon-arrow-right">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="30 18 110.9 40"
+              fill="#333333"
+            >
+              <path
+                d="M140.9 38a3 3 0 00-.9-2l-16-17c-1-1-3.1-1.4-4.3-.3-1.2 1-1.2 3.2 0 4.4L131 35H30v6h101l-11.3 12c-1 1-1.2 3.2 0 4.3 1.2 1 3.3.8 4.3-.2l16-17c.6-.6.9-1.3.9-2.1z"
+              />
+            </svg>
+          </span>
+        </a>
+      </div>
+      
     </div>
   </div>
 </template>
@@ -35,9 +54,13 @@ export default {
       type: Boolean,
       default: false,
     },
-    stage: {
-      type: String,
-      default: 'default',
+    showTerms: {
+      type: Boolean,
+      default: false,
+    },
+    showDjndFooter: {
+      type: Boolean,
+      default: false,
     },
   },
 };
@@ -115,6 +138,35 @@ export default {
       &:hover {
         text-decoration: none;
       }
+    }
+  }
+
+  .checkout-stage__footer_djnd {
+    &>div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 1rem 0;
+    }
+
+    .logo-djnd {
+      width: 140px;
+      margin: 10px 40px;
+    }
+
+    a {
+      color: #333333;
+      font-weight: 300;
+      font-size: 1.25rem;
+    }
+
+    a:hover {
+      text-decoration: none;
+    }
+
+    .icon-arrow-right svg {
+      width: 1.5em;
+      margin: 0 5px;
     }
   }
 }

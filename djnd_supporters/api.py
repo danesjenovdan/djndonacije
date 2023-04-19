@@ -193,17 +193,32 @@ class UserSegments(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
+        segment = None
         contact_id = request.user.mautic_id
         response, response_status = mautic_api.getSegmentsOfContact(contact_id)
+        campaign_slug = request.GET.get('campaign', None)
+        campaign = models.DonationCampaign.objects.filter(slug=campaign_slug).first()
+        if campaign:
+            segment = campaign.segment
+            donation_campagin_data = serializers.DonationCampaignSerializer(campaign).data
+        else:
+            donation_campagin_data = None
+
         if response_status == 200:
             segments = response['lists']
             if segments:
-                return Response({'segments': [value for id, value in segments.items()]})
+                return Response({
+                    'segments': [value for id, value in segments.items() if not segment or segment==id],
+                    'campaign': donation_campagin_data
+                })
             else:
-                return Response({'segments': []})
+                return Response({
+                    'segments': [],
+                    'campaign': donation_campagin_data
+                })
         else:
             return Response({'msg': response}, status=response_status)
-
+        
 
 class UserSubscriptions(views.APIView):
     authentication_classes = [authentication.SubscriberAuthentication]
@@ -213,6 +228,27 @@ class UserSubscriptions(views.APIView):
         user = request.user
         subscriptions = user.subscriptions.filter(is_active=True)
         return Response(serializers.SubscriptionSerializer(subscriptions, many=True).data)
+
+
+class DeleteAllUserData(views.APIView):
+    authentication_classes = [authentication.SubscriberAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, format=None):
+        user = request.user
+        if user.subscriptions.filter(is_active=True).exists():
+            response, response_status = mautic_api.getSegmentsOfContact(user.mautic_id)
+            if response_status == 200:
+                segments = response['lists']
+                if segments:
+                    for id, value in segments.items():
+                        response, response_status = mautic_api.removeContactFromASegment(id, user.mautic_id)
+            else:
+                return Response({'error': 'Missing email and/or token.'}, status=status.HTTP_409_CONFLICT)
+        else:
+            mautic_api.deleteContact(user.mautic_id)
+            user.delete()
+        return Response(status=204)
 
 
 class DonationsStats(views.APIView):

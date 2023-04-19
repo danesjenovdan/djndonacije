@@ -3,31 +3,55 @@ import SelectAmountView from "../views/SelectAmountView.vue";
 import InfoView from "../views/InfoView.vue";
 import PaymentView from "../views/PaymentView.vue";
 import ThankYouView from "../views/ThankYouView.vue";
+import ManageDonationsView from "../views/ManageDonationsView.vue";
+import NewsletterSuccessView from "../views/NewsletterSuccessView.vue";
+import ManageNewsletterView from "../views/ManageNewsletterView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // user settings
     {
-      path: "/:donationSlug",
+      path: "/urejanje-donacij",
+      name: "manageDonations",
+      component: ManageDonationsView,
+    },
+    //
+    // donations
+    {
+      path: "/:campaignSlug/doniraj",
       name: "selectAmount",
       component: SelectAmountView,
-      alias: '/:donationSlug/izberi'
+      // alias: '/:campaignSlug/doniraj/izberi'
     },
     {
-      path: "/:donationSlug/info",
+      path: "/:campaignSlug/doniraj/info",
       name: "info",
       component: InfoView,
     },
     {
-      path: "/:donationSlug/placilo",
+      path: "/:campaignSlug/doniraj/placilo",
       name: "payment",
       component: PaymentView,
     },
     {
-      path: "/hvala",
+      path: "/:campaignSlug/doniraj/hvala",
       name: "thankYou",
       component: ThankYouView,
     },
+    //
+    // newsletter
+    {
+      path: "/:campaignSlug/prijava-uspesna",
+      name: "newsletterSucess",
+      component: NewsletterSuccessView,
+    },
+    {
+      path: "/:campaignSlug/urejanje-narocnine",
+      name: "manageNewsletter",
+      component: ManageNewsletterView,
+    },
+    //
   ],
 });
 

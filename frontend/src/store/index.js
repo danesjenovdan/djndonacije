@@ -2,7 +2,7 @@ import { createStore } from "vuex";
 import axios from "axios";
 
 // const api = "http://localhost:8000";
-const api = 'https://podpri.lb.djnd.si';
+const api = "https://podpri.lb.djnd.si";
 
 const store = createStore({
   state() {
@@ -25,8 +25,8 @@ const store = createStore({
         email: "",
         subscribeToNewsletter: false,
         token: "",
-        customerId: "", 
-      }
+        customerId: "",
+      },
     };
   },
   getters: {
@@ -44,10 +44,10 @@ const store = createStore({
     },
     getPaymentOptions(state) {
       return {
-        'upn': state.campaignData.has_upn,
-        'oneTime': state.campaignData.has_braintree,
-        'monthly': state.campaignData.has_braintree_subscription,
-      }
+        upn: state.campaignData.has_upn,
+        oneTime: state.campaignData.has_braintree,
+        monthly: state.campaignData.has_braintree_subscription,
+      };
     },
     getCSSFile(state) {
       return state.campaignData.CSSFile;
@@ -121,7 +121,8 @@ const store = createStore({
     setPaymentOptions(state, options) {
       state.campaignData.has_upn = options.has_upn;
       state.campaignData.has_braintree = options.has_braintree;
-      state.campaignData.has_braintree_subscription = options.has_braintree_subscription;
+      state.campaignData.has_braintree_subscription =
+        options.has_braintree_subscription;
     },
     setCSSFile(state, file) {
       state.campaignData.CSSFile = file;
@@ -154,7 +155,7 @@ const store = createStore({
   actions: {
     async getCampaignData(context, payload) {
       const data = await axios.get(
-        `${api}/api/donation-campaign/${payload.donationSlug}/`
+        `${api}/api/donation-campaign/${payload.campaignSlug}/`
       );
 
       context.commit("setDonationCampaignId", data.data.id);
@@ -162,23 +163,32 @@ const store = createStore({
       context.commit("setSubtitle", data.data.subtitle);
       context.commit("setDonationPresets", data.data.amounts);
       context.commit("setPaymentOptions", {
-        'has_upn': data.data.has_upn,
-        'has_braintree': data.data.has_braintree,
-        'has_braintree_subscription': data.data.has_braintree_subscription
+        has_upn: data.data.has_upn,
+        has_braintree: data.data.has_braintree,
+        has_braintree_subscription: data.data.has_braintree_subscription,
       });
       context.commit("setHasNewsletter", data.data.add_to_mailing);
       context.commit("setRedirectToThankYou", data.data.redirect_url);
       context.commit("setCSSFile", data.data.css_file);
-      
+
       // if redirect url exists
       if (data.data.redirect_url) {
         context.commit("setRedirectToThankYou", true);
       }
     },
+    async getUserDonations(context, payload) {
+      const url = `${api}/api/subscriptions/my?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+      return await axios.get(url);
+    },
+    async getUserNewsletterSubscriptions(context, payload) {
+      // console.log("campaign", payload.campaign);
+      const url = `${api}/api/segments/my?token=${context.getters.getToken}&email=${context.getters.getEmail}&campaign=${payload.campaign}`;
+      return await axios.get(url);
+    },
     async verifyQuestion(context, payload) {
       return await axios.get(
         `${api}/api/generic-donation/${
-          payload.donationSlug
+          payload.campaignSlug
         }/?question_id=2&answer=${encodeURIComponent(
           payload.answer
         )}&email=${encodeURIComponent(payload.email)}`
@@ -186,19 +196,54 @@ const store = createStore({
     },
     async onPaymentSuccess(context, payload) {
       const paymentURL = context.getters.getRecurringDonation
-        ? `${api}/api/generic-donation/subscription/${payload.donationSlug}/`
-        : `${api}/api/generic-donation/${payload.donationSlug}/`;
+        ? `${api}/api/generic-donation/subscription/${payload.campaignSlug}/`
+        : `${api}/api/generic-donation/${payload.campaignSlug}/`;
 
       return await axios.post(paymentURL, {
-        payment_type: payload.nonce ? 'braintree' : 'upn',
+        payment_type: payload.nonce ? "braintree" : "upn",
         nonce: payload.nonce,
         customer_id: context.getters.getCustomerId,
         amount: context.getters.getChosenAmount,
         email: context.getters.getEmail,
-        mailing: context.getters.getSubscribeToNewsletter
+        mailing: context.getters.getSubscribeToNewsletter,
       });
     },
-    // TODO: cancel subscription
+    async cancelDonationSubscription(context, payload) {
+      const url = `${api}/api/generic-donation/cancel-subscription/`;
+
+      try {
+        const response = await axios.post(url, {
+          token: encodeURIComponent(context.getters.getToken),
+          subscription_id: encodeURIComponent(payload.subscription_id),
+        });
+        return response;
+      } catch (err) {
+        console.log("ERROR at sending request", err.message);
+        return null;
+      }
+    },
+    async cancelNewsletterSubscription(context, payload) {
+      const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+
+      try {
+        const response = await axios.delete(url);
+        return response;
+      } catch (err) {
+        console.log("ERROR at sending request", err.message);
+        return null;
+      }
+    },
+    async deleteUserData(context, payload) {
+      const url = `${api}/api/delete-all-user-data?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+
+      try {
+        const response = await axios.delete(url);
+        return response;
+      } catch (err) {
+        console.log("ERROR at sending request", err.message);
+        return null;
+      }
+    },
   },
 });
 
