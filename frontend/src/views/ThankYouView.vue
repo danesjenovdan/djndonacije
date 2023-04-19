@@ -4,10 +4,7 @@
       <template v-slot:content>
         <div class="row justify-content-center my-5">
           <div class="col-md-6 col-lg-4">
-            <img
-              class="img-fluid"
-              src="../assets/hvala.svg"
-            />
+            <img class="img-fluid" src="../assets/hvala.svg" />
           </div>
         </div>
         <div class="row justify-content-center">

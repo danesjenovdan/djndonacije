@@ -22,7 +22,7 @@
         >
           <div class="col-md-4">
             <p class="m-0">
-              Želim prekiniti mesečno donacijo za
+              Odjavi me od donacij:
               <strong>{{ donationCampaign.campaign.name }}</strong>
             </p>
           </div>
@@ -39,6 +39,16 @@
                 )
               "
             />
+          </div>
+        </div>
+        <div
+          v-if="this.campaign_subscriptions.length === 0"
+          class="row justify-content-center my-4"
+        >
+          <div class="col-md-8">
+            <p class="m-0 text-center">
+              Trenutno nimaš aktivne nobene mesečne donacije.
+            </p>
           </div>
         </div>
         <div v-if="loading" class="payment-loader">

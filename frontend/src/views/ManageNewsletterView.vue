@@ -1,10 +1,18 @@
 <template>
   <div class="checkout">
-    <div v-if="success" class="alert alert-success text-center">
+    <div
+      v-if="success && !last_cancelled_newsletter"
+      class="alert alert-success text-center"
+    >
       <p class="my-3">
-        Naročnina na novičnik {{ last_cancelled_newsletter }} je uspešno
-        prekinjena.
+        Odjavili smo te od vseh novičnikov in izbrisali tvoje podatke.
       </p>
+    </div>
+    <div
+      v-if="success && last_cancelled_newsletter"
+      class="alert alert-success text-center"
+    >
+      <p class="my-3">Odjava je uspešna!</p>
     </div>
     <div v-if="error" class="alert alert-danger text-center">
       <p class="my-3">
@@ -21,26 +29,51 @@
           v-for="segment in this.subscriptions"
           :key="segment.id"
         >
-          <div class="col-md-4">
-            <p class="m-0">
-              Odjavi me od <strong>{{ segment.name }}</strong> novičnika
-            </p>
-          </div>
-          <div class="col-md-4">
-            <more-button
-              :disabled="loading"
-              :text="'Da, potrjujem odjavo.'"
-              class="my-2"
-              color="secondary"
-              @click="cancelSubscription(segment.name, segment.id)"
-            />
+          <div class="col-md-8">
+            <div class="row">
+              <div class="col-md-6">
+                <p class="m-0" v-if="segment.id === 21">
+                  Odjavi me od Občasnika.
+                </p>
+                <p class="small-paragraph" v-if="segment.id === 21">
+                  Z izbiro te možnosti te bomo odjavili od našega Občasnika. Če
+                  prejemaš kakšen drug novičnik, za katerega skrbimo na Danes je
+                  nov dan, pa ga lahko še naprej pričakuješ v nabiralniku.
+                </p>
+                <p class="m-0" v-else>
+                  Odjavi me od novičnika <strong>{{ segment.name }}</strong
+                  >.
+                </p>
+              </div>
+              <div class="col-md-6">
+                <more-button
+                  :disabled="loading"
+                  :text="'Da, odjavi me.'"
+                  class="my-2"
+                  color="secondary"
+                  @click="cancelSubscription(segment.name, segment.id)"
+                />
+              </div>
+            </div>
+            <div class="row mt-4">
+              <div class="col-12">
+                <hr />
+              </div>
+            </div>
           </div>
         </div>
-        <div class="row justify-content-center my-4">
+        <div class="row justify-content-center mb-4">
           <div class="col-md-4">
             <p class="m-0">
               Odjavi me od <strong>vseh novičnikov</strong>, za katere skrbi
               Danes je nov dan, in <strong>izbriši moje podatke</strong>.
+            </p>
+            <p class="small-paragraph">
+              Z izbiro te možnosti bomo iz naše baze izbrisali vse tvoje
+              podatke, od nas pa v prihodnje ne boš prejemal_a nobenega
+              sporočila več. Tvoj e-naslov bomo hranili le v primeru, da doniraš
+              Danes je nov dan ali eni od organizacij, za katere zbiramo
+              donacije.
             </p>
           </div>
           <div class="col-md-4">
@@ -102,7 +135,9 @@ export default {
 
     // get subscriptions list
     this.$store
-      .dispatch("getUserNewsletterSubscriptions")
+      .dispatch("getUserNewsletterSubscriptions", {
+        campaign: this.campaignSlug,
+      })
       .then((response) => {
         if (response.status === 200) {
           this.subscriptions = response.data.segments;
@@ -127,7 +162,6 @@ export default {
     async cancelSubscription(campaign_name, segment_id) {
       this.loading = true;
 
-      // popravi, da ne bo več seznam, ko bo obstajal primeren endpoint
       this.$store
         .dispatch("cancelNewsletterSubscription", {
           segment_id: segment_id,
@@ -135,7 +169,7 @@ export default {
         .then((response) => {
           if (response.status === 200) {
             this.subscriptions = this.subscriptions.filter(
-              (campaign) => campaign.segment_id != segment_id
+              (campaign) => campaign.id != segment_id
             );
             this.success = true;
             this.last_cancelled_newsletter = campaign_name;
@@ -156,8 +190,32 @@ export default {
           this.loading = false;
         });
     },
-    // TODO: dopolni, ko bo obstajal ta endpoint
-    async deleteUserData() {},
+    async deleteUserData() {
+      this.loading = true;
+
+      this.$store
+        .dispatch("deleteUserData")
+        .then((response) => {
+          if (response.status === 200) {
+            this.subscriptions = [];
+            this.success = true;
+          } else {
+            // catch error
+            console.log("Not successful", response);
+            this.success = false;
+            this.error = true;
+          }
+        })
+        .catch((error) => {
+          // catch error
+          this.success = false;
+          this.error = true;
+          console.log("Error", error);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
   },
 };
 </script>
@@ -181,6 +239,10 @@ export default {
       font-size: 30px;
       padding: 0;
     }
+  }
+
+  p.small-paragraph {
+    font-size: 16px;
   }
 }
 </style>

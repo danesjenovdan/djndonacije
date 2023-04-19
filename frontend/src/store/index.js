@@ -180,9 +180,9 @@ const store = createStore({
       const url = `${api}/api/subscriptions/my?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
       return await axios.get(url);
     },
-    // TODO: spremeni to v get en sam subscription za newsletter (glede na campaign slug)
     async getUserNewsletterSubscriptions(context, payload) {
-      const url = `${api}/api/segments/my?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+      // console.log("campaign", payload.campaign);
+      const url = `${api}/api/segments/my?token=${context.getters.getToken}&email=${context.getters.getEmail}&campaign=${payload.campaign}`;
       return await axios.get(url);
     },
     async verifyQuestion(context, payload) {
@@ -224,6 +224,17 @@ const store = createStore({
     },
     async cancelNewsletterSubscription(context, payload) {
       const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+
+      try {
+        const response = await axios.delete(url);
+        return response;
+      } catch (err) {
+        console.log("ERROR at sending request", err.message);
+        return null;
+      }
+    },
+    async deleteUserData(context, payload) {
+      const url = `${api}/api/delete-all-user-data?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
 
       try {
         const response = await axios.delete(url);

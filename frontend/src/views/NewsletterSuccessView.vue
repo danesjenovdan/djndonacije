@@ -2,17 +2,15 @@
   <div class="checkout">
     <checkout-stage no-header show-djnd-footer>
       <template v-slot:content>
-        <div class="row justify-content-center my-5">
+        <div class="row justify-content-center">
           <div class="col-md-6 col-lg-4">
-            <img class="img-fluid" src="../assets/hvala.svg" />
+            <img class="img-fluid" src="../assets/hvala.png" />
           </div>
         </div>
         <div class="row justify-content-center">
-          <h2 class="thankyou__title">Hvala za prijavo na novičnik!</h2>
+          <h2 class="thankyou__title">Hvala!</h2>
           <p class="text-center">
-            Z zanimivimi temami in novicmai te bomo zalagali vsak mesec, pisali
-            pa ti bomo tudi, kadar naredimo kaj dobrega in kadar se dogaja kaj
-            pomembnega.
+            Tvoja prijava na novičnik je potrjena. Se slišimo kmalu!
           </p>
         </div>
       </template>
@@ -73,14 +71,14 @@ export default {
   .thankyou__title {
     font-size: 1.85rem;
     text-align: center;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-style: italic;
-    margin: 30px 0;
+    font-weight: 300;
+    // text-transform: uppercase;
+    // font-style: italic;
+    margin: 16px 0;
 
     @include media-breakpoint-up(md) {
-      font-size: 5rem;
-      font-weight: 700;
+      font-size: 4rem;
+      // font-weight: 700;
     }
 
     .icon {
