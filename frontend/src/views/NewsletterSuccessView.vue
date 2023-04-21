@@ -1,7 +1,7 @@
 <template>
   <div class="checkout">
     <checkout-stage no-header show-djnd-footer>
-      <template v-slot:content>
+      <template v-slot:content v-if="success == true">
         <div class="row justify-content-center">
           <div class="col-md-6 col-lg-4">
             <img class="img-fluid" src="../assets/hvala.png" />
@@ -14,6 +14,21 @@
           </p>
         </div>
       </template>
+      <template v-slot:content v-if="failure == true">
+        <div class="row justify-content-center">
+          <h2 class="thankyou__title">Oh ne!</h2>
+          <p class="text-center">
+            Nekaj je šlo narobe, tvoja prijava ni potrjena.
+          </p>
+          <p class="text-center">
+            Prosim, opiši nam problem na
+            <a href="mailto:vsi@danesjenovdan.si">vsi@danesjenovdan.si</a>.
+          </p>
+        </div>
+      </template>
+      <div v-if="loading" class="payment-loader">
+        <div class="lds-dual-ring" />
+      </div>
     </checkout-stage>
   </div>
 </template>
@@ -26,7 +41,49 @@ export default {
     CheckoutStage,
   },
   data() {
-    return {};
+    return {
+      success: false,
+      failure: false,
+      loading: true,
+    };
+  },
+  async mounted() {
+    // store token
+    const token = this.$route.query.token;
+    if (token) {
+      this.$store.commit("setToken", token);
+    }
+    // store email
+    const email = this.$route.query.email;
+    if (email) {
+      this.$store.commit("setEmail", email);
+    }
+
+    const segment_id = this.$route.query.segment_id;
+
+    if (!(email && token && segment_id)) {
+      this.$router.push("/404");
+    } else {
+      this.$store
+        .dispatch("confirmNewsletterSubscription", { segment_id: segment_id })
+        .then((response) => {
+          if (response.status === 200) {
+            this.success = true;
+          } else {
+            // catch error
+            console.log("Not successful", response);
+            this.failure = true;
+          }
+        })
+        .catch((error) => {
+          // catch error
+          console.log("Error", error);
+          this.failure = true;
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    }
   },
 };
 </script>
