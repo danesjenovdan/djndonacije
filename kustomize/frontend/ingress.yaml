@@ -7,17 +7,28 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-  - hosts:
-    - doniraj.lb.djnd.si
-    secretName: podpri-frontend-tls
+    - hosts:
+        - doniraj.lb.djnd.si
+        - moj.djnd.si
+      secretName: podpri-frontend-tls
   rules:
-  - host: doniraj.lb.djnd.si
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: podpri-frontend
-            port:
-              number: 80
+    - host: doniraj.lb.djnd.si
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: podpri-frontend
+                port:
+                  number: 80
+    - host: moj.djnd.si
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: podpri-frontend
+                port:
+                  number: 80
