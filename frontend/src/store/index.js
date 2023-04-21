@@ -208,6 +208,17 @@ const store = createStore({
         mailing: context.getters.getSubscribeToNewsletter,
       });
     },
+    async confirmNewsletterSubscription(context, payload) {
+      const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+
+      try {
+        const response = await axios.post(url);
+        return response;
+      } catch (err) {
+        console.log("ERROR at sending request", err.message);
+        return null;
+      }
+    },
     async cancelDonationSubscription(context, payload) {
       const url = `${api}/api/generic-donation/cancel-subscription/`;
 
