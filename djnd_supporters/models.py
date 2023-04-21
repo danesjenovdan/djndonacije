@@ -189,11 +189,20 @@ class DonationCampaign(Timestamped):
     subscription_canceled_email = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT cancel subscription')
     subscription_charged_successfully = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT subscription charged successfully')
     segment = models.IntegerField(null=True, blank=True, help_text='ID of default segment of this campaign')
-    welcome_email_tempalte = models.IntegerField(null=True, blank=True, help_text='ID of email tempalte on mautic to send on user registration')
+    welcome_email_tempalte = models.IntegerField(
+        null=True, blank=True,
+        verbose_name="Welcome or confirmation email ID",
+        help_text='Welcome or confirmation email ID'
+    )
     edit_subscriptions_email_tempalte = models.IntegerField(null=True, blank=True, help_text='ID of email tempalte on mautic for edit subscrptions')
     redirect_url = models.URLField(null=True, blank=True, help_text='Redirect url on success')
     css_file = models.FileField(upload_to='css', null=True, blank=True)
     braintree_merchant_account_id = models.CharField(null=True, blank=True, max_length=128, help_text='ID of braintree merchant account.')
+    add_to_newsletter_confirmation_required = models.BooleanField(
+        default=False,
+        verbose_name="Add to newsletter confirmation required",
+        help_text="Add to newsletter confirmation required"
+    )
 
     def __str__(self):
         return self.name

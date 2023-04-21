@@ -82,7 +82,8 @@ class Subscribe(views.APIView):
                                 mail_to_send = 'edit'
                             else:
                                 mail_to_send = 'welcome'
-                                mautic_api.addContactToASegment(segment, mautic_id)
+                                if not campaign.add_to_newsletter_confirmation_required:
+                                    mautic_api.addContactToASegment(segment, mautic_id)
 
                     if campaign:
                         if mail_to_send == 'edit' and campaign.edit_subscriptions_email_tempalte:
@@ -115,7 +116,8 @@ class Subscribe(views.APIView):
                         return Response({'msg': response}, status=response_status)
                     else:
                         if segment:
-                            mautic_api.addContactToASegment(segment, subscriber.mautic_id)
+                            if not campaign.add_to_newsletter_confirmation_required:
+                                mautic_api.addContactToASegment(segment, subscriber.mautic_id)
 
                         if campaign and campaign.welcome_email_tempalte:
                             response, response_status = mautic_api.sendEmail(
