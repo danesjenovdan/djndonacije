@@ -72,6 +72,15 @@ class Subscribe(views.APIView):
                 if contacts:
                     # user already exists on mautic
                     mautic_id = list(contacts.keys())[0]
+                    try:
+                        token = contacts[mautic_id]['fields']['core']['token']['value']
+                    except:
+                        token = None
+                    if not token:
+                        # create new subscriber if exists in mautic and its not connected to podpri
+                        subscriber = models.Subscriber.objects.create()
+                        subscriber.save()
+                        response, response_status = subscriber.save_to_mautic(email)
                     mail_to_send = None
                     if segment:
                         # user is not on a segment then welcome mail
