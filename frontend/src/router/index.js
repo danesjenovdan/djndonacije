@@ -51,8 +51,21 @@ const router = createRouter({
       name: "manageNewsletter",
       component: ManageNewsletterView,
     },
+    {
+      path: "/:campaignSlug/manage-subscription",
+      name: "manageNewsletterEng",
+      component: ManageNewsletterView,
+      props: { lang: "eng" },
+      meta: {
+        title: 'Manage my subscription',
+      },
+    },
     //
   ],
 });
+
+router.beforeEach((to, from) => {
+  document.title = to.meta?.title ?? 'Doniraj za nov dan!'
+})
 
 export default router;

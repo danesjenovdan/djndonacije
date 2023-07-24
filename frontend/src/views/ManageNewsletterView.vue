@@ -1,20 +1,22 @@
 <template>
   <div class="checkout">
-    <div
-      v-if="success && !last_cancelled_newsletter"
-      class="alert alert-success text-center"
-    >
-      <p class="my-3">
+    <div v-if="success && !last_cancelled_newsletter" class="alert alert-success text-center">
+      <p v-if="lang == 'eng'" class="my-3">
+        You have successfully unsubscribed and we have deleted your data.
+      </p>
+      <p v-else class="my-3">
         Odjavili smo te od vseh novičnikov in izbrisali tvoje podatke.
       </p>
     </div>
-    <div
-      v-if="success && last_cancelled_newsletter"
-      class="alert alert-success text-center"
-    >
-      <p class="my-3">Odjava je uspešna!</p>
+    <div v-if="success && last_cancelled_newsletter" class="alert alert-success text-center">
+      <p v-if="lang == 'eng'" class="my-3">
+        You have successfully unsubscribed.
+      </p>
+      <p v-else class="my-3">
+        Odjava je uspešna!
+      </p>
     </div>
-    <div v-if="error" class="alert alert-danger text-center">
+    <div v-if="error && lang != 'eng'" class="alert alert-danger text-center">
       <p class="my-3">
         Zgodila se je napaka.
         <br />Piši nam na
@@ -22,13 +24,16 @@
         takoj razrešili težavo.
       </p>
     </div>
-    <checkout-stage no-header show-djnd-footer>
+    <div v-if="error && lang == 'eng'" class="alert alert-danger text-center">
+      <p class="my-3">
+        An error occurred.
+        <br />Contact us at
+        <a href="mailto:info@disco.si">info@disco.si</a>, and we will solve the problem as soon as possible.
+      </p>
+    </div>
+    <checkout-stage no-header :show-djnd-footer="!lang" :show-disco-footer="lang == 'eng'">
       <template v-slot:content>
-        <div
-          class="row justify-content-center my-4"
-          v-for="segment in this.subscriptions"
-          :key="segment.id"
-        >
+        <div class="row justify-content-center my-4" v-for="segment in this.subscriptions" :key="segment.id">
           <div class="col-md-8">
             <div class="row">
               <div class="col-md-6">
@@ -40,19 +45,16 @@
                   prejemaš kakšen drug novičnik, za katerega skrbimo na Danes je
                   nov dan, pa ga lahko še naprej pričakuješ v nabiralniku.
                 </p>
+                <p class="m-0" v-else-if="lang == 'eng'">
+                  Unsubscribe me from the <strong>DISCO Slovenia</strong> newsletter.
+                </p>
                 <p class="m-0" v-else>
-                  Odjavi me od novičnika <strong>{{ segment.name }}</strong
-                  >.
+                  Odjavi me od novičnika <strong>{{ segment.name }}</strong>.
                 </p>
               </div>
               <div class="col-md-6">
-                <more-button
-                  :disabled="loading"
-                  :text="'Da, odjavi me.'"
-                  class="my-2"
-                  color="secondary"
-                  @click="cancelSubscription(segment.name, segment.id)"
-                />
+                <more-button :disabled="loading" :text="lang == 'eng' ? 'Yes, unsubscribe me.' : 'Da, odjavi me.'"
+                  class="my-2" color="secondary" @click="cancelSubscription(segment.name, segment.id)" />
               </div>
             </div>
             <div class="row mt-4">
@@ -64,11 +66,21 @@
         </div>
         <div class="row justify-content-center mb-4">
           <div class="col-md-4">
-            <p class="m-0">
+            <p class="m-0" v-if="lang == 'eng'">
+              Unsubscribe me from <strong>all newsletters</strong> sent out by Danes je nov dan (Today is a new day) and
+              <strong>delete my data</strong>.
+            </p>
+            <p class="m-0" v-else>
               Odjavi me od <strong>vseh novičnikov</strong>, za katere skrbi
               Danes je nov dan, in <strong>izbriši moje podatke</strong>.
             </p>
-            <p class="small-paragraph">
+            <p class="small-paragraph" v-if="lang == 'eng'">
+              By selecting this option, all your data will be deleted from our database, and you will no longer receive
+              any communication from us. We will keep your email address only if you are registered for the DISCO Slovenia
+              conference, or if you donate to Today is a New Day or any of the associated organizations for which we
+              collect contributions.
+            </p>
+            <p class="small-paragraph" v-else>
               Z izbiro te možnosti bomo iz naše baze izbrisali vse tvoje
               podatke, od nas pa v prihodnje ne boš prejemal_a nobenega
               sporočila več. Tvoj e-naslov bomo hranili le v primeru, da doniraš
@@ -77,13 +89,8 @@
             </p>
           </div>
           <div class="col-md-4">
-            <more-button
-              :disabled="loading"
-              :text="'Da, izbriši moje podatke.'"
-              class="my-2"
-              color="secondary"
-              @click="deleteUserData()"
-            />
+            <more-button :disabled="loading" :text="lang == 'eng' ? 'Yes, delete my data.' : 'Da, izbriši moje podatke.'" class="my-2" color="secondary"
+              @click="deleteUserData()" />
           </div>
         </div>
         <div v-if="loading" class="payment-loader">
@@ -99,6 +106,7 @@ import CheckoutStage from "../components/CheckoutStage.vue";
 import MoreButton from "../components/MoreButton.vue";
 
 export default {
+  props: ["lang"],
   components: {
     CheckoutStage,
     MoreButton,
@@ -244,5 +252,4 @@ export default {
   p.small-paragraph {
     font-size: 16px;
   }
-}
-</style>
+}</style>
