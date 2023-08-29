@@ -30,9 +30,7 @@
           </div>
           <hr />
           <p>
-            Zadnje čase nas pogosto napadajo roboti. Ker se želimo prepričati,
-            da si človek, nam prosim povej, kako se piše trenutni predsednik
-            Vlade Republike Slovenije.
+            Zadnje čase nas pogosto napadajo roboti. Ker se želimo prepričati, da si človek, nam prosim povej, kateri priimek, ki se prične s črko P, poleg "Musar" ima trenutna predsednica države?
           </p>
           <div class="form-group">
             <input
