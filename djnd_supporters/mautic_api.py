@@ -11,16 +11,30 @@ class MauticApi(object):
     def getBasicAuth(self):
         return HTTPBasicAuth(self.username, self.password)
 
-    def mauticRequest(self, endpoint, data={}, file=None, method='post'):
+    def mauticRequest(self, endpoint, data={}, file=None, method='post', start=0, limit=100):
+        url = self.url + endpoint
+        if '?' in url:
+            url += '&'
+        else:
+            url += '?'
+        url += 'start=%s&limit=%s' % (start, limit)
         response = getattr(requests, method)(
-            self.url + endpoint,
+            url,
             auth=self.getBasicAuth(),
             json=data,
             files=file,
             )
 
         if response.status_code >= 200 and response.status_code < 300:
-            return response.json(), 200
+            out_data = response.json()
+            if 'total' in out_data.keys() and  int(out_data['total']) > start + limit:
+                new_page, status = self.mauticRequest(endpoint, data, file, method, start + limit, limit)
+                if status == 200:
+                    data_key = list(new_page.keys())[1]
+                    out_data[data_key].update(new_page[data_key])
+                else:
+                    return new_page, status
+            return out_data, 200
         else:
             print(response.content)
             return response.content, response.status_code
@@ -46,9 +60,13 @@ class MauticApi(object):
             method='get'
         )
 
-    def getContacts(self):
+    def getContacts(self, segment_alias=None):
+        if segment_alias:
+            query_parameters = f'?search=segment:{segment_alias}'
+        else:
+            query_parameters = ''
         return self.mauticRequest(
-            'contacts',
+            f'contacts{query_parameters}',
             method='get'
         )
 
