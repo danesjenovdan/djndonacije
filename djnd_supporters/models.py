@@ -180,7 +180,6 @@ class DonationCampaign(Timestamped):
     upn_email_template = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for UPN donation')
     bt_email_template = models.IntegerField(null=True, blank=True,  help_text='ID of email tempalte on mautic for braintree donation')
     bt_subscription_email_template = models.IntegerField(null=True, blank=True,  help_text='Id of email tempalte on mautic for braintree subscription donation')
-    add_to_mailing = models.IntegerField(null=True, blank=True, help_text='Add email to this mailing ID')
     has_upload_image = models.BooleanField(default=False, help_text='Has donation uploading image')
     web_hook_url = models.TextField(help_text='Web hook for subscription events', null=True, blank=True)
     braintee_subscription_plan_id = models.CharField(max_length=32, help_text='Braintree subscription plan id', null=True, blank=True)
