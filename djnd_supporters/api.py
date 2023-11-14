@@ -65,6 +65,9 @@ class Subscribe(views.APIView):
         if segment and not campaign:
             campaign = models.DonationCampaign.objects.filter(segment=segment).first()
 
+        if not campaign:
+            return Response({'msg': 'Campaign not found'}, status=status.HTTP_404_NOT_FOUND)
+
         if email:
             response, response_status = mautic_api.getContactByEmail(email)
             if response_status == 200:
