@@ -463,8 +463,8 @@ class GenericDonationCampaign(views.APIView):
             mautic_id = subscriber.mautic_id
 
         # add to mailing if they agreed
-        if add_to_mailing and donation_campaign.add_to_mailing:
-            response, response_status = mautic_api.addContactToASegment(donation_campaign.add_to_mailing, mautic_id)
+        if add_to_mailing and donation_campaign.segment:
+            response, response_status = mautic_api.addContactToASegment(donation_campaign.segment, mautic_id)
 
 
         if payment_type == 'upn':
@@ -665,8 +665,8 @@ class GenericCampaignSubscription(views.APIView):
             mautic_id = subscriber.mautic_id
 
         # add to mailing if they agreed
-        if add_to_mailing and donation_campaign.add_to_mailing:
-            response, response_status = mautic_api.addContactToASegment(donation_campaign.add_to_mailing, mautic_id)
+        if add_to_mailing and donation_campaign.segment:
+            response, response_status = mautic_api.addContactToASegment(donation_campaign.segment, mautic_id)
 
         # check if campaign supports braintree payments
         if not donation_campaign.has_braintree_subscription:
