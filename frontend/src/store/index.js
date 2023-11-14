@@ -130,8 +130,8 @@ const store = createStore({
     setRedirectToThankYou(state, redirect) {
       state.campaignData.redirectToThankYou = redirect;
     },
-    setHasNewsletter(state, add_to_mailing) {
-      state.campaignData.hasNewsletter = !!add_to_mailing;
+    setHasNewsletter(state, segment) {
+      state.campaignData.hasNewsletter = !!segment;
     },
     setChosenAmount(state, amount) {
       state.userData.chosenAmount = amount;
@@ -167,7 +167,7 @@ const store = createStore({
         has_braintree: data.data.has_braintree,
         has_braintree_subscription: data.data.has_braintree_subscription,
       });
-      context.commit("setHasNewsletter", data.data.add_to_mailing);
+      context.commit("setHasNewsletter", data.data.segment);
       context.commit("setRedirectToThankYou", data.data.redirect_url);
       context.commit("setCSSFile", data.data.css_file);
 

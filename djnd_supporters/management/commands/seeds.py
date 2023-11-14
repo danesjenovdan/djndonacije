@@ -19,6 +19,6 @@ class Command(BaseCommand):
             upn_email_template=1,
             bt_email_template=1,
             bt_subscription_email_template=1,
-            add_to_mailing=1,
+            segment=1,
         )
         donation_campaign.save()

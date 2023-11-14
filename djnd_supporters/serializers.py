@@ -23,8 +23,7 @@ class DonationCampaignSerializer(serializers.ModelSerializer):
     amounts = AmountSerializer(many=True)
     class Meta:
         model = models.DonationCampaign
-        fields = ['id', 'has_upn', 'has_braintree', 'has_braintree_subscription', 'add_to_mailing', 'name', 'amounts', 'title', 'subtitle', 'redirect_url', 'css_file']
-
+        fields = ['id', 'has_upn', 'has_braintree', 'has_braintree_subscription', 'segment', 'name', 'amounts', 'title', 'subtitle', 'redirect_url', 'css_file']
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
