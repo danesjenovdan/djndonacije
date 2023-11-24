@@ -30,18 +30,14 @@
           </div>
           <hr />
           <p>
-            Zadnje čase nas pogosto napadajo roboti. Ker se želimo prepričati, da si človek, nam prosim povej, kateri priimek, ki se prične s črko P, poleg "Musar" ima trenutna predsednica države?
+            Zadnje čase nas pogosto napadajo roboti. Ker se želimo prepričati,
+            da si človek, prosim vpiši spodnje znake.
           </p>
           <div class="form-group">
-            <input
-              id="answer"
-              v-model="answer"
-              type="text"
-              placeholder="Tvoj odgovor"
-              class="form-control form-control-lg"
-              :class="{ 'is-invalid': robotError }"
-              @change="robotError = false"
-            />
+            <div v-if="robotError" class="alert alert-danger py-2 my-2">
+              Napačen odgovor.
+            </div>
+            <div ref="captcha"></div>
           </div>
           <div class="lonec-medu">
             <input
@@ -150,6 +146,14 @@ export default {
     if (this.chosenAmount <= 0) {
       this.$router.push({ name: "selectAmount" });
     }
+
+    if (this.$refs.captcha && !document.querySelector("#djncaptcha")) {
+      const s = document.createElement("script");
+      s.dataset.inputName = "captcha";
+      s.dataset.locale = "sl";
+      s.src = "https://captcha.lb.djnd.si/js/djncaptcha.js";
+      this.$refs.captcha.appendChild(s);
+    }
   },
   methods: {
     async continueToNextStage() {
@@ -157,22 +161,32 @@ export default {
         if (this.honeyPotName !== "") {
           console.error("Preveč medu.");
         } else {
-          this.loading = true;
-          this.$store.dispatch('verifyQuestion', { 
-            campaignSlug: this.campaignSlug,
-            answer: this.answer,
-            email: this.email,
-          }).then((checkoutResponse) => {
-            this.$store.commit("setToken", checkoutResponse.data.token);
-            this.$store.commit(
-              "setCustomerId",
-              checkoutResponse.data.customer_id
-            );
-            this.$router.push({ name: "payment" });
-          }).catch((error) => {
-            this.loading = false;
+          const captchaApi = window.djnCAPTCHA["captcha"];
+          if (!captchaApi) {
             this.robotError = true;
-          });
+            return;
+          }
+          this.loading = true;
+          this.$store
+            .dispatch("verifyCaptcha", {
+              campaignSlug: this.campaignSlug,
+              captcha: captchaApi.value(),
+              email: this.email,
+            })
+            .then((checkoutResponse) => {
+              captchaApi.remove();
+              this.$store.commit("setToken", checkoutResponse.data.token);
+              this.$store.commit(
+                "setCustomerId",
+                checkoutResponse.data.customer_id
+              );
+              this.$router.push({ name: "payment" });
+            })
+            .catch((error) => {
+              captchaApi.reload();
+              this.loading = false;
+              this.robotError = true;
+            });
         }
       }
     },
@@ -195,6 +209,10 @@ export default {
     width: 100%;
     max-width: 540px;
     margin: 0 auto;
+
+    .alert {
+      border-radius: 0;
+    }
   }
 }
 </style>

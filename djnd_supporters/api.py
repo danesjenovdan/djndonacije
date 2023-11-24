@@ -397,12 +397,6 @@ class GenericDonationCampaign(views.APIView):
         email = request.GET.get('email', None)
         subscriber = None
 
-        # old verification
-        # question_id = request.GET.get('question_id', None)
-        # answer = request.GET.get('answer', '')
-        # if not models.VerificationQuestion.objects.filter(id=question_id, answer__iexact=answer.strip()).exists():
-        #     return Response({'status': 'Odgovor je napačen'}, status.HTTP_403_FORBIDDEN)
-
         # check captcha
         captcha_validated = validate_captcha(request.GET.get('captcha', ''))
         if not captcha_validated:
