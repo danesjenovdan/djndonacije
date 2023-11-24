@@ -278,3 +278,5 @@ SEGMENTS = {
     'pravna-mreza': 26,
     'glas-ljudstva': 27,
 }
+
+CAPTCHA_BASE_URL = 'https://captcha.lb.djnd.si/api'
