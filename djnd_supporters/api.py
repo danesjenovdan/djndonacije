@@ -6,6 +6,7 @@ from rest_framework.response import Response
 
 from djnd_supporters import models, authentication, serializers
 from djnd_supporters.mautic_api import MauticApi
+from djnd_supporters.captcha import validate_captcha
 from djndonacije import payment
 from djndonacije.slack_utils import send_slack_msg
 
@@ -232,7 +233,7 @@ class UserSegments(views.APIView):
                 })
         else:
             return Response({'msg': response}, status=response_status)
-        
+
 
 class UserSubscriptions(views.APIView):
     authentication_classes = [authentication.SubscriberAuthentication]
@@ -394,12 +395,12 @@ class GenericDonationCampaign(views.APIView):
     def get(self, request, campaign=''):
         customer_id = request.GET.get('customer_id', None)
         email = request.GET.get('email', None)
-        question_id = request.GET.get('question_id', None)
-        answer = request.GET.get('answer', '')
         subscriber = None
 
-        if not models.VerificationQuestion.objects.filter(id=question_id, answer__iexact=answer.strip()).exists():
-            return Response({'status': 'Odgovor je napačen'}, status.HTTP_403_FORBIDDEN)
+        # check captcha
+        captcha_validated = validate_captcha(request.GET.get('captcha', ''))
+        if not captcha_validated:
+            return Response({'status': 'Napačen CAPTCHA odgovor'}, status.HTTP_403_FORBIDDEN)
 
         if email and not customer_id:
             response, response_status = mautic_api.getContactByEmail(email)
