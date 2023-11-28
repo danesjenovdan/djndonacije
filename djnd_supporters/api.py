@@ -509,7 +509,8 @@ class GenericDonationCampaign(views.APIView):
                 template=None,
                 #lists=[1],
                 fromAddress=response["email"]["fromAddress"],
-                fromName=response["email"]["fromName"]
+                fromName=response["email"]["fromName"],
+                replyToAddress=response["email"]["replyToAddress"],
             )
 
 
@@ -946,6 +947,9 @@ class CreateAndSendMailApiView(views.APIView):
 
         if 'fromAddress' in data.keys():
             email_data.update(fromAddress=data['fromAddress'])
+
+        if 'replyToAddress' in data.keys():
+            email_data.update(replyToAddress=data['replyToAddress'])
 
         # create new email
         response, response_status = mautic_api.createEmail(**email_data)
