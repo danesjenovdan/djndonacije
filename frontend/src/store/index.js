@@ -185,12 +185,12 @@ const store = createStore({
       const url = `${api}/api/segments/my?token=${context.getters.getToken}&email=${context.getters.getEmail}&campaign=${payload.campaign}`;
       return await axios.get(url);
     },
-    async verifyQuestion(context, payload) {
+    async verifyCaptcha(context, payload) {
       return await axios.get(
         `${api}/api/generic-donation/${
           payload.campaignSlug
-        }/?question_id=2&answer=${encodeURIComponent(
-          payload.answer
+        }/?question_id=2&captcha=${encodeURIComponent(
+          payload.captcha
         )}&email=${encodeURIComponent(payload.email)}`
       );
     },
