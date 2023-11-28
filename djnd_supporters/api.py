@@ -321,7 +321,8 @@ class AgrumentMailApiView(views.APIView):
                 category=14,
                 lists=[5],
                 fromAddress='agrument@posta.danesjenovdan.si',
-                fromName='Agrument'
+                fromName='Agrument',
+                replyToAddress='agrument@danesjenovdan.si',
             )
             if response_status == 200:
                 new_email_id = response['email']['id']
