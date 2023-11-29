@@ -6,7 +6,9 @@ from django.core import signing
 
 import json
 
-from . import models, qrcode
+from . import models
+from .qrcode import generate_upnqr_svg, UPNQRException
+from sentry_sdk import capture_exception
 
 from datetime import datetime
 from wkhtmltopdf.views import PDFTemplateResponse
@@ -31,14 +33,18 @@ def poloznica(request):
     victim['address1'] = data.get('address1')
     victim['address2'] = data.get('address2')
 
-    qr_code = qrcode.generate_upn_qr(victim['name'],
-                                     victim['address1'],
-                                     victim['address2'],
-                                     float(bill['price']),
-                                     bill['referencemath'],
-                                     bill['purpose'])
-
-    qr_code = "\n".join(qr_code.split("\n")[2:])
+    try:
+        qr_code = generate_upnqr_svg(
+            name=victim['name'],
+            address1=victim['address1'],
+            address2=victim['address2'],
+            amount=float(bill['price']),
+            purpose=bill['purpose'],
+            reference=bill['referencemath'],
+        )
+    except UPNQRException as e:
+        capture_exception(e)
+        qr_code = None
 
     return render('poloznica.html', {'victim': victim,
                                                  'bill': bill,
@@ -72,13 +78,18 @@ def getPDFodOrder(request, pk):
     victim['address1'] = address[0]
     victim['address2'] = address[1] if len(address) > 1 else ''
 
-    qr_code = qrcode.generate_upn_qr(victim['name'],
-                                     victim['address1'],
-                                     victim['address2'],
-                                     bill['price'],
-                                     bill['referencemath'],
-                                     bill['purpose'])
-    qr_code = "\n".join(qr_code.split("\n")[2:])
+    try:
+        qr_code = generate_upnqr_svg(
+            name=victim['name'],
+            address1=victim['address1'],
+            address2=victim['address2'],
+            amount=bill['price'],
+            purpose=bill['purpose'],
+            reference=bill['referencemath'],
+        )
+    except UPNQRException as e:
+        capture_exception(e)
+        qr_code = None
 
     return PDFTemplateResponse(request=request,
                                template='poloznica.html',

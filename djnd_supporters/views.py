@@ -3,8 +3,10 @@ from django.views.generic import TemplateView
 from djnd_supporters import models
 from djndonacije import payment
 from datetime import datetime
-from shop import qrcode
+from shop.qrcode import generate_upnqr_svg, UPNQRException
 from wkhtmltopdf.views import PDFTemplateResponse
+from decimal import Decimal
+from sentry_sdk import capture_exception
 
 class TestPaymentView(TemplateView):
     template_name = "test_payment.html"
@@ -12,6 +14,28 @@ class TestPaymentView(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super(TestPaymentView, self).get_context_data(*args, **kwargs)
         context['token'] = payment.client_token()['token']
+        return context
+
+
+class TestUPNView(TemplateView):
+    template_name = "poloznica.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(TestUPNView, self).get_context_data(*args, **kwargs)
+        context['qr_code'] = generate_upnqr_svg(
+            name="Janez MojeImeJepredolgoInŠumnik Novak",
+            address1="Ulica z zelo dolgim imenom, ki je predolg 1",
+            address2="1000 Ljubljana-Domžale-Hrastnik-Dravlje",
+            amount=Decimal("123.45"),
+            # amount=123,
+            # amount=123.45,
+            iban="SI56 6100 0000 5740 710",
+            purpose="DonacijaDonacijaDonacijaDonacijaDonacijaDonacijaDonacijaDonacija",
+            reference="SI00 0000008",
+            # unused={'1': TestUPNView},
+        )
+        # context['qr_code'] = None
+        # print(context['qr_code'])
         return context
 
 
@@ -36,13 +60,18 @@ def getPDForDonation(request, pk):
     victim['address1'] = address[0]
     victim['address2'] = address[1] if len(address) > 1 else ''
 
-    qr_code = qrcode.generate_upn_qr(victim['name'],
-                                     victim['address1'],
-                                     victim['address2'],
-                                     bill['price'],
-                                     bill['referencemath'],
-                                     bill['purpose'])
-    qr_code = "\n".join(qr_code.split("\n")[2:])
+    try:
+        qr_code = generate_upnqr_svg(
+            name=victim['name'],
+            address1=victim['address1'],
+            address2=victim['address2'],
+            amount=bill['price'],
+            purpose=bill['purpose'],
+            reference=bill['referencemath'],
+        )
+    except UPNQRException as e:
+        capture_exception(e)
+        qr_code = None
 
     return PDFTemplateResponse(request=request,
                                template='poloznica.html',
