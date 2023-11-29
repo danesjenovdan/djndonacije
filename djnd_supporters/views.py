@@ -30,8 +30,10 @@ class TestUPNView(TemplateView):
             # amount=123,
             # amount=123.45,
             iban="SI56 6100 0000 5740 710",
+            # purpose=None,
             purpose="DonacijaDonacijaDonacijaDonacijaDonacijaDonacijaDonacijaDonacija",
             reference="SI00 0000008",
+            code="ADCS",
             # unused={'1': TestUPNView},
         )
         # context['qr_code'] = None
@@ -66,6 +68,7 @@ def getPDForDonation(request, pk):
             address1=victim['address1'],
             address2=victim['address2'],
             amount=bill['price'],
+            code=bill['code'],
             purpose=bill['purpose'],
             reference=bill['referencemath'],
         )

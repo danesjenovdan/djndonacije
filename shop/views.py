@@ -39,6 +39,7 @@ def poloznica(request):
             address1=victim['address1'],
             address2=victim['address2'],
             amount=float(bill['price']),
+            code=bill['code'],
             purpose=bill['purpose'],
             reference=bill['referencemath'],
         )
@@ -84,6 +85,7 @@ def getPDFodOrder(request, pk):
             address1=victim['address1'],
             address2=victim['address2'],
             amount=bill['price'],
+            code=bill['code'],
             purpose=bill['purpose'],
             reference=bill['referencemath'],
         )

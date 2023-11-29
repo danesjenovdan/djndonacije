@@ -63,25 +63,32 @@ def _to_decimal(v, key=None):
 def _pop_kwarg(kwargs, expected_type, key, default=None):
     if key in kwargs:
         kwarg = kwargs.pop(key, default)
-        if expected_type == bool:
-            return _to_bool(kwarg, key)
-        if expected_type == int:
-            return _to_int(kwarg, key)
-        if expected_type == float:
-            return _to_float(kwarg, key)
-        if expected_type == Decimal:
-            return _to_decimal(kwarg, key)
-        if expected_type == str:
-            return str(kwarg).strip()
+        if kwarg is not None:
+            if expected_type == bool:
+                return _to_bool(kwarg, key)
+            if expected_type == int:
+                return _to_int(kwarg, key)
+            if expected_type == float:
+                return _to_float(kwarg, key)
+            if expected_type == Decimal:
+                return _to_decimal(kwarg, key)
+            if expected_type == str:
+                return str(kwarg).strip()
+            raise UPNQRException(
+                f"Cannot convert type '{type(kwarg).__name__}' to '{expected_type.__name__}'",
+                key=key,
+            )
+
+    if default is None:
+        raise UPNQRException(f"Missing required kwarg '{key}'")
+
+    if not isinstance(default, expected_type):
         raise UPNQRException(
-            f"Cannot convert type '{type(kwarg).__name__}' to '{expected_type.__name__}'",
+            f"Default value '{default}' is not of type '{expected_type.__name__}'",
             key=key,
         )
-    if isinstance(default, expected_type):
-        return default
-    raise UPNQRException(
-        f"Default value '{default}' is not of type '{expected_type.__name__}'", key=key
-    )
+
+    return default
 
 
 def _encode_and_trim(string, max_length=None):
