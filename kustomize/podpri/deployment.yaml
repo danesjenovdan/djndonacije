@@ -89,13 +89,13 @@ spec:
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: djndonacije.settings.k8s
-            - name: DJND_IBAN
+            - name: DJND_UPN_IBAN
               value: 'SI56 6100 0000 5740 710'
             - name: DJND_UPN_TO_NAME
               value: 'Danes je nov dan'
             - name: DJND_UPN_TO_ADDRESS1
-              value: 'Parmova 20'
-            - name: DJND_TO_ADDRESS2
+              value: 'Resljeva cesta 25'
+            - name: DJND_UPN_TO_ADDRESS2
               value: '1000 Ljubljana'
             - name: DJANGO_STATIC_ROOT
               value: '/storage/static'
