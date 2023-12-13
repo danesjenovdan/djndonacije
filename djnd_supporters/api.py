@@ -294,7 +294,7 @@ class AgrumentMailApiView(views.APIView):
         short_url_response = requests.get('https://djnd.si/yomamasofat/?fatmama=%s' % data['url'])
         if short_url_response:
 
-            email_id = int(data.get('email_template_id', 42))
+            email_id = int(data.get('email_template_id', 227)) # or 228
 
             # get tempalte of email
             response, response_status = mautic_api.getEmail(email_id)
@@ -318,8 +318,8 @@ class AgrumentMailApiView(views.APIView):
                 description="Agrument",
                 assetAttachments=None,
                 template='brienz',
-                category=14,
-                lists=[5],
+                category=14, # 14 is agrument category
+                lists=[5], # 5 is test segment, 6 is agrument segment
                 fromAddress='agrument@posta.danesjenovdan.si',
                 fromName='Agrument',
                 replyToAddress='agrument@danesjenovdan.si',
