@@ -1,4 +1,8 @@
 from djnd_supporters.mautic_api import MauticApi
+import braintree
+from datetime import datetime, timedelta
+from django.conf import settings
+from djnd_supporters import models
 
 mautic_api = MauticApi()
 
@@ -45,3 +49,114 @@ def send_email(email_id, contact_id, municipality, username):
             }
         })
     return response_status
+
+
+def import_emails(emails, segment):
+    from djnd_supporters import models
+    count = len(emails)
+    for i, email in enumerate(emails):
+        print(f'adding {i} of {count}')
+        response, response_status = mautic_api.getContactByEmail(email)
+        if response_status == 200:
+            contacts = response['contacts']
+            if contacts:
+                mautic_id = list(contacts.keys())[0]
+                mautic_api.addContactToASegment(segment, mautic_id)
+            else:
+                subscriber = models.Subscriber.objects.create()
+                subscriber.save()
+                response, response_status = subscriber.save_to_mautic(email)
+                mautic_api.addContactToASegment(segment, subscriber.mautic_id)
+
+def export_bt():
+    to_month = datetime.today()
+    from_month = (datetime.today()-timedelta(days=28))
+    data = []
+    gateway = settings.GATEWAY
+    search_results=gateway.transaction.search(
+        braintree.TransactionSearch.disbursement_date.between(
+            datetime(day=1, month=from_month.month, year=from_month.year),
+            (datetime(day=1, month=to_month.month, year=to_month.year)-timedelta(days=1))
+        )
+    )
+    for result in search_results:
+        tt = models.Transaction.objects.filter(transaction_id=result.id).first()
+        if tt:
+            campaign = tt.campaign.name
+        else:
+            campaign = '?'
+        temp = {
+            'campaign': campaign,
+            'transaction_id': result.id,
+            'subscription_id': result.subscription_id,
+            'transaction_status': result.type,
+            'created_date': result.created_at.isoformat(),
+            'amount_submitted_for_settlement': result.amount,
+            'amount_authorized': result.amount,
+            'payment_instrument_type': result.payment_instrument_type
+        }
+        for status in result.status_history:
+            temp[f'{status.status}_date']: status.timestamp.isoformat()
+            temp[f'{status.status}_amount']: status.amount
+        data.append(temp)
+
+    return data
+
+def export_old_bt():
+    data = []
+    gateway = braintree.BraintreeGateway(
+        braintree.Configuration(
+            braintree.Environment.Production,
+            merchant_id=settings.MERCHANT_ID,
+            public_key=settings.PUBLIC_KEY,
+            private_key=settings.PRIVATE_KEY
+        )
+    )
+    search_results=gateway.transaction.search(
+        braintree.TransactionSearch.disbursement_date.between(
+            datetime(day=1, month=12, year=2023),
+            (datetime(day=1, month=1, year=2024)-timedelta(days=1))
+        )
+    )
+    for result in search_results:
+        tt = models.Donation.objects.filter(transaction_id=result.id).first()
+        if tt:
+            campaign = tt.campaign
+            temp = {
+                'campaign': campaign.name,
+                'transaction_id': result.id,
+                'subscription_id': result.subscription_id,
+                'transaction_status': result.type,
+                'created_date': result.created_at.isoformat(),
+                'amount_submitted_for_settlement': result.amount,
+                'amount_authorized': result.amount,
+                'payment_instrument_type': result.payment_instrument_type
+            }
+            for status in result.status_history:
+                temp[f'{status.status}_date']: status.timestamp.isoformat()
+                temp[f'{status.status}_amount']: status.amount
+            data.append(temp)
+        else:
+            rd = models.RecurringDonation.objects.filter(subscription_id=result.subscription_id).first()
+            if rd:
+                campaign = rd.campaign
+                if campaign:
+                    campaign = campaign.name
+                else:
+                    campaign = 'DJND?'
+                temp = {
+                    'campaign': campaign,
+                    'transaction_id': result.id,
+                    'subscription_id': result.subscription_id,
+                    'transaction_status': result.type,
+                    'created_date': result.created_at.isoformat(),
+                    'amount_submitted_for_settlement': result.amount,
+                    'amount_authorized': result.amount,
+                    'payment_instrument_type': result.payment_instrument_type
+                }
+                for status in result.status_history:
+                    temp[f'{status.status}_date']: status.timestamp.isoformat()
+                    temp[f'{status.status}_amount']: status.amount
+                data.append(temp)
+
+    return data

@@ -20,6 +20,8 @@ from django.conf.urls.static import static
 
 import djnd_supporters
 
+admin.site.site_url = '/api/transaction-export/'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(('djnd_supporters.urls', 'djnd_supporters'), namespace='supporters')),

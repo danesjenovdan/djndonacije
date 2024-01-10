@@ -25,6 +25,7 @@ urlpatterns = [
     re_path('generic-donation/(?:(?P<campaign>[-\w]+)/)?$', api.GenericDonationCampaign.as_view()),
     re_path('donation-statistics/(?:(?P<campaign>[-\w]+)/)?$', api.DonationCampaignStatistics.as_view()),
     re_path('braintree-webhook/', api.BraintreeWebhookApiView.as_view()),
+    re_path('transaction-export/', views.braintree_export, name='transaction-export'),
 
     path('test-upn/', views.TestUPNView.as_view()),
 ]

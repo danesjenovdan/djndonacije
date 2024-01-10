@@ -187,7 +187,7 @@ class DonationCampaign(Timestamped):
     charged_unsuccessfully_email = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT subscription charged unsuccessfully')
     subscription_canceled_email = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT cancel subscription')
     subscription_charged_successfully = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT subscription charged successfully')
-    segment = models.IntegerField(null=True, blank=True, help_text='ID of default segment of this campaign')
+    segment = models.IntegerField(null=True, blank=True, help_text='ID of mautic segment of this campaign. Used for mailings.')
     welcome_email_tempalte = models.IntegerField(
         null=True, blank=True,
         verbose_name="Welcome or confirmation email ID",
