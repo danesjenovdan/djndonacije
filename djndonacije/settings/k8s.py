@@ -217,14 +217,15 @@ if os.getenv('DJANGO_ENABLE_S3', False):
     AWS_S3_FILE_OVERWRITE = False
 
 
-GATEWAY = braintree.BraintreeGateway(
-  braintree.Configuration(
-    environment=getattr(braintree.Environment, env['BRAINTREE_ENV']),
-    merchant_id=env['BRAINTREE_MERCHANT_ID'],
-    public_key=env['BRAINTREE_PUBLIC_KEY'],
-    private_key=env['BRAINTREE_PRIVATE_KEY']
-  )
-)
+if env['BRAINTREE_MERCHANT_ID']:
+    GATEWAY = braintree.BraintreeGateway(
+    braintree.Configuration(
+        environment=getattr(braintree.Environment, env['BRAINTREE_ENV']),
+        merchant_id=env['BRAINTREE_MERCHANT_ID'],
+        public_key=env['BRAINTREE_PUBLIC_KEY'],
+        private_key=env['BRAINTREE_PRIVATE_KEY']
+    )
+    )
 
 
 # Static files (CSS, JavaScript, Images)
