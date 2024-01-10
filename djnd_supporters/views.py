@@ -1,12 +1,17 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
-from djnd_supporters import models
+from djnd_supporters import models, utils
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+
 from djndonacije import payment
 from datetime import datetime
 from shop.qrcode import generate_upnqr_svg, UPNQRException
 from wkhtmltopdf.views import PDFTemplateResponse
 from decimal import Decimal
 from sentry_sdk import capture_exception
+
+import csv
 
 class TestPaymentView(TemplateView):
     template_name = "test_payment.html"
@@ -82,3 +87,21 @@ def getPDForDonation(request, pk):
                                context={'victim': victim, 'bill': bill, 'pdf': True, 'qr_code': qr_code},
                                show_content_in_browser=True,
                                )
+
+
+@login_required
+def braintree_export(request):
+    last_month_bt_transactions = utils.export_bt()
+    response = HttpResponse(
+        content_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="bt_export.csv"'},
+    )
+
+    if not  last_month_bt_transactions:
+        return response
+
+    writer = csv.DictWriter(response, fieldnames=last_month_bt_transactions[0].keys())
+    writer.writeheader()
+    writer.writerows(last_month_bt_transactions)
+
+    return response
