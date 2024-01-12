@@ -939,7 +939,7 @@ class CreateAndSendMailApiView(views.APIView):
             'emailType': 'list',
             'description': data["description"],
             'assetAttachments': None,
-            'template': 'cards',
+            'template': None,
             'lists': data['segments'],
         }
 
