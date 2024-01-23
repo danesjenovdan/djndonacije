@@ -15,6 +15,9 @@ const router = createRouter({
       path: "/urejanje-donacij",
       name: "manageDonations",
       component: ManageDonationsView,
+      meta: {
+        title: 'Urejanje donacij',
+      },
     },
     //
     // donations
@@ -38,6 +41,9 @@ const router = createRouter({
       path: "/:campaignSlug/doniraj/hvala",
       name: "thankYou",
       component: ThankYouView,
+      meta: {
+        title: 'Hvala!',
+      },
     },
     //
     // newsletter
@@ -45,11 +51,17 @@ const router = createRouter({
       path: "/:campaignSlug/prijava-uspesna",
       name: "newsletterSucess",
       component: NewsletterSuccessView,
+      meta: {
+        title: 'Prijava uspešna!',
+      },
     },
     {
       path: "/:campaignSlug/urejanje-narocnine",
       name: "manageNewsletter",
       component: ManageNewsletterView,
+      meta: {
+        title: 'Urejanje naročnine',
+      },
     },
     {
       path: "/:campaignSlug/manage-subscription",
