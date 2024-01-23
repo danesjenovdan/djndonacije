@@ -323,6 +323,7 @@ class AgrumentMailApiView(views.APIView):
                 fromAddress='agrument@posta.danesjenovdan.si',
                 fromName='Agrument',
                 replyToAddress='agrument@danesjenovdan.si',
+                isPublished=False
             )
             if response_status == 200:
                 new_email_id = response['email']['id']
@@ -941,6 +942,7 @@ class CreateAndSendMailApiView(views.APIView):
             'assetAttachments': None,
             'template': None,
             'lists': data['segments'],
+            'isPublished': False
         }
 
         if 'fromName' in data.keys():

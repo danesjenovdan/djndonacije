@@ -123,7 +123,22 @@ class MauticApi(object):
             method='get'
         )
 
-    def createEmail(self, name, title, subject, customHtml, description, emailType='template', template='cards', assetAttachments=None, lists=None, fromAddress=None, fromName=None, category=None, replyToAddress=None):
+    def createEmail(
+            self,
+            name,
+            title,
+            subject,
+            customHtml,
+            description,
+            emailType='template',
+            template='cards',
+            assetAttachments=None,
+            lists=None,
+            fromAddress=None,
+            fromName=None,
+            category=None,
+            replyToAddress=None,
+            isPublished=False):
         return self.mauticRequest(
             'emails/new',
             data={
@@ -140,7 +155,8 @@ class MauticApi(object):
                 'fromAddress': fromAddress,
                 'fromName': fromName,
                 'category': category,
-                'replyToAddress': replyToAddress
+                'replyToAddress': replyToAddress,
+                'isPublished': isPublished,
             }
         )
 
