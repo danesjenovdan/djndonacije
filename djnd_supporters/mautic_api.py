@@ -138,7 +138,7 @@ class MauticApi(object):
             fromName=None,
             category=None,
             replyToAddress=None,
-            isPublished=False):
+            isPublished=True):
         return self.mauticRequest(
             'emails/new',
             data={
@@ -147,7 +147,6 @@ class MauticApi(object):
                 'subject': subject,
                 'customHtml': customHtml,
                 'description': description,
-                'isPublished': 1,
                 'assetAttachments': assetAttachments,
                 'emailType': emailType,
                 'lists': lists,
