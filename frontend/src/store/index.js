@@ -247,13 +247,7 @@ const store = createStore({
     async deleteUserData(context, payload) {
       const url = `${api}/api/delete-all-user-data?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
 
-      try {
-        const response = await axios.delete(url);
-        return response;
-      } catch (err) {
-        console.log("ERROR at sending request", err.message);
-        return null;
-      }
+      return await axios.delete(url);
     },
   },
 });
