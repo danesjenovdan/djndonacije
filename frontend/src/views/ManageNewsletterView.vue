@@ -19,7 +19,12 @@
     <div v-if="error && lang != 'eng'" class="alert alert-danger text-center">
       <p class="my-3">
         Zgodila se je napaka.
-        <br />Piši nam na
+      </p>
+      <p v-if="errorMessage == 'No such subscriber'" class="my-3">
+        <b>Uporabnik_ca s temi podatki ne obstaja.</b>
+      </p>
+      <p class="my-3">
+        Piši nam na
         <a href="mailto:vsi@danesjenovdan.si">vsi@danesjenovdan.si</a> in bomo
         takoj razrešili težavo.
       </p>
@@ -122,6 +127,7 @@ export default {
       token: null,
       success: false,
       error: false,
+      errorMessage: "",
       last_cancelled_newsletter: null,
     };
   },
@@ -158,9 +164,9 @@ export default {
       })
       .catch((error) => {
         // catch error
-        console.log("Error", error);
         this.success = false;
         this.error = true;
+        this.errorMessage = error?.response?.data?.detail
       })
       .finally(() => {
         this.loading = false;
@@ -192,7 +198,7 @@ export default {
           // catch error
           this.success = false;
           this.error = true;
-          console.log("Error", error);
+          this.errorMessage = error?.response?.data?.detail
         })
         .finally(() => {
           this.loading = false;
@@ -218,7 +224,7 @@ export default {
           // catch error
           this.success = false;
           this.error = true;
-          console.log("Error", error);
+          this.errorMessage = error?.response?.data?.detail
         })
         .finally(() => {
           this.loading = false;
