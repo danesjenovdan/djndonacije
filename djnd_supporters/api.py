@@ -860,6 +860,15 @@ class BraintreeWebhookApiView(views.APIView):
                         subscription.subscriber.mautic_id,
                         {}
                     )
+                if subscription.campaign.web_hook_url:
+                    requests.post(
+                        subscription.campaign.web_hook_url,
+                        json={
+                            'subscription_id': subscription_id,
+                            'customer_id': subscription.subscriber.customer_id,
+                            'kind': 'subscription_charged_unsuccessfully',
+                        }
+                    )
 
             elif event == braintree.WebhookNotification.Kind.SubscriptionCanceled:
                 subscription_id = webhook_notification.subject['subscription']['id']
@@ -895,7 +904,7 @@ class BraintreeWebhookApiView(views.APIView):
             return Response(status=500)
 
         if subscription:
-            send_slack_msg(f':bell:  Event "{event}" was triggered on braintree.', subscription.campaign.slack_report_channel)
+            send_slack_msg(f':bell:  Event "{event}" was triggered on braintree. {subscription_id}', subscription.campaign.slack_report_channel)
 
         return Response(status=204)
 
