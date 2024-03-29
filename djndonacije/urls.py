@@ -19,6 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 import djnd_supporters
+from djnd_supporters.views import AddSegmentContacts
 
 admin.site.site_url = '/api/transaction-export/'
 
@@ -28,4 +29,5 @@ urlpatterns = [
     path('tinymce/', include('tinymce.urls')),
     path('shop/', include('shop.urls')),
     path('api/shop/', include('shop.urls_api')),
+    path('novicnik/<slug:slug>/', AddSegmentContacts.as_view(), name='add-segment-contacts'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

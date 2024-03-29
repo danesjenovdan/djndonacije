@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.views.generic import TemplateView
 from djnd_supporters import models, utils
 from django.contrib.auth.decorators import login_required
@@ -11,7 +11,12 @@ from wkhtmltopdf.views import PDFTemplateResponse
 from decimal import Decimal
 from sentry_sdk import capture_exception
 
+from djnd_supporters.mautic_api import MauticApi
+from djnd_supporters.forms import NewsletterForm
+
 import csv
+
+mautic_api = MauticApi()
 
 class TestPaymentView(TemplateView):
     template_name = "test_payment.html"
@@ -44,6 +49,88 @@ class TestUPNView(TemplateView):
         # context['qr_code'] = None
         # print(context['qr_code'])
         return context
+
+
+class AddSegmentContacts(TemplateView):
+    template_name = "add_segment_contacts.html"
+
+    def get(self, request, slug):
+        form = NewsletterForm()
+        newsletter = models.Newsletter.objects.filter(slug=slug).first()
+
+        return render(
+            request,
+            self.template_name,
+            {"form": form, "newsletter": newsletter},
+        )
+
+    def post(self, request, slug):
+        form = NewsletterForm(request.POST)
+        newsletter = models.Newsletter.objects.filter(slug=slug).first()
+
+        if form.is_valid():
+            email = form.cleaned_data.get("email")
+            response, response_status = mautic_api.getContactByEmail(email)
+            if response_status == 200:
+                contacts = response["contacts"]
+                if contacts:
+                    # if user already exists on mautic
+                    mautic_id = list(contacts.keys())[0]
+                    try:
+                        # user exists on mautic and is connected to podpri
+                        token = contacts[mautic_id]['fields']['core']['token']['value']
+                    except:
+                        # user exists on mautic and is not connected to podpri - create podpri Subscriber
+                        subscriber = models.Subscriber.objects.create()
+                        subscriber.save()
+                        response, response_status = subscriber.save_to_mautic(email)
+
+                    response, response_status = mautic_api.getSegmentsOfContact(mautic_id)
+                    if response_status == 200:
+                        segments = response['lists']
+                        # če userja še ni na tem segmetu, ga dodamo, sicer samo vrnemo success
+                        if segments and newsletter.segment not in segments.keys():
+                            mautic_api.addContactToASegment(
+                                newsletter.segment, mautic_id
+                            )
+                            # ne pošiljamo welcome maila, mogoče to ni okej
+                        return render(
+                            request,
+                            self.template_name,
+                            {"form": form, "newsletter": newsletter, "success": True},
+                        )
+                else:
+                    # user does not exist on mautic, create new
+                    subscriber = models.Subscriber.objects.create()
+                    subscriber.save()
+                    response, response_status = subscriber.save_to_mautic(email)
+                    if response_status != 200:
+                        # return error
+                        return render(
+                            request,
+                            self.template_name,
+                            {"form": form, "newsletter": newsletter, "error": response},
+                        )
+                    else:
+                        # successfully subscribed
+                        mautic_api.addContactToASegment(newsletter.segment, subscriber.mautic_id)
+                        return render(
+                            request,
+                            self.template_name,
+                            {"form": form, "newsletter": newsletter, "success": True},
+                        )
+            else:
+                return render(
+                    request,
+                    self.template_name,
+                    {"form": form, "newsletter": newsletter, "error": response},
+                )
+
+        return render(
+            request,
+            self.template_name,
+            {"form": form, "newsletter": newsletter, "error": "Neveljaven elektronski naslov."},
+        )
 
 
 def getPDForDonation(request, pk):

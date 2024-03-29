@@ -218,3 +218,19 @@ class VerificationQuestion(Timestamped):
 
     def __str__(self):
         return self.question
+
+class Newsletter(Timestamped):
+    name = models.CharField(max_length=128, help_text="Novičnik")
+    slug = models.CharField(max_length=32)
+    title = models.CharField(max_length=256, help_text="Naslov")
+    subtitle = models.TextField(
+        null=True, blank=True, help_text="Opis"
+    )
+    segment = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="ID of mautic segment of this campaign. Used for mailings.",
+    )
+
+    def __str__(self):
+        return self.name
