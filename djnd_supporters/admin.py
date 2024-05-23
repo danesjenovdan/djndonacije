@@ -54,6 +54,16 @@ class AmountInlineAdmin(admin.TabularInline):
 
 class DonationCampaignAdmin(admin.ModelAdmin):
     inlines = [AmountInlineAdmin]
+    readonly_fields = ['mautic_manage_subscription_url', 'mautic_confirm_subscription_url']
+
+    def mautic_manage_subscription_url(self, obj):
+        return f"http://moj.djnd.si/{obj.slug}/urejanje-narocnine?token={{contactfield=token}}&email={{contactfield=email}}"
+    
+    def mautic_confirm_subscription_url(self, obj):
+        if obj.add_to_newsletter_confirmation_required:
+            return f"http://moj.djnd.si/{obj.slug}/prijava-uspesna?segment_id={obj.segment}&token={{contactfield=token}}&email={{contactfield=email}}"
+        else:
+            return "/"
 
 class TransactionAdmin(ImportExportModelAdmin):
     readonly_fields = ('address',)
