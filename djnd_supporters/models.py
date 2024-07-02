@@ -59,6 +59,10 @@ class Subscriber(User, Timestamped):
             return self, 200
         else:
             return response, response_status
+        
+    def update_contact(self, data):
+        response, response_status = mautic_api.patchContact(id=self.mautic_id, data=data)
+        return response, response_status
 
     def __str__(self):
         return "Subscriber_" + str(self.name)

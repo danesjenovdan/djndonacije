@@ -60,9 +60,11 @@ class MauticApi(object):
             method='get'
         )
 
-    def getContacts(self, segment_alias=None):
+    def getContacts(self, segment_alias=None, without_token=None):
         if segment_alias:
             query_parameters = f'?search=segment:{segment_alias}'
+        elif without_token:
+            query_parameters = f'?where[0][expr]=isNull&where[0][col]=token'
         else:
             query_parameters = ''
         return self.mauticRequest(
