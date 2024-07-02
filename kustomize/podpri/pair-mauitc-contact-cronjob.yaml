@@ -28,3 +28,4 @@ spec:
               limits:
                 memory: 400Mi
                 cpu: 200m
+          restartPolicy: Never
