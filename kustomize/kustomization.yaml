@@ -9,6 +9,7 @@ resources:
   - podpri/deployment.yaml
   - podpri/service.yaml
   - podpri/ingress.yaml
+  - podpri/pair-mauitc-contact-cronjob.yaml
   - frontend/deployment.yaml
   - frontend/ingress.yaml
   - frontend/service.yaml
