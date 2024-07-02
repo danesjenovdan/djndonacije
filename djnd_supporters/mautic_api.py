@@ -74,14 +74,14 @@ class MauticApi(object):
 
     def patchContact(self, id, data):
         return self.mauticRequest(
-            f'/contacts/{id}/edit',
+            f'contacts/{id}/edit',
             method='patch',
             data=data
         )
 
     def add_tag_to_contact(self, id, tag_name):
         mautic_result = self.mauticRequest(
-            f'/contacts/{id}/edit',
+            f'contacts/{id}/edit',
             method='patch',
             data={
                 'tags': [tag_name]
