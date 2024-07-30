@@ -173,39 +173,39 @@ class Image(Timestamped):
 
 
 class DonationCampaign(Timestamped):
-    name = models.CharField(max_length=128, help_text='Name of donation campaign')
-    slug = models.CharField(max_length=32, help_text='Lovercase name without spaces')
-    title = models.CharField(max_length=256, help_text='Title shown in embed')
-    subtitle = models.TextField(null=True, blank=True, help_text='Subtitle shown in embed')
-    upn_name = models.CharField(max_length=32, help_text='Name for upn description', default="Donacija")
-    has_upn = models.BooleanField(default=True, help_text='Enable UPN donation')
-    has_braintree = models.BooleanField(default=True, help_text='Enable braintree donation')
-    has_braintree_subscription = models.BooleanField(default=True, help_text='Enable braintree subscription donation')
-    upn_email_template = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for UPN donation')
-    bt_email_template = models.IntegerField(null=True, blank=True,  help_text='ID of email tempalte on mautic for braintree donation')
-    bt_subscription_email_template = models.IntegerField(null=True, blank=True,  help_text='Id of email tempalte on mautic for braintree subscription donation')
+    name = models.CharField(max_length=128, verbose_name='Ime donacijske kampanje')
+    slug = models.CharField(max_length=32, verbose_name='Slug', help_text='Male črke, brez presledkov (primer: danes-je-nov-dan). Je sestavni del URL-ja na frontendu za novičnike in donacije (npr. moj.djnd.si/danes-je-nov-dan/doniraj)')
+    title = models.CharField(null=True, blank=True, max_length=256, verbose_name='Naslov', help_text='Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj')
+    subtitle = models.TextField(null=True, blank=True, verbose_name='Podnaslov', help_text='Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj')
+    upn_name = models.CharField(null=True, blank=True, max_length=32, verbose_name='UPN namen na plačilnem nalogu', default="Donacija")
+    has_upn = models.BooleanField(default=True, verbose_name='Sprejemamo UPN donacije?')
+    has_braintree = models.BooleanField(default=True, verbose_name='Sprejemamo braintree enkratne donacije?')
+    has_braintree_subscription = models.BooleanField(default=True, verbose_name='Sprejemamo braintree mesečne donacije?')
+    upn_email_template = models.IntegerField(null=True, blank=True, verbose_name='Mautic email ID za UPN donacijo')
+    bt_email_template = models.IntegerField(null=True, blank=True,  verbose_name='Mautic email ID za braintree donacijo')
+    bt_subscription_email_template = models.IntegerField(null=True, blank=True,  verbose_name='Mautic email ID za braintree mesečno donacijo (prvi email)')
     has_upload_image = models.BooleanField(default=False, help_text='Has donation uploading image')
     web_hook_url = models.TextField(help_text='Web hook for subscription events', null=True, blank=True)
-    braintee_subscription_plan_id = models.CharField(max_length=32, help_text='Braintree subscription plan id', null=True, blank=True)
+    braintee_subscription_plan_id = models.CharField(max_length=32, verbose_name='Braintree subscription plan id', null=True, blank=True)
     slack_report_channel = models.TextField(blank=False, null=False, default='#djnd-bot', help_text='Slack channel for events reporting. Starts with #')
-    charged_unsuccessfully_email = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT subscription charged unsuccessfully')
-    subscription_canceled_email = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT cancel subscription')
-    subscription_charged_successfully = models.IntegerField(null=True, blank=True, help_text='ID of email template on mautic for BT subscription charged successfully')
-    segment = models.IntegerField(null=True, blank=True, help_text='ID of mautic segment of this campaign. Used for mailings.')
+    charged_unsuccessfully_email = models.IntegerField(null=True, blank=True, verbose_name='Mautic email ID za neuspešno obračunano braintree mesečno donacijo')
+    subscription_canceled_email = models.IntegerField(null=True, blank=True, verbose_name='Mautic email ID za preklic braintree mesečnih donacij')
+    subscription_charged_successfully = models.IntegerField(null=True, blank=True, verbose_name='Mautic email ID za uspešno obračunano braintree mesečno donacijo')
+    segment = models.IntegerField(null=True, blank=True, verbose_name='Mautic segment ID')
     welcome_email_tempalte = models.IntegerField(
         null=True, blank=True,
-        verbose_name="Welcome or confirmation email ID",
-        help_text='Welcome or confirmation email ID'
+        verbose_name="Mautic email ID za welcome mail"
     )
-    edit_subscriptions_email_tempalte = models.IntegerField(null=True, blank=True, help_text='ID of email tempalte on mautic for edit subscrptions')
+    edit_subscriptions_email_tempalte = models.IntegerField(null=True, blank=True, verbose_name='Mautic ID emaila za urejanje naročnine')
     redirect_url = models.URLField(null=True, blank=True, help_text='Redirect url on success')
     css_file = models.FileField(upload_to='css', null=True, blank=True)
+    css_file_url = models.URLField(null=True, blank=True, help_text='Povezava do CSS datoteke s stili za frontend')
     braintree_merchant_account_id = models.CharField(null=True, blank=True, max_length=128, help_text='ID of braintree merchant account.')
     add_to_newsletter_confirmation_required = models.BooleanField(
         default=False,
         verbose_name="Add to newsletter confirmation required",
         help_text="Add to newsletter confirmation required"
-    )
+    ) # zaenkrat deprecated (skrit v adminu), ker ne bomo pošiljali confirmation emailov
 
     def __str__(self):
         return self.name
