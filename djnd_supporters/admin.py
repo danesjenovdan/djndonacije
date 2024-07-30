@@ -55,6 +55,45 @@ class AmountInlineAdmin(admin.TabularInline):
 class DonationCampaignAdmin(admin.ModelAdmin):
     inlines = [AmountInlineAdmin]
     readonly_fields = ['mautic_manage_subscription_url', 'mautic_confirm_subscription_url']
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": ["name", "slug"],
+            },
+        ),
+        (
+            "Novičnik",
+            {
+                "fields": ["segment", "edit_subscriptions_email_tempalte", "mautic_manage_subscription_url", "welcome_email_tempalte", "mautic_confirm_subscription_url"],
+            },
+        ),
+        (
+            "Nastavitve za frontend [https://moj.djnd.si/]",
+            {
+                "fields": ["title", "subtitle", "css_file", "css_file_url"], # "redirect_url", "has_upload_image", 
+            },
+        ),
+        (
+            "Donacije",
+            {
+                "fields": ["slack_report_channel",
+                           "has_upn",
+                           "upn_name",
+                           "upn_email_template",
+                           "has_braintree",
+                           "bt_email_template",
+                           "has_braintree_subscription",
+                           "bt_subscription_email_template",
+                           "subscription_charged_successfully",
+                           "charged_unsuccessfully_email",
+                           "subscription_canceled_email", 
+                           "braintee_subscription_plan_id",
+                           "web_hook_url",
+                           "braintree_merchant_account_id"],
+            },
+        ),
+    ]
 
     def mautic_manage_subscription_url(self, obj):
         return f"http://moj.djnd.si/{obj.slug}/urejanje-narocnine?token={{contactfield=token}}&email={{contactfield=email}}"
