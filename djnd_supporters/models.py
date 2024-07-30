@@ -196,7 +196,7 @@ class DonationCampaign(Timestamped):
         null=True, blank=True,
         verbose_name="Mautic email ID za welcome mail"
     )
-    edit_subscriptions_email_tempalte = models.IntegerField(null=True, blank=True, verbose_name='Mautic ID emaila za urejanje naročnine')
+    edit_subscriptions_email_tempalte = models.IntegerField(null=True, blank=True, verbose_name='Mautic email ID za urejanje naročnine')
     redirect_url = models.URLField(null=True, blank=True, help_text='Redirect url on success')
     css_file = models.FileField(upload_to='css', null=True, blank=True)
     css_file_url = models.URLField(null=True, blank=True, help_text='Povezava do CSS datoteke s stili za frontend')

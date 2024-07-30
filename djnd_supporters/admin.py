@@ -63,15 +63,15 @@ class DonationCampaignAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Nastavitve za frontend [https://moj.djnd.si/]",
+            "Novičnik",
             {
-                "fields": ["title", "subtitle", "css_file", "css_file_url"], # "redirect_url", "has_upload_image", 
+                "fields": ["segment", "edit_subscriptions_email_tempalte", "mautic_manage_subscription_url", "welcome_email_tempalte", "mautic_confirm_subscription_url"],
             },
         ),
         (
-            "Novičnik",
+            "Nastavitve za frontend [https://moj.djnd.si/]",
             {
-                "fields": ["segment", "welcome_email_tempalte", "edit_subscriptions_email_tempalte"],
+                "fields": ["title", "subtitle", "css_file", "css_file_url"], # "redirect_url", "has_upload_image", 
             },
         ),
         (
