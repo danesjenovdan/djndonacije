@@ -38,7 +38,7 @@
     </div>
     <checkout-stage no-header :show-djnd-footer="!lang" :show-disco-footer="lang == 'eng'">
       <template v-slot:content>
-        <div class="row justify-content-center my-4" v-for="segment in this.subscriptions" :key="segment.id">
+        <div class="row justify-content-center my-4" v-for="segment in this.campaignSubscriptions" :key="segment.id">
           <div class="col-md-8">
             <div class="row">
               <div class="col-md-6">
@@ -79,9 +79,14 @@
               Odjavi me od <strong>vseh novičnikov</strong>, za katere skrbi
               Danes je nov dan, in <strong>izbriši moje podatke</strong>.
             </p>
+            <p class="small-paragraph mb-0">Novičniki, na katere si prijavljen_a:</p>
+            <ul>
+              <li v-for="segment in this.allSubscriptions" class="my-0">{{ segment.name }}</li>
+            </ul>
             <p class="small-paragraph" v-if="lang == 'eng'">
               By selecting this option, all your data will be deleted from our database, and you will no longer receive
-              any communication from us. We will keep your email address only if you are registered for the DISCO Slovenia
+              any communication from us. We will keep your email address only if you are registered for the DISCO
+              Slovenia
               conference, or if you donate to Today is a New Day or any of the associated organizations for which we
               collect contributions.
             </p>
@@ -94,8 +99,9 @@
             </p>
           </div>
           <div class="col-md-4">
-            <more-button :disabled="loading" :text="lang == 'eng' ? 'Yes, delete my data.' : 'Da, izbriši moje podatke.'" class="my-2" color="secondary"
-              @click="deleteUserData()" />
+            <more-button :disabled="loading"
+              :text="lang == 'eng' ? 'Yes, delete my data.' : 'Da, izbriši moje podatke.'" class="my-2"
+              color="secondary" @click="deleteUserData()" />
           </div>
         </div>
         <div v-if="loading" class="payment-loader">
@@ -120,7 +126,8 @@ export default {
     const campaignSlug = this.$route.params.campaignSlug;
 
     return {
-      subscriptions: [],
+      campaignSubscriptions: [],
+      allSubscriptions: [],
       loading: true,
       campaignSlug,
       email: null,
@@ -147,14 +154,37 @@ export default {
       this.$router.push("/404");
     }
 
-    // get subscriptions list
+    // get campaign subscriptions list
     this.$store
       .dispatch("getUserNewsletterSubscriptions", {
         campaign: this.campaignSlug,
       })
       .then((response) => {
         if (response.status === 200) {
-          this.subscriptions = response.data.segments;
+          this.campaignSubscriptions = response.data.segments;
+        } else {
+          // catch error
+          console.log("Not successful", response);
+          this.success = false;
+          this.error = true;
+        }
+      })
+      .catch((error) => {
+        // catch error
+        this.success = false;
+        this.error = true;
+        this.errorMessage = error?.response?.data?.detail
+      })
+      .finally(() => {
+        this.loading = false;
+      });
+
+    // get all subscriptions list
+    this.$store
+      .dispatch("getUserNewsletterSubscriptions", {})
+      .then((response) => {
+        if (response.status === 200) {
+          this.allSubscriptions = response.data.segments;
         } else {
           // catch error
           console.log("Not successful", response);
@@ -182,7 +212,10 @@ export default {
         })
         .then((response) => {
           if (response.status === 200) {
-            this.subscriptions = this.subscriptions.filter(
+            this.campaignSubscriptions = this.campaignSubscriptions.filter(
+              (campaign) => campaign.id != segment_id
+            );
+            this.allSubscriptions = this.allSubscriptions.filter(
               (campaign) => campaign.id != segment_id
             );
             this.success = true;
@@ -238,7 +271,7 @@ export default {
 @import "@/assets/main.scss";
 
 .checkout-stage {
-  p {
+  p, li {
     font-size: 20px;
     color: #333333;
     font-weight: 200;
@@ -255,7 +288,7 @@ export default {
     }
   }
 
-  p.small-paragraph {
+  p.small-paragraph, li {
     font-size: 16px;
   }
 }</style>
