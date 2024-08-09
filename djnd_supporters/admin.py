@@ -55,6 +55,7 @@ class AmountInlineAdmin(admin.TabularInline):
 class DonationCampaignAdmin(admin.ModelAdmin):
     inlines = [AmountInlineAdmin]
     readonly_fields = ['mautic_manage_subscription_url', 'mautic_confirm_subscription_url']
+    search_fields = ['name', 'slug']
     fieldsets = [
         (
             None,
@@ -110,6 +111,7 @@ class TransactionAdmin(ImportExportModelAdmin):
     list_filter = ('amount', 'campaign', 'is_paid', 'payment_method')
     resource_class = TransactionResource
     search_fields = ['subscriber__token', 'transaction_id']
+    autocomplete_fields = ['subscriber', 'campaign']
 
     def subscriberName(self, obj):
         if obj.subscriber:
