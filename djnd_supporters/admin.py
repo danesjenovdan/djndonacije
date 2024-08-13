@@ -132,6 +132,8 @@ class SubscriptionAdmin(ImportExportModelAdmin):
     list_filter = ('amount', 'campaign')
     resource_class = SubscriptionResource
     search_fields = ['subscriber__token', 'subscription_id']
+    autocomplete_fields = ['subscriber', 'campaign']
+
     def subscriberName(self, obj):
         if obj.subscriber:
             return obj.subscriber.name
