@@ -203,9 +203,8 @@ class DonationCampaign(Timestamped):
     braintree_merchant_account_id = models.CharField(null=True, blank=True, max_length=128, help_text='ID of braintree merchant account.')
     add_to_newsletter_confirmation_required = models.BooleanField(
         default=False,
-        verbose_name="Add to newsletter confirmation required",
-        help_text="Add to newsletter confirmation required"
-    ) # zaenkrat deprecated (skrit v adminu), ker ne bomo pošiljali confirmation emailov
+        verbose_name="Prijava na novičnik zahteva potrditev"
+    )
 
     def __str__(self):
         return self.name
