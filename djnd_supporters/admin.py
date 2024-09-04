@@ -66,7 +66,7 @@ class DonationCampaignAdmin(admin.ModelAdmin):
         (
             "Novičnik",
             {
-                "fields": ["segment", "edit_subscriptions_email_tempalte", "mautic_manage_subscription_url", "welcome_email_tempalte", "mautic_confirm_subscription_url"],
+                "fields": ["segment", "edit_subscriptions_email_tempalte", "mautic_manage_subscription_url", "welcome_email_tempalte", "mautic_confirm_subscription_url", "add_to_newsletter_confirmation_required"],
             },
         ),
         (
