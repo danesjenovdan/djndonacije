@@ -835,6 +835,8 @@ class BraintreeWebhookApiView(views.APIView):
                             subscription.subscriber.mautic_id,
                             {}
                         )
+                    else:
+                        capture_message(f'Campaign {subscription.campaign.name} has empty subscription_charged_successfully. Email notificaiton was not sent.')
                     if subscription.campaign.web_hook_url:
                         requests.post(
                             subscription.campaign.web_hook_url,
