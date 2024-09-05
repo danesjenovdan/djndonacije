@@ -856,6 +856,7 @@ class BraintreeWebhookApiView(views.APIView):
                     return Response(status=204)
 
                 campagin = subscription.campaign
+
                 if campagin.charged_unsuccessfully_email:
                     response, response_status = mautic_api.sendEmail(
                         campagin.charged_unsuccessfully_email,
@@ -870,6 +871,15 @@ class BraintreeWebhookApiView(views.APIView):
                             'customer_id': subscription.subscriber.customer_id,
                             'kind': 'subscription_charged_unsuccessfully',
                         }
+                    )
+                for transaction in webhook_notification.subject['subscription']['transactions'][:1]:
+                    new_transaction = models.Transaction(
+                        amount=transaction['amount'],
+                        subscriber=subscription.subscriber,
+                        campaign=campagin,
+                        transaction_id=transaction['id'],
+                        payment_method='braintree-subscription',
+                        is_paid=False
                     )
 
             elif event == braintree.WebhookNotification.Kind.SubscriptionCanceled:
