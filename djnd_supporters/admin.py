@@ -60,19 +60,13 @@ class DonationCampaignAdmin(admin.ModelAdmin):
         (
             None,
             {
-                "fields": ["name", "slug"],
+                "fields": ["name"],
             },
         ),
         (
             "Novičnik",
             {
-                "fields": ["segment", "edit_subscriptions_email_tempalte", "mautic_manage_subscription_url", "welcome_email_tempalte", "mautic_confirm_subscription_url", "add_to_newsletter_confirmation_required"],
-            },
-        ),
-        (
-            "Nastavitve za frontend [https://moj.djnd.si/]",
-            {
-                "fields": ["title", "subtitle", "css_file", "css_file_url"], # "redirect_url", "has_upload_image", 
+                "fields": ["segment", "welcome_email_tempalte", "add_to_newsletter_confirmation_required", "mautic_confirm_subscription_url", "edit_subscriptions_email_tempalte", "mautic_manage_subscription_url"],
             },
         ),
         (
@@ -94,14 +88,20 @@ class DonationCampaignAdmin(admin.ModelAdmin):
                            "braintree_merchant_account_id"],
             },
         ),
+        (
+            "Nastavitve za frontend [https://moj.djnd.si/]",
+            {
+                "fields": ["slug", "title", "subtitle", "css_file", "css_file_url"], # "redirect_url", "has_upload_image", 
+            },
+        ),
     ]
 
     def mautic_manage_subscription_url(self, obj):
-        return f"http://moj.djnd.si/{obj.slug}/urejanje-narocnine?token={{contactfield=token}}&email={{contactfield=email}}"
+        return f"https://moj.djnd.si/{obj.slug}/urejanje-narocnine?token={{contactfield=token}}&email={{contactfield=email}}"
     
     def mautic_confirm_subscription_url(self, obj):
         if obj.add_to_newsletter_confirmation_required:
-            return f"http://moj.djnd.si/{obj.slug}/prijava-uspesna?segment_id={obj.segment}&token={{contactfield=token}}&email={{contactfield=email}}"
+            return f"https://moj.djnd.si/{obj.slug}/prijava-uspesna?segment_id={obj.segment}&token={{contactfield=token}}&email={{contactfield=email}}"
         else:
             return "/"
 

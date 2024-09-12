@@ -4,7 +4,6 @@ import InfoView from "../views/InfoView.vue";
 import PaymentView from "../views/PaymentView.vue";
 import ThankYouView from "../views/ThankYouView.vue";
 import ManageDonationsView from "../views/ManageDonationsView.vue";
-import NewsletterSuccessView from "../views/NewsletterSuccessView.vue";
 import ManageNewsletterView from "../views/ManageNewsletterView.vue";
 
 const router = createRouter({
@@ -43,16 +42,6 @@ const router = createRouter({
       component: ThankYouView,
       meta: {
         title: 'Hvala!',
-      },
-    },
-    //
-    // newsletter
-    {
-      path: "/:campaignSlug/prijava-uspesna",
-      name: "newsletterSucess",
-      component: NewsletterSuccessView,
-      meta: {
-        title: 'Prijava uspešna!',
       },
     },
     {
