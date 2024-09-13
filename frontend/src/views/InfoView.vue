@@ -1,68 +1,43 @@
 <template>
   <div class="checkout">
     <checkout-stage show-terms>
-      <template v-slot:title> Podatki </template>
+      <template v-slot:title>{{ $t('infoView.title') }}</template>
       <template v-slot:content>
         <div v-if="loading" class="payment-loader">
           <div class="lds-dual-ring" />
         </div>
         <div class="info-content">
           <div class="form-group">
-            <input
-              id="email"
-              v-model="email"
-              type="email"
-              placeholder="E-naslov"
-              class="form-control form-control-lg"
-            />
+            <input id="email" v-model="email" type="email" placeholder="E-naslov"
+              class="form-control form-control-lg" />
           </div>
           <div class="custom-control custom-checkbox" v-if="hasNewsletter">
-            <input
-              id="info-newsletter"
-              v-model="subscribeToNewsletter"
-              type="checkbox"
-              name="subscribeNewsletter"
-              class="custom-control-input"
-            />
-            <label class="custom-control-label" for="info-newsletter"
-              >Obveščajte me o novih projektih in aktivnostih.</label
-            >
+            <input id="info-newsletter" v-model="subscribeToNewsletter" type="checkbox" name="subscribeNewsletter"
+              class="custom-control-input" />
+            <label class="custom-control-label" for="info-newsletter">{{ $t('infoView.newsletterLabel') }}</label>
           </div>
           <hr />
           <p>
-            Zadnje čase nas pogosto napadajo roboti. Ker se želimo prepričati,
-            da si človek, prosim vpiši spodnje znake.
+            {{ $t('infoView.bots') }}
           </p>
           <div class="form-group">
             <div v-if="robotError" class="alert alert-danger py-2 my-2">
-              Napačen odgovor.
+              {{ $t('infoView.wrongAnswer') }}
             </div>
             <div ref="captcha"></div>
           </div>
           <div class="lonec-medu">
-            <input
-              type="text"
-              name="name"
-              placeholder="Your full name please"
-              v-model="honeyPotName"
-            />
+            <input type="text" name="name" placeholder="Your full name please" v-model="honeyPotName" />
           </div>
         </div>
       </template>
       <template v-slot:footer>
         <div class="confirm-button-container">
-          <confirm-button
-            key="next-info"
-            :disabled="!canContinueToNextStage"
-            :loading="infoSubmitting"
-            text="Naprej"
-            arrow
-            hearts
-            @click.native="continueToNextStage"
-          />
+          <confirm-button key="next-info" :disabled="!canContinueToNextStage" :loading="infoSubmitting"
+            :text="$t('infoView.next')" arrow hearts @click.native="continueToNextStage" />
         </div>
         <div class="secondary-link">
-          <router-link :to="{ name: 'selectAmount' }">Nazaj</router-link>
+          <a @click="$router.go(-1)">{{ $t('infoView.back') }}</a>
         </div>
       </template>
     </checkout-stage>
@@ -84,9 +59,11 @@ export default {
   },
   data() {
     const campaignSlug = this.$route.params.campaignSlug;
+    const lang = this.$route.params.locale;
 
     return {
       campaignSlug,
+      lang,
       answer: "",
       honeyPotName: "",
       robotError: false,
@@ -144,7 +121,11 @@ export default {
     }
 
     if (this.chosenAmount <= 0) {
-      this.$router.push({ name: "selectAmount" });
+      const options = { name: "selectAmount" };
+      if (this.lang) {
+        options.params = { locale: this.lang }
+      }
+      this.$router.push(options);
     }
 
     if (this.$refs.captcha && !document.querySelector("#djncaptcha")) {
@@ -180,7 +161,11 @@ export default {
                 "setCustomerId",
                 checkoutResponse.data.customer_id
               );
-              this.$router.push({ name: "payment" });
+              const options = { name: "payment" };
+              if (this.lang) {
+                options.params = { locale: this.lang }
+              }
+              this.$router.push(options);
             })
             .catch((error) => {
               captchaApi.reload();
@@ -189,9 +174,6 @@ export default {
             });
         }
       }
-    },
-    goBack() {
-      this.$router.push({ name: "selectAmount" });
     },
   },
 };

@@ -1,0 +1,63 @@
+{
+    "selectAmountView": {
+      "selectAmount": "Izberi višino",
+      "donation": "donacije!",
+      "monthly": "mesečne",
+      "donateOnce": "Želiš darovati enkrat?",
+      "donateMonthly": "Želiš darovati mesečno?",
+      "supportUs": "PODPRI NAS"
+    },
+    "infoView": {
+        "title": "Podatki",
+        "newsletterLabel": "Obveščajte me o novih projektih in aktivnostih.",
+        "bots": "Zadnje čase nas pogosto napadajo roboti. Ker se želimo prepričati, da si človek, prosim vpiši spodnje znake.",
+        "wrongAnswer": "Napačen odgovor.",
+        "next": "Naprej",
+        "back": "Nazaj"
+    },
+    "paymentView": {
+        "errorMessage": "Zgodila se je napaka. Naš strežnik je ni mogel rešiti, prejel je naslednje sporočilo:",
+        "errorHelp1": "Zaračunali ti nismo ničesar, ves denar je še vedno na tvoji kartici. Predlagamo, da osvežiš stran in poskusiš ponovno. Če ne bo šlo, nam piši na",
+        "errorHelp2": "in ti bomo poskusili pomagati.",
+        "title": "Plačilo",
+        "amountToPay": "Znesek za plačilo",
+        "donate": "DONIRAJ",
+        "back": "Nazaj"
+    },
+    "checkoutStage": {
+        "terms": "Pogoji poslovanja",
+        "djndWebsite": "Pojdi na Danes je nov dan spletno mesto"
+    },
+    "payment": {
+        "card": "Kartica",
+        "depositSlip": "Položnica",
+        "cardNote": "Informacij o tvoji kartici ne pošiljamo na svoj strežnik in ne shranjujemo. Za varnost plačila skrbi",
+        "depositSlipNote": "Položnico ti bomo poslali po e-pošti."
+    },
+    "manageNewsletterView": {
+        "unsubsribeAndDeleteData": "Odjavili smo te od vseh novičnikov in izbrisali tvoje podatke.",
+        "unsubsribeSuccessful": "Odjava je uspešna!",
+        "error": "Zgodila se je napaka.",
+        "noSuchUser": "Uporabnik_ca s temi podatki ne obstaja.",
+        "help": "Piši nam na <a href='mailto:{email}'>{email}</a> in bomo takoj razrešili težavo.",
+        "unsubscribeObcasnik": "Odjavi me od Občasnika.",
+        "unsubscribeObcasnikNote": "Z izbiro te možnosti te bomo odjavili od našega Občasnika. Če prejemaš kakšen drug novičnik, za katerega skrbimo na Danes je nov dan, pa ga lahko še naprej pričakuješ v nabiralniku.",
+        "unsubscribeNewsletter": "Odjavi me od novičnika",
+        "confirmUnsubscribe": "Da, odjavi me.",
+        "unsubscribeFromAll": "Odjavi me od <strong>vseh novičnikov</strong>, za katere skrbi Danes je nov dan, in <strong>izbriši moje podatke</strong>.",
+        "yourNewsletters": "Novičniki, na katere si prijavljen_a",
+        "deleteAllData": "Z izbiro te možnosti bomo iz naše baze izbrisali vse tvoje podatke, od nas pa v prihodnje ne boš prejemal_a nobenega sporočila več. Tvoj e-naslov bomo hranili le v primeru, da doniraš Danes je nov dan ali eni od organizacij, za katere zbiramo donacije.",
+        "confirmDeleteData": "Da, izbriši moje podatke."
+    },
+    "manageDonationsView": {
+        "cancelDonation": "Mesečna donacija za {don} je uspešno prekinjena.",
+        "cancelDonationError": "Zgodila se je napaka. Tvoja mesečna donacija je še vedno aktivna.<br />Piši nam na <a href='mailto:vsi@danesjenovdan.si'>vsi@danesjenovdan.si</a> in bomo takoj razrešili težavo.",
+        "cancelMyDonation": "Odjavi me od donacij:",
+        "confirmCancellation": "Da, potrjujem preklic.",
+        "noActiveDonation": "Trenutno nimaš aktivne nobene mesečne donacije."
+    },
+    "thankYouView": {
+        "title": "HVALA ZA DONACIJO!",
+        "note": "Tvoja donacija predstavlja še en kamenček podpore v mozaiku našega delovanja. Iskreno upamo, da ti bodo naši projekti še naprej v veselje in ponos."
+    }
+}

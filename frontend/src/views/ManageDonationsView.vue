@@ -2,52 +2,36 @@
   <div class="checkout">
     <div v-if="success" class="alert alert-success text-center">
       <p class="my-3">
-        Mesečna donacija za {{ last_cancelled_campaign }} je uspešno prekinjena.
+        {{ $t('manageDonationsView.cancelDonation', { don: last_cancelled_campaign }) }}
       </p>
     </div>
     <div v-if="error" class="alert alert-danger text-center">
-      <p class="my-3">
-        Zgodila se je napaka. Tvoja mesečna donacija je še vedno aktivna.
-        <br />Piši nam na
-        <a href="mailto:vsi@danesjenovdan.si">vsi@danesjenovdan.si</a> in bomo
-        takoj razrešili težavo.
-      </p>
+      <p class="my-3" v-html="$t('manageDonationsView.cancelDonationError')"></p>
     </div>
     <checkout-stage no-header show-djnd-footer>
       <template v-slot:content>
-        <div
-          class="row justify-content-center my-4"
-          v-for="donationCampaign in this.campaign_subscriptions"
-          :key="donationCampaign.id"
-        >
+        <div class="row justify-content-center my-4" v-for="donationCampaign in this.campaign_subscriptions"
+          :key="donationCampaign.id">
           <div class="col-md-4">
             <p class="m-0">
-              Odjavi me od donacij:
+              {{ $t('manageDonationsView.cancelMyDonation') }}
               <strong>{{ donationCampaign.campaign.name }}</strong>
             </p>
           </div>
           <div class="col-md-4">
-            <more-button
-              :disabled="loading"
-              :text="'Da, potrjujem preklic.'"
-              class="my-2"
-              color="secondary"
-              @click="
+            <more-button :disabled="loading" :text="$t('manageDonationsView.confirmCancellation')" class="my-2"
+              color="secondary" @click="
                 cancelDonation(
                   donationCampaign.campaign.name,
                   donationCampaign.subscription_id
                 )
-              "
-            />
+              " />
           </div>
         </div>
-        <div
-          v-if="this.campaign_subscriptions.length === 0"
-          class="row justify-content-center my-4"
-        >
+        <div v-if="this.campaign_subscriptions.length === 0" class="row justify-content-center my-4">
           <div class="col-md-8">
             <p class="m-0 text-center">
-              Trenutno nimaš aktivne nobene mesečne donacije.
+              {{ $t('manageDonationsView.noActiveDonation') }}
             </p>
           </div>
         </div>

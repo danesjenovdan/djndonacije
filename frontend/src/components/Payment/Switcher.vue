@@ -2,18 +2,12 @@
   <div class="payment-switcher">
     <nav class="nav nav-pills justify-content-center">
       <div class="nav-item">
-        <button
-          :class="['nav-link', { active: active === 'card' }]"
-          type="button"
-          @click="changeActive('card')"
-        >Kartica</button>
+        <button :class="['nav-link', { active: active === 'card' }]" type="button" @click="changeActive('card')">{{
+          $t('payment.card') }}</button>
       </div>
       <div v-if="hasUpn && !recurring" class="nav-item">
-        <button
-          :class="['nav-link', { active: active === 'upn' }]"
-          type="button"
-          @click="changeActive('upn')"
-        >Položnica</button>
+        <button :class="['nav-link', { active: active === 'upn' }]" type="button" @click="changeActive('upn')">{{
+          $t('payment.depositSlip') }}</button>
       </div>
     </nav>
   </div>
