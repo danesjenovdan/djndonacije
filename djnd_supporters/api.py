@@ -96,7 +96,11 @@ class Subscribe(views.APIView):
                             else:
                                 mail_to_send = 'welcome'
                                 if not campaign.add_to_newsletter_confirmation_required:
+                                    # add contact
                                     mautic_api.addContactToASegment(segment, mautic_id)
+                                    # send slack message
+                                    msg = 'Nova naročnina na novičnik [ ' + campaign.name + ' ]'
+                                    send_slack_msg(msg, '#novicnik-bot')
 
                     if campaign:
                         if mail_to_send == 'edit' and campaign.edit_subscriptions_email_tempalte:
@@ -131,6 +135,9 @@ class Subscribe(views.APIView):
                         if segment:
                             if not campaign.add_to_newsletter_confirmation_required:
                                 mautic_api.addContactToASegment(segment, subscriber.mautic_id)
+                                # send slack message
+                                msg = 'Nova naročnina na novičnik [ ' + campaign.name + ' ]'
+                                send_slack_msg(msg, '#novicnik-bot')
 
                         if campaign and campaign.welcome_email_tempalte:
                             response, response_status = mautic_api.sendEmail(
@@ -167,6 +174,12 @@ class ManageSegments(views.APIView):
             return Response({'msg': 'Segment doesnt exist'}, status=status.HTTP_404_NOT_FOUND)
 
         if contact_id:
+            # send slack message
+            campaign = models.DonationCampaign.objects.filter(segment=segment_id).first()
+            if not campaign:
+                return Response({'msg': 'Campaign not found'}, status=status.HTTP_404_NOT_FOUND)
+            msg = 'Nova naročnina na novičnik [ ' + campaign.name + ' ]'
+            send_slack_msg(msg, '#novicnik-bot')
             response, response_status = mautic_api.addContactToASegment(segment_id, contact_id)
             if response_status == 200:
                 return Response(response)
