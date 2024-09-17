@@ -38,6 +38,7 @@ class SubscriptionInline(admin.TabularInline):
 
 
 class SubscriberAdmin(ImportExportModelAdmin):
+    readonly_fields = ['token', 'mautic_id']
     resource_class = SubscriberResource
     search_fields = ['token', 'mautic_id']
 
@@ -106,12 +107,11 @@ class DonationCampaignAdmin(admin.ModelAdmin):
             return "/"
 
 class TransactionAdmin(ImportExportModelAdmin):
-    readonly_fields = ('address',)
+    readonly_fields = ('subscriber', 'campaign', 'transaction_id', 'amount', 'address')
     list_display = ('amount', 'subscriberName', 'address', 'is_paid', 'created', 'payment_method', 'campaign')
     list_filter = ('amount', 'campaign', 'is_paid', 'payment_method')
     resource_class = TransactionResource
     search_fields = ['subscriber__token', 'transaction_id']
-    autocomplete_fields = ['subscriber', 'campaign']
 
     def subscriberName(self, obj):
         if obj.subscriber:
@@ -127,12 +127,11 @@ class TransactionAdmin(ImportExportModelAdmin):
 
 
 class SubscriptionAdmin(ImportExportModelAdmin):
-    readonly_fields = ('address',)
+    readonly_fields = ('subscriber', 'campaign', 'subscription_id', 'amount', 'address')
     list_display = ('amount', 'subscriberName', 'address', 'created', 'campaign', 'subscription_id', 'is_active')
     list_filter = ('amount', 'campaign')
     resource_class = SubscriptionResource
     search_fields = ['subscriber__token', 'subscription_id']
-    autocomplete_fields = ['subscriber', 'campaign']
 
     def subscriberName(self, obj):
         if obj.subscriber:
