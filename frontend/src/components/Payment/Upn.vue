@@ -3,7 +3,7 @@
     <form>
       <img id="poloznica-img" src="../../assets/poloznica.png" />
       <div class="form-group">
-        <label>Položnico ti bomo poslali po e-pošti.</label>
+        <label>{{ $t('payment.depositSlipNote') }}</label>
       </div>
     </form>
   </div>

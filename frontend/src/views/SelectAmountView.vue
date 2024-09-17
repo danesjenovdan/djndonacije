@@ -9,41 +9,27 @@
           <div class="lds-dual-ring" />
         </div>
         <div class="change-monthly">
-          <h2>Izberi višino <strong v-if="recurringDonation">mesečne</strong> donacije!</h2>
-          <a
-            v-if="recurringDonation && paymentOptions.monthly"
-            @click.prevent="setRecurringDonation(false)"
-          >
-            Želiš darovati enkrat?
+          <h2>{{ $t('selectAmountView.selectAmount') }} <strong v-if="recurringDonation">{{
+              $t('selectAmountView.monthly')
+              }}</strong> {{
+            $t('selectAmountView.donation') }}</h2>
+          <a v-if="recurringDonation && paymentOptions.monthly" @click.prevent="setRecurringDonation(false)">
+            {{ $t('selectAmountView.donateOnce') }}
           </a>
           <a v-if="!recurringDonation && paymentOptions.monthly" @click.prevent="setRecurringDonation(true)">
-            Želiš darovati mesečno?
+            {{ $t('selectAmountView.donateMonthly') }}
           </a>
         </div>
         <div class="donation-options">
-          <donation-option
-            v-for="(dp, i) in filteredDonationPresets"
-            :key="`presets-${i}`"
-            :donation-preset="dp"
-            :is-selected="dp.amount === this.chosenAmount"
-          />
-          <div
-            v-for="n in 10"
-            :key="`flex-spacer-${n}`"
-            class="donation-option"
-          />
+          <donation-option v-for="(dp, i) in filteredDonationPresets" :key="`presets-${i}`" :donation-preset="dp"
+            :is-selected="dp.amount === this.chosenAmount" />
+          <div v-for="n in 10" :key="`flex-spacer-${n}`" class="donation-option" />
         </div>
       </template>
       <template v-slot:footer>
         <div class="confirm-button-container">
-          <confirm-button
-            key="next-select-amount"
-            :disabled="!canContinueToNextStage"
-            text="PODPRI NAS"
-            arrow
-            hearts
-            @click.native="continueToNextStage"
-          />
+          <confirm-button key="next-select-amount" :disabled="!canContinueToNextStage"
+            :text="$t('selectAmountView.supportUs')" arrow hearts @click.native="continueToNextStage" />
         </div>
       </template>
     </checkout-stage>
@@ -63,9 +49,11 @@ export default {
   },
   data() {
     const campaignSlug = this.$route.params.campaignSlug;
-
+    const lang = this.$route.params.locale;
+    
     return {
       campaignSlug,
+      lang,
       loading: false,
     };
   },
@@ -128,7 +116,11 @@ export default {
     },
     async continueToNextStage() {
       if (this.canContinueToNextStage) {
-        this.$router.push({ name: "info" });
+        const options = { name: "info" };
+        if (this.lang) {
+          options.params = { locale: this.lang }
+        }
+        this.$router.push(options);
       }
     },
     loadCSS(filename) {

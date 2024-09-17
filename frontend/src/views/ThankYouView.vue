@@ -8,11 +8,9 @@
           </div>
         </div>
         <div class="row justify-content-center">
-          <h2 class="thankyou__title">HVALA ZA DONACIJO!</h2>
+          <h2 class="thankyou__title">{{ $t('thankYouView.title') }}</h2>
           <p class="text-center">
-            Tvoja donacija predstavlja še en kamenček podpore v mozaiku našega
-            delovanja. Iskreno upamo, da ti bodo naši projekti še naprej v
-            veselje in ponos.
+            {{ $t('thankYouView.note') }}
           </p>
         </div>
       </template>

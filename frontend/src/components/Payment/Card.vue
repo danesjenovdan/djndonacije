@@ -5,61 +5,33 @@
       <form>
         <div class="form-group">
           <div class="lonec-medu">
-            <input
-              type="text"
-              name="name"
-              placeholder="Your full name please"
-              v-model="honeyPotName"
-            />
-            <input
-              type="text"
-              name="address"
-              placeholder="Your address please"
-              v-model="honeyPotAddress"
-            />
-            <input
-              type="text"
-              name="post"
-              placeholder="Your postal code and office name please"
-              v-model="honeyPotPost"
-            />
+            <input type="text" name="name" placeholder="Your full name please" v-model="honeyPotName" />
+            <input type="text" name="address" placeholder="Your address please" v-model="honeyPotAddress" />
+            <input type="text" name="post" placeholder="Your postal code and office name please"
+              v-model="honeyPotPost" />
           </div>
-          <div
-            id="cc-number"
-            :class="[
+          <div id="cc-number" :class="[
               'form-control',
               'form-control-lg',
               { focus: numberFocused },
-            ]"
-          />
+            ]" />
         </div>
         <div class="form-group">
-          <div
-            id="cc-expirationDate"
-            :class="[
+          <div id="cc-expirationDate" :class="[
               'form-control',
               'form-control-lg',
               { focus: expirationDateFocused },
-            ]"
-          />
+            ]" />
         </div>
         <div class="form-group">
-          <div
-            id="cc-cvv"
-            :class="['form-control', 'form-control-lg', { focus: cvvFocused }]"
-          />
+          <div id="cc-cvv" :class="['form-control', 'form-control-lg', { focus: cvvFocused }]" />
         </div>
       </form>
       <div class="card-info">
-        Informacij o tvoji kartici ne pošiljamo na svoj strežnik in ne
-        shranjujemo. Za varnost plačila skrbi
+        {{ $t('payment.cardNote') }}
         <br />
-        <img
-          src="https://s3.amazonaws.com/braintree-badges/braintree-badge-light.png"
-          width="164"
-          height="44"
-          border="0"
-        />
+        <img src="https://s3.amazonaws.com/braintree-badges/braintree-badge-light.png" width="164" height="44"
+          border="0" />
       </div>
     </template>
   </div>

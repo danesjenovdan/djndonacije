@@ -1,0 +1,63 @@
+{
+  "selectAmountView": {
+    "selectAmount": "Choose the",
+    "donation": "donation amount!",
+    "monthly": "monthly",
+    "donateOnce": "Do you want to make a one-time donation?",
+    "donateMonthly": "Do you want to make a monthly donation?",
+    "supportUs": "SUPPORT US"
+  },
+  "infoView": {
+    "title": "Your information",
+    "newsletterLabel": "Keep me informed about new projects and activities.",
+    "bots": "Lately, we have been frequently targeted by bots. To ensure that you are human, please enter the characters below.",
+    "wrongAnswer": "Wrong answer.",
+    "next": "Next",
+    "back": "Back"
+  },
+  "paymentView": {
+    "errorMessage": "An error occurred. Our server could not resolve it and received the following message:",
+    "errorHelp1": "We haven’t charged you anything; all the money is still on your card. We suggest you refresh the page and try again. If it doesn’t work, please write to us at",
+    "errorHelp2": "and we will try to help you.",
+    "title": "Payment",
+    "amountToPay": "Payment amount",
+    "donate": "DONATE",
+    "back": "Back"
+  },
+  "checkoutStage": {
+    "terms": "Terms of service",
+    "djndWebsite": "Go to the Danes je nov dan website"
+  },
+  "payment": {
+    "card": "Card",
+    "depositSlip": "Invoice",
+    "cardNote": "We do not send or store your card information on our server. Payment security is handled by",
+    "depositSlipNote": "We will send you the invoice by email."
+  },
+  "manageNewsletterView": {
+    "unsubscribeAndDeleteData": "You have successfully unsubscribed and we have deleted your data.",
+    "unsubscribeSuccessful": "You have successfully unsubscribed.",
+    "error": "An error occurred.",
+    "noSuchUser": "The user with this information does not exist.",
+    "help": "Contact us at <a href='mailto:{email}'>{email}</a>, and we will solve the problem as soon as possible.",
+    "unsubscribeObcasnik": "Unsubscribe from Občasnik.",
+    "unsubscribeObcasnikNote": "By selecting this option, we will unsubscribe you from our newsletter Občasnik. If you are receiving any other newsletter managed by Danes je nov dan, you can still expect to receive it in your inbox.",
+    "unsubscribeNewsletter": "Unsubscribe from",
+    "confirmUnsubscribe": "Yes, unsubscribe.",
+    "unsubscribeFromAll": "Unsubscribe me from <strong>all newsletters</strong> sent out by Danes je nov dan (Today is a new day) and <strong>delete my data</strong>.",
+    "yourNewsletters": "Newsletters you are subscribed to",
+    "deleteAllData": "By selecting this option, all your data will be deleted from our database, and you will no longer receive any communication from us. We will keep your email address only if you donate to Today is a New Day or any of the associated organizations for which we collect contributions.",
+    "confirmDeleteData": "Yes, delete my data."
+  },
+  "manageDonationsView": {
+    "cancelDonation": "The monthly donation for {don} has been successfully canceled.",
+    "cancelDonationError": "An error occurred. Your monthly donation is still active.<br />Write to us at <a href=\"mailto{'@'}danesjenovdan.si\">vsi{'@'}danesjenovdan.si</a> and we will resolve the issue immediately.",
+    "cancelMyDonation": "Unsubscribe me from donations:",
+    "confirmCancellation": "Yes, I confirm the cancellation.",
+    "noActiveDonation": "You currently don't have any active monthly donations."
+  },
+  "thankYouView": {
+    "title": "THANK YOU FOR YOUR DONATION!",
+    "note": "Your donation is another piece of support in the mosaic of our work. We sincerely hope that our projects will continue to bring you joy and pride."
+  }
+}

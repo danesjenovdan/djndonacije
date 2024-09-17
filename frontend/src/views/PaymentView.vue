@@ -2,71 +2,47 @@
   <div class="checkout">
     <div v-if="error" class="alert alert-danger">
       <p>
-        Zgodila se je napaka. Naš strežnik je ni mogel rešiti, prejel je
-        naslednje sporočilo:
+        {{ $t('paymentView.errorMessage') }}
         <strong>{{
           error.error && error.error.message ? error.error.message : error.data
-        }}</strong>
+          }}</strong>
       </p>
       <p>
-        Zaračunali ti nismo ničesar, ves denar je še vedno na tvoji kartici.
-        Predlagamo, da osvežiš stran in poskusiš ponovno. Če ne bo šlo, nam piši
-        na
-        <a href="mailto:vsi@danesjenovdan.si">vsi@danesjenovdan.si</a> in ti
-        bomo poskusili pomagati.
+        {{ $t('paymentView.errorHelp1') }}
+        <a href="mailto:vsi@danesjenovdan.si">vsi@danesjenovdan.si</a>
+        {{ $t('paymentView.errorHelp2') }}
       </p>
     </div>
     <checkout-stage show-terms>
-      <template v-slot:title> Plačilo </template>
+      <template v-slot:title>{{ $t('paymentView.title') }}</template>
       <template v-slot:content>
         <div class="payment-container">
-          <payment-switcher
-            v-if="paymentOptions.upn && paymentOptions.oneTime"
-            :recurring="recurringDonation"
-            @change="onPaymentChange"
-          />
+          <payment-switcher v-if="paymentOptions.upn && paymentOptions.oneTime" :recurring="recurringDonation"
+            @change="onPaymentChange" />
           <div v-if="checkoutLoading" class="payment-loader">
             <div class="lds-dual-ring" />
           </div>
           <template v-if="payment === 'card'">
-            <card-payment
-              :token="token"
-              :amount="chosenAmount"
-              :email="email"
-              @ready="onPaymentReady"
-              @validity-change="paymentInfoValid = $event"
-              @payment-start="paymentInProgress = true"
-              @success="paymentSuccess"
-              @error="paymentError"
-            />
+            <card-payment :token="token" :amount="chosenAmount" :email="email" @ready="onPaymentReady"
+              @validity-change="paymentInfoValid = $event" @payment-start="paymentInProgress = true"
+              @success="paymentSuccess" @error="paymentError" />
           </template>
           <template v-if="payment === 'upn'">
-            <upn-payment
-              :amount="chosenAmount"
-              @ready="onUPNPaymentReady"
-              @success="paymentSuccess"
-            />
+            <upn-payment :amount="chosenAmount" @ready="onUPNPaymentReady" @success="paymentSuccess" />
           </template>
           <div class="cart-total">
-            <span>Znesek za plačilo</span>
+            <span>{{ $t('paymentView.amountToPay') }}</span>
             <i>{{ chosenAmount }} €</i>
           </div>
         </div>
       </template>
       <template v-slot:footer>
         <div class="confirm-button-container">
-          <confirm-button
-            key="next-payment"
-            :disabled="!canContinueToNextStage"
-            :loading="paymentInProgress"
-            text="DONIRAJ"
-            arrow
-            hearts
-            @click.native="continueToNextStage"
-          />
+          <confirm-button key="next-payment" :disabled="!canContinueToNextStage" :loading="paymentInProgress"
+            :text="$t('paymentView.donate')" arrow hearts @click.native="continueToNextStage" />
         </div>
         <div class="secondary-link">
-          <router-link :to="{ name: 'info' }">Nazaj</router-link>
+          <a @click="$router.go(-1)">{{ $t('paymentView.back') }}</a>
         </div>
       </template>
     </checkout-stage>
@@ -90,10 +66,12 @@ export default {
   },
   data() {
     const campaignSlug = this.$route.params.campaignSlug;
-    const payment = this.$store.getters.getPaymentOptions.oneTime || this.$store.getters.getPaymentOptions.monthly ? 'card' : 'upn'
+    const payment = this.$store.getters.getPaymentOptions.oneTime || this.$store.getters.getPaymentOptions.monthly ? 'card' : 'upn';
+    const lang = this.$route.params.locale;
 
     return {
       campaignSlug,
+      lang,
       error: null,
       payment: payment,
       checkoutLoading: false,
@@ -174,7 +152,11 @@ export default {
           if (this.thankYouUrl) {
             window.location.href = this.thankYouUrl;
           } else {
-            this.$router.push({ name: "thankYou" });
+            const options = { name: "thankYou" };
+            if (this.lang) {
+              options.params = { locale: this.lang }
+            }
+            this.$router.push(options);
           }
         })
         .catch((error) => {
