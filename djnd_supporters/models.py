@@ -215,9 +215,3 @@ class PredefinedAmount(Timestamped):
     one_time_amount = models.BooleanField(default=True, help_text='Enable amount for one time donation')
     recurring_amount = models.BooleanField(default=True, help_text='Enable amount for recurring donation')
 
-class VerificationQuestion(Timestamped):
-    question = models.TextField(help_text='Question for verification', null=True, blank=True)
-    answer = models.TextField(help_text='Answers for verification', null=True, blank=True)
-
-    def __str__(self):
-        return self.question
