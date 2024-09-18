@@ -21,6 +21,8 @@
     "errorHelp1": "We haven’t charged you anything; all the money is still on your card. We suggest you refresh the page and try again. If it doesn’t work, please write to us at",
     "errorHelp2": "and we will try to help you.",
     "title": "Payment",
+    "cardNumber": "Card number",
+    "expiryDate": "Expiry date",
     "amountToPay": "Payment amount",
     "donate": "DONATE",
     "back": "Back"
