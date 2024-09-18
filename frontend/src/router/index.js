@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, RouterView } from "vue-router";
+import DonateView from "../views/DonateView.vue";
 import SelectAmountView from "../views/SelectAmountView.vue";
 import InfoView from "../views/InfoView.vue";
 import PaymentView from "../views/PaymentView.vue";
@@ -28,19 +29,25 @@ const router = createRouter({
         // donations
         {
           path: ":campaignSlug/doniraj",
-          name: "selectAmount",
-          component: SelectAmountView,
-          // alias: '/:campaignSlug/doniraj/izberi'
-        },
-        {
-          path: ":campaignSlug/doniraj/info",
-          name: "info",
-          component: InfoView,
-        },
-        {
-          path: ":campaignSlug/doniraj/placilo",
-          name: "payment",
-          component: PaymentView,
+          component: DonateView,
+          name: "donate",
+          children: [
+            {
+              path: "",
+              name: "selectAmount",
+              component: SelectAmountView,
+            },
+            {
+              path: "info",
+              name: "info",
+              component: InfoView,
+            },
+            {
+              path: "placilo",
+              name: "payment",
+              component: PaymentView,
+            },
+          ],
         },
         {
           path: ":campaignSlug/doniraj/hvala",

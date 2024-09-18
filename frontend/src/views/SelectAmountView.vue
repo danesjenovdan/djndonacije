@@ -1,39 +1,37 @@
 <template>
-  <div class="checkout">
-    <checkout-stage show-terms>
-      <template v-slot:title>
-        {{ title }}
-      </template>
-      <template v-slot:content>
-        <div v-if="loading" class="payment-loader">
-          <div class="lds-dual-ring" />
-        </div>
-        <div class="change-monthly">
-          <h2>{{ $t('selectAmountView.selectAmount') }} <strong v-if="recurringDonation">{{
-              $t('selectAmountView.monthly')
-              }}</strong> {{
-            $t('selectAmountView.donation') }}</h2>
-          <a v-if="recurringDonation && paymentOptions.monthly" @click.prevent="setRecurringDonation(false)">
-            {{ $t('selectAmountView.donateOnce') }}
-          </a>
-          <a v-if="!recurringDonation && paymentOptions.monthly" @click.prevent="setRecurringDonation(true)">
-            {{ $t('selectAmountView.donateMonthly') }}
-          </a>
-        </div>
-        <div class="donation-options">
-          <donation-option v-for="(dp, i) in filteredDonationPresets" :key="`presets-${i}`" :donation-preset="dp"
-            :is-selected="dp.amount === this.chosenAmount" />
-          <div v-for="n in 10" :key="`flex-spacer-${n}`" class="donation-option" />
-        </div>
-      </template>
-      <template v-slot:footer>
-        <div class="confirm-button-container">
-          <confirm-button key="next-select-amount" :disabled="!canContinueToNextStage"
-            :text="$t('selectAmountView.supportUs')" arrow hearts @click.native="continueToNextStage" />
-        </div>
-      </template>
-    </checkout-stage>
-  </div>
+  <checkout-stage show-terms>
+    <template v-slot:title>
+      {{ title }}
+    </template>
+    <template v-slot:content>
+      <div v-if="loading" class="payment-loader">
+        <div class="lds-dual-ring" />
+      </div>
+      <div class="change-monthly">
+        <h2>{{ $t('selectAmountView.selectAmount') }} <strong v-if="recurringDonation">{{
+            $t('selectAmountView.monthly')
+            }}</strong> {{
+          $t('selectAmountView.donation') }}</h2>
+        <a v-if="recurringDonation && paymentOptions.monthly" @click.prevent="setRecurringDonation(false)">
+          {{ $t('selectAmountView.donateOnce') }}
+        </a>
+        <a v-if="!recurringDonation && paymentOptions.monthly" @click.prevent="setRecurringDonation(true)">
+          {{ $t('selectAmountView.donateMonthly') }}
+        </a>
+      </div>
+      <div class="donation-options">
+        <donation-option v-for="(dp, i) in filteredDonationPresets" :key="`presets-${i}`" :donation-preset="dp"
+          :is-selected="dp.amount === this.chosenAmount" />
+        <div v-for="n in 10" :key="`flex-spacer-${n}`" class="donation-option" />
+      </div>
+    </template>
+    <template v-slot:footer>
+      <div class="confirm-button-container">
+        <confirm-button key="next-select-amount" :disabled="!canContinueToNextStage"
+          :text="$t('selectAmountView.supportUs')" arrow hearts @click.native="continueToNextStage" />
+      </div>
+    </template>
+  </checkout-stage>
 </template>
 
 <script>
@@ -47,14 +45,9 @@ export default {
     DonationOption,
     CheckoutStage,
   },
-  data() {
-    const campaignSlug = this.$route.params.campaignSlug;
-    const lang = this.$route.params.locale;
-    
+  data() {    
     return {
-      campaignSlug,
-      lang,
-      loading: false,
+      loading: true,
     };
   },
   computed: {
@@ -76,9 +69,6 @@ export default {
     chosenAmount() {
       return this.$store.getters.getChosenAmount;
     },
-    CSSFile() {
-      return this.$store.getters.getCSSFile;
-    },
     filteredDonationPresets() {
       return this.donationPresets.filter((dp) =>
         this.recurringDonation
@@ -90,18 +80,13 @@ export default {
       return this.chosenAmount >= 1 && !this.loading;
     },
   },
-  async mounted() {
-    // kliči backend API, da dobimo informacije o kampanji
-    if (this.donationPresets.length === 0) {
-      this.loading = true;
-
-      this.$store.dispatch('getCampaignData', { campaignSlug: this.campaignSlug }).then(() => {
-        if (this.CSSFile) {
-          this.loadCSS(this.CSSFile);
-        }
-        this.loading = false;
-      });
+  watch: {
+    donationPresets(newDP, oldDP) {
+      this.loading = newDP.length === 0;
     }
+  },
+  async mounted() {
+    this.loading = this.donationPresets.length === 0;
 
     if (this.$route.query.mesecna) {
       this.$store.commit("setRecurringDonation", true);
@@ -114,24 +99,8 @@ export default {
     selectDonationPreset(sdp) {
       this.$store.commit("setChosenAmount", sdp.amount);
     },
-    async continueToNextStage() {
-      if (this.canContinueToNextStage) {
-        const options = { name: "info" };
-        if (this.lang) {
-          options.params = { locale: this.lang }
-        }
-        this.$router.push(options);
-      }
-    },
-    loadCSS(filename) {
-      // if (filesAdded.indexOf(filename) !== -1) return;
-      const head = document.getElementsByTagName("head")[0]; // Creating link element
-      const style = document.createElement("link");
-      style.href = filename;
-      style.type = "text/css";
-      style.rel = "stylesheet";
-      head.append(style); // Adding the name of the file to keep record
-      // filesAdded += ` ${filename}`;
+    continueToNextStage() {
+      this.$router.push({ name: "info", params: this.$route.params });
     },
   },
 };
@@ -140,49 +109,47 @@ export default {
 <style lang="scss" scoped>
 @import "@/assets/main.scss";
 
-.checkout {
-  .donation-options {
-    display: flex;
-    flex-direction: column;
+.donation-options {
+  display: flex;
+  flex-direction: column;
 
-    @include media-breakpoint-up(md) {
-      flex-wrap: wrap;
-      flex-direction: row;
-      margin-left: -0.75rem;
-      margin-right: -0.75rem;
-    }
-
-    .donation-option {
-      @include media-breakpoint-up(md) {
-        flex: 1 1 250px;
-        flex-direction: column;
-        align-items: stretch;
-        margin-left: 0.75rem;
-        margin-right: 0.75rem;
-      }
-    }
+  @include media-breakpoint-up(md) {
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
   }
 
-  .change-monthly {
-    text-align: center;
-    margin-bottom: 3rem;
-    margin-top: -1.5rem;
+  .donation-option {
+    @include media-breakpoint-up(md) {
+      flex: 1 1 250px;
+      flex-direction: column;
+      align-items: stretch;
+      margin-left: 0.75rem;
+      margin-right: 0.75rem;
+    }
+  }
+}
 
-    a {
-      font-size: 1rem;
-      font-weight: 600;
-      font-style: italic;
-      color: inherit;
-      text-decoration: underline;
-      cursor: pointer;
+.change-monthly {
+  text-align: center;
+  margin-bottom: 3rem;
+  margin-top: -1.5rem;
 
-      @include media-breakpoint-up(md) {
-        font-size: 1.5rem;
-      }
+  a {
+    font-size: 1rem;
+    font-weight: 600;
+    font-style: italic;
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
 
-      &:hover {
-        text-decoration: none;
-      }
+    @include media-breakpoint-up(md) {
+      font-size: 1.5rem;
+    }
+
+    &:hover {
+      text-decoration: none;
     }
   }
 }

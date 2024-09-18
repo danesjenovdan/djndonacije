@@ -9,6 +9,7 @@
     },
     "infoView": {
         "title": "Podatki",
+        "email": "E-naslov",
         "newsletterLabel": "Obveščajte me o novih projektih in aktivnostih.",
         "bots": "Zadnje čase nas pogosto napadajo roboti. Ker se želimo prepričati, da si človek, prosim vpiši spodnje znake.",
         "wrongAnswer": "Napačen odgovor.",

@@ -9,6 +9,7 @@
   },
   "infoView": {
     "title": "Your information",
+    "email": "Email address",
     "newsletterLabel": "Keep me informed about new projects and activities.",
     "bots": "Lately, we have been frequently targeted by bots. To ensure that you are human, please enter the characters below.",
     "wrongAnswer": "Wrong answer.",
