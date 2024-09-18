@@ -37,7 +37,7 @@
             :text="$t('infoView.next')" arrow hearts @click.native="continueToNextStage" />
         </div>
         <div class="secondary-link">
-          <RouterLink :to="{ name: 'selectAmount', params: $route.params }">{{ $t('infoView.back') }}</RouterLink>
+          <RouterLink :to="{ name: 'selectAmount' }">{{ $t('infoView.back') }}</RouterLink>
         </div>
       </template>
     </checkout-stage>
@@ -60,7 +60,6 @@ export default {
   data() {
     return {
       campaignSlug: this.$route.params.campaignSlug,
-      lang: this.$route.params.locale,
       answer: "",
       honeyPotName: "",
       robotError: false,
@@ -106,6 +105,9 @@ export default {
       }
       return true;
     },
+    lang() {
+      return this.$store.getters.getLang;
+    },
   },
   mounted() {
     if (this.$route.query.znesek) {
@@ -118,13 +120,13 @@ export default {
     }
 
     if (this.chosenAmount <= 0) {
-      this.$router.push({ name: "selectAmount", params: this.$route.params });
+      this.$router.push({ name: "selectAmount" });
     }
 
     if (this.$refs.captcha && !document.querySelector("#djncaptcha")) {
       const s = document.createElement("script");
       s.dataset.inputName = "captcha";
-      s.dataset.locale = this.lang ? this.lang : "sl";
+      s.dataset.locale = this.lang;
       s.src = "https://captcha.lb.djnd.si/js/djncaptcha.js";
       this.$refs.captcha.appendChild(s);
     }
@@ -154,7 +156,7 @@ export default {
                 "setCustomerId",
                 checkoutResponse.data.customer_id
               );
-              this.$router.push({ name: "payment", params: this.$route.params });
+              this.$router.push({ name: "payment" });
             })
             .catch((error) => {
               captchaApi.reload();

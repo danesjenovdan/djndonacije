@@ -27,6 +27,7 @@ const store = createStore({
         token: "",
         customerId: "",
       },
+      lang: "sl"
     };
   },
   getters: {
@@ -76,6 +77,9 @@ const store = createStore({
     getCustomerId(state) {
       return state.userData.customerId;
     },
+    getLang(state) {
+      return state.lang;
+    }
   },
   mutations: {
     setDonationCampaignId(state, id) {
@@ -151,6 +155,9 @@ const store = createStore({
     setCustomerId(state, customerId) {
       state.userData.customerId = customerId;
     },
+    setLang(state, newLang) {
+      state.lang = newLang;
+    }
   },
   actions: {
     async getCampaignData(context, payload) {

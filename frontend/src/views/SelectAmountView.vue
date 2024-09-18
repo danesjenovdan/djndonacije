@@ -100,7 +100,7 @@ export default {
       this.$store.commit("setChosenAmount", sdp.amount);
     },
     continueToNextStage() {
-      this.$router.push({ name: "info", params: this.$route.params });
+      this.$router.push({ name: "info" });
     },
   },
 };

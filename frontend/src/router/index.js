@@ -12,60 +12,54 @@ import i18n from "../i18n";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // user settings
     {
-      path: "/:locale?",
-      component: RouterView,
+      path: "/urejanje-donacij",
+      name: "manageDonations",
+      component: ManageDonationsView,
+      meta: {
+        title: "Urejanje donacij",
+      },
+    },
+    //
+    // donations
+    {
+      path: "/:campaignSlug/doniraj",
+      component: DonateView,
+      name: "donate",
       children: [
-        // user settings
         {
-          path: "urejanje-donacij",
-          name: "manageDonations",
-          component: ManageDonationsView,
-          meta: {
-            title: "Urejanje donacij",
-          },
-        },
-        //
-        // donations
-        {
-          path: ":campaignSlug/doniraj",
-          component: DonateView,
-          name: "donate",
-          children: [
-            {
-              path: "",
-              name: "selectAmount",
-              component: SelectAmountView,
-            },
-            {
-              path: "info",
-              name: "info",
-              component: InfoView,
-            },
-            {
-              path: "placilo",
-              name: "payment",
-              component: PaymentView,
-            },
-          ],
+          path: "",
+          name: "selectAmount",
+          component: SelectAmountView,
         },
         {
-          path: ":campaignSlug/doniraj/hvala",
-          name: "thankYou",
-          component: ThankYouView,
-          meta: {
-            title: "Hvala!",
-          },
+          path: "info",
+          name: "info",
+          component: InfoView,
         },
         {
-          path: ":campaignSlug/urejanje-narocnine",
-          name: "manageNewsletter",
-          component: ManageNewsletterView,
-          meta: {
-            title: "Urejanje naročnine",
-          },
+          path: "placilo",
+          name: "payment",
+          component: PaymentView,
         },
       ],
+    },
+    {
+      path: "/:campaignSlug/doniraj/hvala",
+      name: "thankYou",
+      component: ThankYouView,
+      meta: {
+        title: "Hvala!",
+      },
+    },
+    {
+      path: "/:campaignSlug/urejanje-narocnine",
+      name: "manageNewsletter",
+      component: ManageNewsletterView,
+      meta: {
+        title: "Urejanje naročnine",
+      },
     },
   ],
 });
@@ -74,11 +68,11 @@ router.beforeEach((to, from, next) => {
   document.title = to.meta?.title ?? "Danes je nov dan";
 
   // use the language from the routing param or default language
-  let language = to.params.locale;
-  if (!language) {
-    language = "sl";
-  }
-  i18n.global.locale = language;
+  // let language = to.params.locale;
+  // if (!language) {
+  //   language = "sl";
+  // }
+  // i18n.global.locale = language;
 
   next();
 })
