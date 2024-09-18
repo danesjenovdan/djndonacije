@@ -104,11 +104,11 @@ export default {
           fields: {
             number: {
               selector: '#cc-number',
-              placeholder: "Številka kartice",
+              placeholder: this.$t('paymentView.cardNumber'),
             },
             expirationDate: {
               selector: '#cc-expirationDate',
-              placeholder: "Rok veljavnosti",
+              placeholder: this.$t('paymentView.expiryDate'),
             },
             cvv: {
               selector: '#cc-cvv',

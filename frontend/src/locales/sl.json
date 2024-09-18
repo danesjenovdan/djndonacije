@@ -21,6 +21,8 @@
         "errorHelp1": "Zaračunali ti nismo ničesar, ves denar je še vedno na tvoji kartici. Predlagamo, da osvežiš stran in poskusiš ponovno. Če ne bo šlo, nam piši na",
         "errorHelp2": "in ti bomo poskusili pomagati.",
         "title": "Plačilo",
+        "cardNumber": "Številka kartice",
+        "expiryDate": "Rok veljavnosti",
         "amountToPay": "Znesek za plačilo",
         "donate": "DONIRAJ",
         "back": "Nazaj"
