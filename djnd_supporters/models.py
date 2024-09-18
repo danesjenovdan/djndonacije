@@ -199,7 +199,6 @@ class DonationCampaign(Timestamped):
     edit_subscriptions_email_tempalte = models.IntegerField(null=True, blank=True, verbose_name='Mautic email ID za urejanje naročnine')
     redirect_url = models.URLField(null=True, blank=True, help_text='Redirect url on success')
     css_file = models.FileField(upload_to='css', null=True, blank=True)
-    css_file_url = models.URLField(null=True, blank=True, help_text='Povezava do CSS datoteke s stili za frontend')
     braintree_merchant_account_id = models.CharField(null=True, blank=True, max_length=128, help_text='ID of braintree merchant account.')
     add_to_newsletter_confirmation_required = models.BooleanField(
         default=False,

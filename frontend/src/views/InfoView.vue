@@ -8,7 +8,7 @@
         </div>
         <div class="info-content">
           <div class="form-group">
-            <input id="email" v-model="email" type="email" placeholder="E-naslov"
+            <input id="email" v-model="email" type="email" :placeholder="$t('infoView.email')"
               class="form-control form-control-lg" />
           </div>
           <div class="custom-control custom-checkbox" v-if="hasNewsletter">
@@ -37,7 +37,7 @@
             :text="$t('infoView.next')" arrow hearts @click.native="continueToNextStage" />
         </div>
         <div class="secondary-link">
-          <a @click="$router.go(-1)">{{ $t('infoView.back') }}</a>
+          <RouterLink :to="{ name: 'selectAmount' }">{{ $t('infoView.back') }}</RouterLink>
         </div>
       </template>
     </checkout-stage>
@@ -58,12 +58,8 @@ export default {
     CheckoutStage,
   },
   data() {
-    const campaignSlug = this.$route.params.campaignSlug;
-    const lang = this.$route.params.locale;
-
     return {
-      campaignSlug,
-      lang,
+      campaignSlug: this.$route.params.campaignSlug,
       answer: "",
       honeyPotName: "",
       robotError: false,
@@ -109,6 +105,9 @@ export default {
       }
       return true;
     },
+    lang() {
+      return this.$store.getters.getLang;
+    },
   },
   mounted() {
     if (this.$route.query.znesek) {
@@ -121,17 +120,13 @@ export default {
     }
 
     if (this.chosenAmount <= 0) {
-      const options = { name: "selectAmount" };
-      if (this.lang) {
-        options.params = { locale: this.lang }
-      }
-      this.$router.push(options);
+      this.$router.push({ name: "selectAmount" });
     }
 
     if (this.$refs.captcha && !document.querySelector("#djncaptcha")) {
       const s = document.createElement("script");
       s.dataset.inputName = "captcha";
-      s.dataset.locale = "sl";
+      s.dataset.locale = this.lang;
       s.src = "https://captcha.lb.djnd.si/js/djncaptcha.js";
       this.$refs.captcha.appendChild(s);
     }
@@ -161,11 +156,7 @@ export default {
                 "setCustomerId",
                 checkoutResponse.data.customer_id
               );
-              const options = { name: "payment" };
-              if (this.lang) {
-                options.params = { locale: this.lang }
-              }
-              this.$router.push(options);
+              this.$router.push({ name: "payment" });
             })
             .catch((error) => {
               captchaApi.reload();

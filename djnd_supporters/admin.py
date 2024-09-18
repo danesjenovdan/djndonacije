@@ -92,7 +92,7 @@ class DonationCampaignAdmin(admin.ModelAdmin):
         (
             "Nastavitve za frontend [https://moj.djnd.si/]",
             {
-                "fields": ["slug", "title", "subtitle", "css_file", "css_file_url"], # "redirect_url", "has_upload_image", 
+                "fields": ["slug", "title", "subtitle", "css_file"], # "redirect_url", "has_upload_image", 
             },
         ),
     ]

@@ -42,7 +42,7 @@
             :text="$t('paymentView.donate')" arrow hearts @click.native="continueToNextStage" />
         </div>
         <div class="secondary-link">
-          <a @click="$router.go(-1)">{{ $t('paymentView.back') }}</a>
+          <RouterLink :to="{ name: 'info', params: $route.params }">{{ $t('paymentView.back') }}</RouterLink>
         </div>
       </template>
     </checkout-stage>

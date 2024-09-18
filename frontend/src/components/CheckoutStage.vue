@@ -5,6 +5,10 @@
     <div class="checkout-stage__container">
       <div class="checkout-stage__header">
         <slot name="header">
+          <div class="language-switcher">
+            <button :class="{'active': lang != 'en'}" @click="switchLocale('sl')">SL</button> | <button
+              :class="{ 'active': lang == 'en' }" @click="switchLocale('en')">EN</button>
+          </div>
           <h1 class="checkout-stage__title">
             <slot name="title" />
           </h1>
@@ -41,6 +45,8 @@
 </template>
 
 <script>
+import i18n from "../i18n";
+
 export default {
   props: {
     noHeader: {
@@ -56,6 +62,17 @@ export default {
       default: false,
     },
   },
+  computed: {
+    lang() {
+      return this.$store.getters.getLang;
+    },
+  },
+  methods: {
+    switchLocale(newLang) {
+      this.$store.commit("setLang", newLang);
+      i18n.global.locale = newLang;
+    }
+  }
 };
 </script>
 
@@ -110,6 +127,23 @@ export default {
           font-size: 3rem;
         }
       }
+    }
+  }
+
+  .language-switcher {
+    text-align: end;
+
+    button {
+      background: none;
+      border: none;
+    }
+
+    button.active {
+      font-weight: 700;
+    }
+
+    button:hover {
+      text-decoration: underline;
     }
   }
 
