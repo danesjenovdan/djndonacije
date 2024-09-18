@@ -104,11 +104,11 @@ export default {
           fields: {
             number: {
               selector: '#cc-number',
-              placeholder: $t('paymentView.cardNumber'),
+              placeholder: this.$t('paymentView.cardNumber'),
             },
             expirationDate: {
               selector: '#cc-expirationDate',
-              placeholder: $t('paymentView.expiryDate'),
+              placeholder: this.$t('paymentView.expiryDate'),
             },
             cvv: {
               selector: '#cc-cvv',
