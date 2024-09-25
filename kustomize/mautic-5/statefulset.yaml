@@ -24,8 +24,8 @@ spec:
                   name: mautic-5-credentials
           resources:
             requests:
-              memory: 2000Mi
-              cpu: 1000m
+              memory: 1000Mi
+              cpu: 500m
             limits:
               memory: 2000Mi
               cpu: 1000m
