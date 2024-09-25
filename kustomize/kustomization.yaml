@@ -13,6 +13,9 @@ resources:
   - frontend/deployment.yaml
   - frontend/ingress.yaml
   - frontend/service.yaml
+  - mautic-5/statefulset.yaml
+  - mautic-5/service.yaml
+  - mautic-5/ingress.yaml
 
 images:
   - name: podpri
