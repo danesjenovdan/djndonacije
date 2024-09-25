@@ -20,8 +20,8 @@ resources:
 images:
   - name: podpri
     newName: rg.fr-par.scw.cloud/djnd/podpri
-    newTag: '9d8fd11209606d06f8ef9c8147e39a1a72e1483c'
+    newTag: 'f9b9022d973d08f7450b7113ec1fbfa1fca3fc80'
 
   - name: podpri-frontend
     newName: rg.fr-par.scw.cloud/djnd/podpri-frontend
-    newTag: '9d8fd11209606d06f8ef9c8147e39a1a72e1483c'
+    newTag: 'f9b9022d973d08f7450b7113ec1fbfa1fca3fc80'
