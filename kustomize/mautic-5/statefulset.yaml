@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mautic-5
-          image: mautic/mautic:5.1.1-fpm
+          image: mautic/mautic:5.1.1-apache
           ports:
             - containerPort: 80
           envFrom:
