@@ -24,4 +24,8 @@ images:
 
   - name: podpri-frontend
     newName: rg.fr-par.scw.cloud/djnd/podpri-frontend
-    newTag: 'af41b3a8a5cc78d609cf967a1ff23c4c7c831942'
+    newTag: 'latest'
+  
+  - name: podpri-mautic
+    newName: rg.fr-par.scw.cloud/djnd/podpri-mautic
+    newTag: 'latest'

@@ -40,6 +40,15 @@ jobs:
             rg.fr-par.scw.cloud/djnd/podpri-frontend:${{ github.sha }}
             rg.fr-par.scw.cloud/djnd/podpri-frontend:latest
       -
+        name: Build and push podpri-mautic
+        uses: docker/build-push-action@v2
+        with:
+          context: mautic/.
+          push: true
+          tags: |
+            rg.fr-par.scw.cloud/djnd/podpri-mautic:${{ github.sha }}
+            rg.fr-par.scw.cloud/djnd/podpri-mautic:latest
+      -
         name: Update image versions in kustomize/kustomization.yaml
         run: |
           sed -i "s/newTag: .*\+/newTag\: '${{ github.sha }}'/" kustomize/kustomization.yaml
