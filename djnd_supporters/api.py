@@ -99,7 +99,13 @@ class Subscribe(views.APIView):
                                     # add contact
                                     mautic_api.addContactToASegment(segment, mautic_id)
                                     # send slack message
-                                    msg = 'Nova naročnina na novičnik [ ' + campaign.name + ' ]'
+                                    msg = (
+                                        "Nova naročnina na novičnik [ "
+                                        + campaign.name
+                                        + " ] ("
+                                        + mautic_id
+                                        + ")"
+                                    )
                                     send_slack_msg(msg, '#novicnik-bot')
 
                     if campaign:
@@ -136,7 +142,7 @@ class Subscribe(views.APIView):
                             if not campaign.add_to_newsletter_confirmation_required:
                                 mautic_api.addContactToASegment(segment, subscriber.mautic_id)
                                 # send slack message
-                                msg = 'Nova naročnina na novičnik [ ' + campaign.name + ' ]'
+                                msg = 'Nova naročnina na novičnik [ ' + campaign.name + ' ] (' + subscriber.mautic_id + ')'
                                 send_slack_msg(msg, '#novicnik-bot')
 
                         if campaign and campaign.welcome_email_tempalte:
@@ -178,7 +184,7 @@ class ManageSegments(views.APIView):
             campaign = models.DonationCampaign.objects.filter(segment=segment_id).first()
             if not campaign:
                 return Response({'msg': 'Campaign not found'}, status=status.HTTP_404_NOT_FOUND)
-            msg = 'Nova naročnina na novičnik [ ' + campaign.name + ' ]'
+            msg = 'Nova naročnina na novičnik [ ' + campaign.name + ' ] (' + contact_id + ')'
             send_slack_msg(msg, '#novicnik-bot')
             response, response_status = mautic_api.addContactToASegment(segment_id, contact_id)
             if response_status == 200:
