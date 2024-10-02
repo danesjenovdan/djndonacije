@@ -20,12 +20,12 @@ resources:
 images:
   - name: podpri
     newName: rg.fr-par.scw.cloud/djnd/podpri
-    newTag: '52c618b4997cc92cef5366d852cf979bf3de7ef5'
+    newTag: '5788d73834ec2d2e965a2b8df6599675f177d5b5'
 
   - name: podpri-frontend
     newName: rg.fr-par.scw.cloud/djnd/podpri-frontend
-    newTag: '52c618b4997cc92cef5366d852cf979bf3de7ef5'
+    newTag: '5788d73834ec2d2e965a2b8df6599675f177d5b5'
   
   - name: podpri-mautic
     newName: rg.fr-par.scw.cloud/djnd/podpri-mautic
-    newTag: '52c618b4997cc92cef5366d852cf979bf3de7ef5'
+    newTag: '5788d73834ec2d2e965a2b8df6599675f177d5b5'
