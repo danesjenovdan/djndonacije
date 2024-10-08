@@ -271,7 +271,7 @@ class MauticApi(object):
 
     def saveFile(self, name, file_):
         return self.mauticRequest(
-            'files/assets/new',
+            'files/media/new',
             file={
                 'name': name,
                 'file': file_
