@@ -9,10 +9,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - mautic-5.lb.djnd.si
+        - mautic.lb.djnd.si
       secretName: mautic-5-tls
   rules:
-    - host: mautic-5.lb.djnd.si
+    - host: mautic.lb.djnd.si
       http:
         paths:
           - path: /
