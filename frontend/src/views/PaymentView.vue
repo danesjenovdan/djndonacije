@@ -67,7 +67,7 @@ export default {
   data() {
     const campaignSlug = this.$route.params.campaignSlug;
     const payment = this.$store.getters.getPaymentOptions.oneTime || this.$store.getters.getPaymentOptions.monthly ? 'card' : 'upn';
-    const lang = this.$route.params.locale;
+    const lang = this.$route.params.lang;
 
     return {
       campaignSlug,
@@ -154,7 +154,7 @@ export default {
           } else {
             const options = { name: "thankYou" };
             if (this.lang) {
-              options.params = { locale: this.lang }
+              options.params = { lang: this.lang }
             }
             this.$router.push(options);
           }

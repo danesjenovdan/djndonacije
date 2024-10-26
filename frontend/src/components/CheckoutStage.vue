@@ -72,6 +72,13 @@ export default {
       this.$store.commit("setLang", newLang);
       i18n.global.locale = newLang;
     }
+  },
+  mounted() {
+    const lang = this.$route.query.lang;
+    if (lang == "en") {
+      this.$store.commit("setLang", lang);
+      i18n.global.locale = lang;
+    }
   }
 };
 </script>

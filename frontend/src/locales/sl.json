@@ -38,8 +38,8 @@
         "depositSlipNote": "Položnico ti bomo poslali po e-pošti."
     },
     "manageNewsletterView": {
-        "unsubsribeAndDeleteData": "Odjavili smo te od vseh novičnikov in izbrisali tvoje podatke.",
-        "unsubsribeSuccessful": "Odjava je uspešna!",
+        "unsubscribeAndDeleteData": "Odjavili smo te od vseh novičnikov in izbrisali tvoje podatke.",
+        "unsubscribeSuccessful": "Odjava je uspešna!",
         "error": "Zgodila se je napaka.",
         "noSuchUser": "Uporabnik_ca s temi podatki ne obstaja.",
         "help": "Piši nam na <a href='mailto:{email}'>{email}</a> in bomo takoj razrešili težavo.",
