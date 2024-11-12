@@ -1,0 +1,9 @@
+{
+  "name": "Glas ljudstva",
+  "author": "DJND",
+  "authorUrl": "https://danesjenovdan.si",
+  "builder": ["grapesjsbuilder"],
+  "features": [
+    "email"
+  ]
+}
