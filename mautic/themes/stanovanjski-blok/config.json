@@ -1,0 +1,9 @@
+{
+  "name": "Stanovanjski blok",
+  "author": "DJND",
+  "authorUrl": "https://danesjenovdan.si",
+  "builder": ["grapesjsbuilder"],
+  "features": [
+    "email"
+  ]
+}
