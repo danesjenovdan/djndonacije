@@ -1,12 +1,16 @@
 <template>
   <div class="checkout">
     <checkout-stage show-terms>
-      <template v-slot:title>{{ $t('infoView.title') }}</template>
+      <!-- <template v-slot:title>{{ $t('infoView.title') }}</template> -->
+      <template v-slot:title>{{ donationDescriptionForTitle }}</template>
       <template v-slot:content>
         <div v-if="loading" class="payment-loader">
           <div class="lds-dual-ring" />
         </div>
         <div class="info-content">
+          <p>
+            {{ $t('infoView.whyEmail') }}
+          </p>
           <div class="form-group">
             <input id="email" v-model="email" type="email" :placeholder="$t('infoView.email')"
               class="form-control form-control-lg" />
@@ -87,6 +91,9 @@ export default {
     chosenAmount() {
       return this.$store.getters.getChosenAmount;
     },
+    recurringDonation() {
+      return this.$store.getters.getRecurringDonation;
+    },
     hasNewsletter() {
       return this.$store.getters.getHasNewsletter;
     },
@@ -107,6 +114,16 @@ export default {
     },
     lang() {
       return this.$store.getters.getLang;
+    },
+    donationDescriptionForTitle() {
+      if (this.recurringDonation) {
+        return this.$t("infoView.monthlyDonationWithAmount", {
+          amount: this.chosenAmount,
+        });
+      }
+      return this.$t("infoView.donationWithAmount", {
+        amount: this.chosenAmount,
+      });
     },
   },
   mounted() {
