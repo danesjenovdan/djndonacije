@@ -6,12 +6,19 @@ import PaymentView from "../views/PaymentView.vue";
 import ThankYouView from "../views/ThankYouView.vue";
 import ManageDonationsView from "../views/ManageDonationsView.vue";
 import ManageNewsletterView from "../views/ManageNewsletterView.vue";
+import RootView from "../views/RootView.vue";
 
 import i18n from "../i18n";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // root
+    {
+      path: "/",
+      name: "root",
+      component: RootView,
+    },
     // user settings
     {
       path: "/urejanje-donacij",
