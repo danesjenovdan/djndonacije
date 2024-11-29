@@ -77,6 +77,7 @@ class DonationCampaignAdmin(admin.ModelAdmin):
                            "has_upn",
                            "upn_name",
                            "upn_email_template",
+                           "has_flik",
                            "has_braintree",
                            "bt_email_template",
                            "has_braintree_subscription",

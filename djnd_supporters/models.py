@@ -179,6 +179,7 @@ class DonationCampaign(Timestamped):
     subtitle = models.TextField(null=True, blank=True, verbose_name='Podnaslov', help_text='Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj')
     upn_name = models.CharField(null=True, blank=True, max_length=32, verbose_name='UPN namen na plačilnem nalogu', default="Donacija")
     has_upn = models.BooleanField(default=True, verbose_name='Sprejemamo UPN donacije?')
+    has_flik = models.BooleanField(default=False, verbose_name='Sprejemamo flik donacije?')
     has_braintree = models.BooleanField(default=True, verbose_name='Sprejemamo braintree enkratne donacije?')
     has_braintree_subscription = models.BooleanField(default=True, verbose_name='Sprejemamo braintree mesečne donacije?')
     upn_email_template = models.IntegerField(null=True, blank=True, verbose_name='Mautic email ID za UPN donacijo')

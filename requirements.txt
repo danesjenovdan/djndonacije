@@ -20,3 +20,4 @@ ipython
 sentry-sdk
 boto3
 django-storages
+arrow

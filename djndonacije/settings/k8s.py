@@ -293,3 +293,8 @@ SEGMENTS = {
 }
 
 CAPTCHA_BASE_URL = 'https://captcha.lb.djnd.si/api'
+
+FLIK_API_KEY = os.getenv('FLIK_API_KEY', '')
+FLIK_SS = os.getenv('FLIK_SS', '')
+FLIK_USERNAME = os.getenv('FLIK_USERNAME', '')
+FLIK_PASSWORD = os.getenv('FLIK_PASSWORD', '')
