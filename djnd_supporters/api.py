@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 
 from rest_framework import status, views, permissions, mixins, viewsets
 from rest_framework.response import Response
 
-from djnd_supporters import models, authentication, serializers
+from djnd_supporters import models, authentication, serializers, utils
 from djnd_supporters.mautic_api import MauticApi
 from djnd_supporters.captcha import validate_captcha
 from djndonacije import payment
@@ -18,6 +19,7 @@ import braintree
 from djnd_supporters.views import getPDForDonation
 from django.template.loader import get_template
 from django.core import signing
+from djnd_supporters import flik
 
 from sentry_sdk import capture_message, capture_exception
 
@@ -581,6 +583,33 @@ class GenericDonationCampaign(views.APIView):
                 except:
                     deep_mgs = ''
                 return Response({'msg': f'{result.message}{deep_mgs}'}, status=status.HTTP_400_BAD_REQUEST)
+        elif payment_type == 'flik':
+            donation = models.Transaction(
+                amount=amount,
+                nonce=nonce,
+                subscriber=subscriber,
+                campaign=donation_campaign,
+                payment_method=payment_type,
+                is_paid=False
+            )
+            donation.save()
+            payment_data = flik.initialize_payment(
+                transaction_id=donation.id,
+                amount="{:.2f}".format(amount),
+                description=donation_campaign.upn_name,
+                customer_ip=utils.get_client_ip(request),
+                success_url=request.build_absolute_uri("/users/flik-status/?status=success"),
+                error_url=request.build_absolute_uri("/users/flik-status/?status=error") ,
+                cancel_url=request.build_absolute_uri("/users/flik-status/?status=cancel"),
+                callback_url=request.build_absolute_uri("/api/flik-callback/"),
+            )
+            if payment_data:
+                donation.reference = payment_data.get("uuid"),
+                donation.save()
+                return Response({"redirect_url": payment_data.get("redirect_url")})
+            else:
+                return Response({"error": "Payment data not created"}, status=400)
+
 
 
         # send slack msg
@@ -590,6 +619,7 @@ class GenericDonationCampaign(views.APIView):
             pass
 
         msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila donacijo za [ ' + donation_campaign.name + ' ] v višini: ' + str(donation.amount)
+        msg = f"Dinozaverka nam je podarila {payment_type} donacijo za [ ' { donation_campaign.name } ] v višini: {donation.amount}"
         send_slack_msg(msg, donation_campaign.slack_report_channel)
 
         response = {
@@ -1021,3 +1051,18 @@ class CreateAndSendMailApiView(views.APIView):
         return Response({
             'msg': 'sent'
         })
+
+
+class FlikCallback(views.APIView):
+    @transaction.atomic
+    def post(self, request):
+        data = request.data
+        transaction_id = data.get("uuid")
+        flik_payment = models.Transaction.objects.filter(reference=transaction_id).first()
+        if flik_payment:
+            if data.get("result") == "OK" and transaction_id and flik_payment.payment_method == "flik":
+                flik_payment.is_paid = True
+                flik_payment.save()
+                    
+        return Response(status=200)
+            
