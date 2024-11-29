@@ -598,13 +598,13 @@ class GenericDonationCampaign(views.APIView):
                 amount="{:.2f}".format(amount),
                 description=donation_campaign.upn_name,
                 customer_ip=utils.get_client_ip(request),
-                success_url=request.build_absolute_uri("/users/flik-status/?status=success"),
-                error_url=request.build_absolute_uri("/users/flik-status/?status=error") ,
-                cancel_url=request.build_absolute_uri("/users/flik-status/?status=cancel"),
-                callback_url=request.build_absolute_uri("/api/flik-callback/"),
+                success_url=f"{settings.BASE_URL}/url/?status=success",
+                error_url=f"{settings.BASE_URL}/url/?status=error",
+                cancel_url=f"{settings.BASE_URL}/url/?status=cancel",
+                callback_url=f"{settings.BASE_URL}/api/flik-callback/",
             )
             if payment_data:
-                donation.reference = payment_data.get("uuid"),
+                donation.reference = payment_data.get("uuid")
                 donation.save()
                 return Response({"redirect_url": payment_data.get("redirect_url")})
             else:
@@ -618,7 +618,6 @@ class GenericDonationCampaign(views.APIView):
         except:
             pass
 
-        msg = ( name if name else 'Dinozaverka' ) + ' nam je podarila donacijo za [ ' + donation_campaign.name + ' ] v višini: ' + str(donation.amount)
         msg = f"Dinozaverka nam je podarila {payment_type} donacijo za [ ' { donation_campaign.name } ] v višini: {donation.amount}"
         send_slack_msg(msg, donation_campaign.slack_report_channel)
 
@@ -1063,6 +1062,8 @@ class FlikCallback(views.APIView):
             if data.get("result") == "OK" and transaction_id and flik_payment.payment_method == "flik":
                 flik_payment.is_paid = True
                 flik_payment.save()
+                msg = f"Dinozaverka nam je podarila flik donacijo za [ ' { flik_payment.donation_campaign.name } ] v višini: {flik_payment.amount}"
+                send_slack_msg(msg, flik_payment.donation_campaign.slack_report_channel)
                     
         return Response(status=200)
             
