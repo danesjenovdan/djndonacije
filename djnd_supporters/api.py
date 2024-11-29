@@ -1053,7 +1053,6 @@ class CreateAndSendMailApiView(views.APIView):
 
 
 class FlikCallback(views.APIView):
-    @transaction.atomic
     def post(self, request):
         data = request.data
         transaction_id = data.get("uuid")
@@ -1062,8 +1061,7 @@ class FlikCallback(views.APIView):
             if data.get("result") == "OK" and transaction_id and flik_payment.payment_method == "flik":
                 flik_payment.is_paid = True
                 flik_payment.save()
-                msg = f"Dinozaverka nam je podarila flik donacijo za [ ' { flik_payment.donation_campaign.name } ] v višini: {flik_payment.amount}"
-                send_slack_msg(msg, flik_payment.donation_campaign.slack_report_channel)
-                    
+                msg = f"Dinozaverka nam je podarila flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
+                send_slack_msg(msg, flik_payment.campaign.slack_report_channel)
         return Response(status=200)
             
