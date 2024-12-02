@@ -64,7 +64,7 @@ def initialize_payment(
     data = {
         "merchantTransactionId": str(transaction_id),
         "amount": amount,
-        "currency": settings.CAMELS_CURRENCY,
+        "currency": "EUR",
         "successUrl": success_url,
         "errorUrl": error_url,
         "cancelUrl": cancel_url,
