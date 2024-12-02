@@ -46,6 +46,7 @@ env = dict(
     AGRUM_TOKEN=os.getenv('AGRUM_TOKEN', ''),
     SLACK_KEY=os.getenv('SLACK_KEY', ''),
     CEBELCA_KEY=os.getenv('CEBELCA_KEY', ''),
+    FRONTEND_URL=os.getenv('FRONTEND_URL', 'http://localhost:3000'),
 )
 
 ALLOWED_HOSTS = ['*']
@@ -187,6 +188,7 @@ MEDIA_URL = env['MEDIA_URL']
 
 SALT = env['SALT']
 BASE_URL = env['DJANGO_BASE_URL']
+FRONTEND_URL = env['FRONTEND_URL']
 
 # mautic credentials
 MAUTIC_URL = env['MAUTIC_URL']

@@ -593,20 +593,21 @@ class GenericDonationCampaign(views.APIView):
                 is_paid=False
             )
             donation.save()
-            payment_data = flik.initialize_payment(
+            flik_response = flik.initialize_payment(
                 transaction_id=donation.id,
                 amount="{:.2f}".format(amount),
                 description=donation_campaign.upn_name,
+                shopper_locale='sl',
                 customer_ip=utils.get_client_ip(request),
-                success_url=f"{settings.BASE_URL}/url/?status=success",
-                error_url=f"{settings.BASE_URL}/url/?status=error",
-                cancel_url=f"{settings.BASE_URL}/url/?status=cancel",
+                success_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/hvala",
+                error_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
+                cancel_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
                 callback_url=f"{settings.BASE_URL}/api/flik-callback/",
             )
-            if payment_data:
-                donation.reference = payment_data.get("uuid")
+            if flik_response.success:
+                donation.reference = flik_response.uuid
                 donation.save()
-                return Response({"redirect_url": payment_data.get("redirect_url")})
+                return Response({"redirect_url": flik_response.redirect_url})
             else:
                 return Response({"error": "Payment data not created"}, status=400)
 
@@ -1054,11 +1055,10 @@ class CreateAndSendMailApiView(views.APIView):
 
 class FlikCallback(views.APIView):
     def post(self, request):
-        data = request.data
-        transaction_id = data.get("uuid")
-        flik_payment = models.Transaction.objects.filter(reference=transaction_id).first()
+        flik_result_response = flik.get_payment_result(request.data)
+        flik_payment = models.Transaction.objects.filter(reference=flik_result_response.uuid).first()
         if flik_payment:
-            if data.get("result") == "OK" and transaction_id and flik_payment.payment_method == "flik":
+            if flik_result_response.result == "OK" and flik_result_response.uuid and flik_payment.payment_method == "flik":
                 flik_payment.is_paid = True
                 flik_payment.save()
                 msg = f"Dinozaverka nam je podarila flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
