@@ -9,7 +9,7 @@ from requests.auth import HTTPBasicAuth
 from enum import Enum
 
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
+
 
 FLIK_INITIAL_URL = (
     f"https://gateway.bankart.si/api/v3/transaction/{settings.FLIK_API_KEY}/debit"
@@ -26,22 +26,45 @@ class Status(str, Enum):
         return [(tag.value, tag.name) for tag in cls]
 
 
+class InitialResponse:
+    def __init__(self, **kwargs):
+        self.redirect_url = kwargs.get("redirectUrl")
+        self.uuid = kwargs.get("uuid")
+        self.purchase_id = kwargs.get("purchaseId")
+        self.payment_method = kwargs.get("paymentMethod")
+        self.extra_data = kwargs.get("extraData")
+        self.returnType = kwargs.get("returnType")
+        self.success = kwargs.get("success")
+
+
+class PaymentResultResponse:
+    def __init__(self, **kwargs):
+        self.result = kwargs.get("result")
+        self.uuid = kwargs.get("uuid")
+        self.merchant_transaction_id = kwargs.get("merchantTransactionId")
+        self.transaction_type = kwargs.get("transactionType")
+        self.payment_method = kwargs.get("paymentMethod")
+        self.amount = kwargs.get("amount")
+        self.currency = kwargs.get("currency")
+        self.extra_data = kwargs.get("extraData")
+
+
 def initialize_payment(
     transaction_id,
     amount,
     description,
+    shopper_locale,
     customer_ip,
     success_url,
     error_url,
     cancel_url,
     callback_url,
-    shopper_locale="sl",
     phone_number=None,
 ):
     data = {
         "merchantTransactionId": str(transaction_id),
         "amount": amount,
-        "currency": "EUR",
+        "currency": settings.CAMELS_CURRENCY,
         "successUrl": success_url,
         "errorUrl": error_url,
         "cancelUrl": cancel_url,
@@ -74,6 +97,7 @@ def initialize_payment(
         digestmod=hashlib.sha512,
     ).digest()
     signiture = base64.b64encode(signiture)
+
     headers["X-Signature"] = signiture
     response = requests.post(
         FLIK_INITIAL_URL,
@@ -81,13 +105,11 @@ def initialize_payment(
         headers=headers,
         auth=HTTPBasicAuth(settings.FLIK_USERNAME, settings.FLIK_PASSWORD),
     )
-
-    response_data = response.json()
-
-    if response_data.get("success"):
-        return {
-            "redirect_url": response_data["redirectUrl"],
-            "uuid": response_data["uuid"],
-        }
-    else:
+    if response.status_code != 200:
         return None
+    else:
+        return InitialResponse(**response.json())
+
+
+def get_payment_result(data):
+    return PaymentResultResponse(**data)
