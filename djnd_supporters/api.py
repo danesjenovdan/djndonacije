@@ -619,7 +619,7 @@ class GenericDonationCampaign(views.APIView):
         except:
             pass
 
-        msg = f"Dinozaverka nam je podarila {payment_type} donacijo za [ ' { donation_campaign.name } ] v višini: {donation.amount}"
+        msg = f"Dinozaverka nam je podarila {payment_type} donacijo za [ { donation_campaign.name } ] v višini: {donation.amount}"
         send_slack_msg(msg, donation_campaign.slack_report_channel)
 
         response = {
