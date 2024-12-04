@@ -37,8 +37,10 @@
     "payment": {
         "card": "Kartica",
         "depositSlip": "Položnica",
+        "flik": "Flik",
         "cardNote": "Informacij o tvoji kartici ne pošiljamo na svoj strežnik in ne shranjujemo. Za varnost plačila skrbi",
-        "depositSlipNote": "Položnico ti bomo poslali po e-pošti."
+        "depositSlipNote": "Položnico ti bomo poslali po e-pošti.",
+        "flikNote": "Preusmerili te bomo na spletno stran Flika, kjer boš lahko izvedel_a plačilo."
     },
     "manageNewsletterView": {
         "unsubscribeAndDeleteData": "Odjavili smo te od vseh novičnikov in izbrisali tvoje podatke.",
