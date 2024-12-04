@@ -2,12 +2,31 @@
   <div class="payment-switcher">
     <nav class="nav nav-pills justify-content-center">
       <div class="nav-item">
-        <button :class="['nav-link', { active: active === 'card' }]" type="button" @click="changeActive('card')">{{
-          $t('payment.card') }}</button>
+        <button
+          :class="['nav-link', { active: active === 'card' }]"
+          type="button"
+          @click="changeActive('card')"
+        >
+          {{ $t("payment.card") }}
+        </button>
       </div>
       <div v-if="hasUpn && !recurring" class="nav-item">
-        <button :class="['nav-link', { active: active === 'upn' }]" type="button" @click="changeActive('upn')">{{
-          $t('payment.depositSlip') }}</button>
+        <button
+          :class="['nav-link', { active: active === 'upn' }]"
+          type="button"
+          @click="changeActive('upn')"
+        >
+          {{ $t("payment.depositSlip") }}
+        </button>
+      </div>
+      <div v-if="hasFlik && showFlik && !recurring" class="nav-item">
+        <button
+          :class="['nav-link', { active: active === 'flik' }]"
+          type="button"
+          @click="changeActive('flik')"
+        >
+          {{ $t("payment.flik") }}
+        </button>
       </div>
     </nav>
   </div>
@@ -24,10 +43,15 @@ export default {
       type: Boolean,
       default: true,
     },
+    hasFlik: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
       active: "card",
+      showFlik: !!this.$route.query.flik_enabled,
     };
   },
   mounted() {
@@ -35,6 +59,9 @@ export default {
   },
   methods: {
     changeActive(newActive) {
+      if (this.active === newActive) {
+        return;
+      }
       this.active = newActive;
       this.$emit("change", newActive);
     },
@@ -73,7 +100,7 @@ export default {
         font-weight: 300;
 
         &.active {
-          background-color: rgba($color: #000000, $alpha: 0.3)
+          background-color: rgba($color: #000000, $alpha: 0.3);
         }
 
         &:focus {

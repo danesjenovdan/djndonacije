@@ -37,8 +37,10 @@
   "payment": {
     "card": "Card",
     "depositSlip": "Invoice",
+    "flik": "Flik",
     "cardNote": "We do not send or store your card information on our server. Payment security is handled by",
-    "depositSlipNote": "We will send you the invoice by email."
+    "depositSlipNote": "We will send you the invoice by email.",
+    "flikNote": "We will redirect you to the Flik website, where you will be able to make the payment."
   },
   "manageNewsletterView": {
     "unsubscribeAndDeleteData": "You have successfully unsubscribed and we have deleted your data.",
@@ -65,5 +67,9 @@
   "thankYouView": {
     "title": "THANK YOU FOR YOUR DONATION!",
     "note": "Your donation is another piece of support in the mosaic of our work. We sincerely hope that our projects will continue to bring you joy and pride."
+  },
+  "paymentErrorView": {
+      "title": "PAYMENT ERROR!",
+      "note": "An error occurred and our server could not resolve it.<br /><br />We haven’t charged you anything; all the money is still on your card. We suggest going back to <a href=\"{startHref}\">the start</a> and trying again. If it doesn’t work, please write to us at {'<a href=\"mailto:vsi@danesjenovdan.si\">vsi@danesjenovdan.si</a>'} and we will try to help you."
   }
 }
