@@ -4,6 +4,7 @@ import SelectAmountView from "../views/SelectAmountView.vue";
 import InfoView from "../views/InfoView.vue";
 import PaymentView from "../views/PaymentView.vue";
 import ThankYouView from "../views/ThankYouView.vue";
+import PaymentErrorView from "../views/PaymentErrorView.vue";
 import ManageDonationsView from "../views/ManageDonationsView.vue";
 import ManageNewsletterView from "../views/ManageNewsletterView.vue";
 import RootView from "../views/RootView.vue";
@@ -58,6 +59,14 @@ const router = createRouter({
       component: ThankYouView,
       meta: {
         title: "Hvala!",
+      },
+    },
+    {
+      path: "/:campaignSlug/doniraj/napaka",
+      name: "paymentError",
+      component: PaymentErrorView,
+      meta: {
+        title: "Napaka!",
       },
     },
     {

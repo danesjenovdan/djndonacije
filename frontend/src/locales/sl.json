@@ -65,5 +65,9 @@
     "thankYouView": {
         "title": "HVALA ZA DONACIJO!",
         "note": "Tvoja donacija predstavlja še en kamenček podpore v mozaiku našega delovanja. Iskreno upamo, da ti bodo naši projekti še naprej v veselje in ponos."
+    },
+    "paymentErrorView": {
+        "title": "NAPAKA PRI PLAČILU!",
+        "note": "Zgodila se je napaka in naš strežnik je ni mogel rešiti.<br /><br />Zaračunali ti nismo ničesar, ves denar je še vedno na tvoji kartici. Predlagamo, da greš nazaj <a href=\"{startHref}\">na začetek</a> in poskusiš ponovno. Če ne bo šlo, nam piši na {'<a href=\"mailto:vsi@danesjenovdan.si\">vsi@danesjenovdan.si</a>'} in ti bomo poskusili pomagati."
     }
 }
