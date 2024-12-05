@@ -140,12 +140,11 @@ def initialize_payment(
 
 
 def get_payment_result(data):
-    if data["result"] == "OK":
+    if data["transactionType"] == "REFUND":
+        return PaymentRefundResponse(**data)
+    elif data["result"] == "OK":
         if data["transactionType"] == "DEBIT":
             return PaymentSuccessResponse(**data)
     elif data["result"] == "ERROR":
-        if data["transactionType"] == "REFUND":
-            return PaymentRefundResponse(**data)
-        else:
-            return PaymentErrorResponse(**data)
+        return PaymentErrorResponse(**data)
     raise NotImplementedError("Unknown transaction type")
