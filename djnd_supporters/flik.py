@@ -34,7 +34,7 @@ class InitialResponse:
         self.purchase_id = kwargs.get("purchaseId")
         self.payment_method = kwargs.get("paymentMethod")
         self.extra_data = kwargs.get("extraData")
-        self.returnType = kwargs.get("returnType")
+        self.return_type = kwargs.get("returnType")
         self.success = kwargs.get("success")
 
 
@@ -49,7 +49,7 @@ class PaymentResponse:
         self.amount = kwargs.get("amount")
         self.currency = kwargs.get("currency")
         self.customer = kwargs.get("customer")
-        self.return_data = kwargs.get("returnData") 
+        self.extra_data = kwargs.get("extraData") 
 
 
 class PaymentSuccessResponse(PaymentResponse):
@@ -58,18 +58,14 @@ class PaymentSuccessResponse(PaymentResponse):
         self.status = 'success'
 
 
-class PaymentChargebackReversalResponse(PaymentResponse):
+class PaymentRefundResponse(PaymentResponse):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.status = 'chargeback-reversal'
-        self.chargeback_reversal_data = kwargs.get("chargebackReversalData")
-
-
-class PaymentChargebackResponse(PaymentResponse):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.status = 'chargeback'
-        self.chargeback_data = kwargs.get("chargebackData")
+        self.status = 'refund'
+        self.message = kwargs.get("message")
+        self.code = kwargs.get("code")
+        self.adapter_message = kwargs.get("adapterMessage")
+        self.adapter_code = kwargs.get("adapterCode")
 
 
 class PaymentErrorResponse(PaymentResponse):
@@ -147,10 +143,9 @@ def get_payment_result(data):
     if data["result"] == "OK":
         if data["transactionType"] == "DEBIT":
             return PaymentSuccessResponse(**data)
-        elif data["transactionType"] == "CHARGEBACK":
-            return PaymentChargebackResponse(**data)
-        elif data["transactionType"] == "CHARGEBACK-REVERSAL":
-            return PaymentChargebackReversalResponse(**data)
     elif data["result"] == "ERROR":
-        return PaymentErrorResponse(**data)
+        if data["transactionType"] == "REFUND":
+            return PaymentRefundResponse(**data)
+        else:
+            return PaymentErrorResponse(**data)
     raise NotImplementedError("Unknown transaction type")

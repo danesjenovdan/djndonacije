@@ -605,7 +605,7 @@ class GenericDonationCampaign(views.APIView):
                 callback_url=f"{settings.BASE_URL}/api/flik-callback/",
             )
             if flik_response.success:
-                donation.reference = flik_response.uuid
+                donation.reference = flik_response.purchase_id
                 donation.save()
                 return Response({"redirect_url": flik_response.redirect_url})
             else:
@@ -1057,17 +1057,14 @@ class FlikCallback(views.APIView):
     def post(self, request):
         print(request.data)
         flik_result_response = flik.get_payment_result(request.data)
-        flik_payment = models.Transaction.objects.filter(reference=flik_result_response.uuid).first()
-        if flik_payment and flik_result_response.uuid:
+        flik_payment = models.Transaction.objects.filter(reference=flik_result_response.purchase_id).first()
+        if flik_payment and flik_result_response.purchase_id:
             if flik_result_response.status == "success" and flik_payment.payment_method == "flik":
                 flik_payment.is_paid = True
                 flik_payment.save()
                 msg = f"Dinozaverka nam je podarila flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
                 send_slack_msg(msg, flik_payment.campaign.slack_report_channel)
-            elif flik_result_response.status == "chargeback":
-                flik_payment.is_paid = False
-                flik_payment.save()
-            elif flik_result_response.status == "chargeback-reversal":
+            elif flik_result_response.status == "refund":
                 flik_payment.is_paid = False
                 flik_payment.save()
             elif flik_result_response.result == "error" and flik_payment.payment_method == "flik":
