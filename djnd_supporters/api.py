@@ -1055,6 +1055,7 @@ class CreateAndSendMailApiView(views.APIView):
 
 class FlikCallback(views.APIView):
     def post(self, request):
+        print(request.data)
         flik_result_response = flik.get_payment_result(request.data)
         flik_payment = models.Transaction.objects.filter(reference=flik_result_response.uuid).first()
         if flik_payment and flik_result_response.uuid:
