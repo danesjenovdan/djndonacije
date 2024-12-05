@@ -14,6 +14,7 @@ from django.conf import settings
 FLIK_INITIAL_URL = (
     f"https://gateway.bankart.si/api/v3/transaction/{settings.FLIK_API_KEY}/debit"
 )
+SIGNITURE_URL = f"/api/v3/transaction/{settings.FLIK_API_KEY}/debit"
 
 
 class Status(str, Enum):
@@ -37,16 +38,48 @@ class InitialResponse:
         self.success = kwargs.get("success")
 
 
-class PaymentResultResponse:
+class PaymentResponse:
     def __init__(self, **kwargs):
         self.result = kwargs.get("result")
         self.uuid = kwargs.get("uuid")
         self.merchant_transaction_id = kwargs.get("merchantTransactionId")
+        self.purchase_id = kwargs.get("purchaseId")
         self.transaction_type = kwargs.get("transactionType")
         self.payment_method = kwargs.get("paymentMethod")
         self.amount = kwargs.get("amount")
         self.currency = kwargs.get("currency")
-        self.extra_data = kwargs.get("extraData")
+        self.customer = kwargs.get("customer")
+        self.return_data = kwargs.get("returnData") 
+
+
+class PaymentSuccessResponse(PaymentResponse):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.status = 'success'
+
+
+class PaymentChargebackReversalResponse(PaymentResponse):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.status = 'chargeback-reversal'
+        self.chargeback_reversal_data = kwargs.get("chargebackReversalData")
+
+
+class PaymentChargebackResponse(PaymentResponse):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.status = 'chargeback'
+        self.chargeback_data = kwargs.get("chargebackData")
+
+
+class PaymentErrorResponse(PaymentResponse):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.status = 'error'
+        self.message = kwargs.get("message")
+        self.code = kwargs.get("code")
+        self.adapter_message = kwargs.get("adapterMessage")
+        self.adapter_code = kwargs.get("adapterCode")
 
 
 def initialize_payment(
@@ -84,12 +117,11 @@ def initialize_payment(
     }
     sha512_data = hashlib.sha512(json.dumps(data).encode("utf-8")).hexdigest()
 
-    signiture_url = FLIK_INITIAL_URL.split("bankart.si")[1]
     sig_data = f"""POST
 {sha512_data}
 {headers['Content-Type']}
 {headers['Date']}
-{signiture_url}"""
+{SIGNITURE_URL}"""
 
     signiture = hmac.new(
         str.encode(settings.FLIK_SS),
@@ -112,4 +144,13 @@ def initialize_payment(
 
 
 def get_payment_result(data):
-    return PaymentResultResponse(**data)
+    if data["result"] == "OK":
+        if data["transactionType"] == "DEBIT":
+            return PaymentSuccessResponse(**data)
+        elif data["transactionType"] == "CHARGEBACK":
+            return PaymentChargebackResponse(**data)
+        elif data["transactionType"] == "CHARGEBACK-REVERSAL":
+            return PaymentChargebackReversalResponse(**data)
+    elif data["result"] == "ERROR":
+        return PaymentErrorResponse(**data)
+    raise NotImplementedError("Unknown transaction type")
