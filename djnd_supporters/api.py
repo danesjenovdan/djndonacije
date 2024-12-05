@@ -1057,11 +1057,22 @@ class FlikCallback(views.APIView):
     def post(self, request):
         flik_result_response = flik.get_payment_result(request.data)
         flik_payment = models.Transaction.objects.filter(reference=flik_result_response.uuid).first()
-        if flik_payment:
-            if flik_result_response.result == "OK" and flik_result_response.uuid and flik_payment.payment_method == "flik":
+        if flik_payment and flik_result_response.uuid:
+            if flik_result_response.status == "success" and flik_payment.payment_method == "flik":
                 flik_payment.is_paid = True
                 flik_payment.save()
                 msg = f"Dinozaverka nam je podarila flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
                 send_slack_msg(msg, flik_payment.campaign.slack_report_channel)
-        return Response(status=200)
+            elif flik_result_response.status == "chargeback":
+                flik_payment.is_paid = False
+                flik_payment.save()
+            elif flik_result_response.status == "chargeback-reversal":
+                flik_payment.is_paid = False
+                flik_payment.save()
+            elif flik_result_response.result == "error" and flik_payment.payment_method == "flik":
+                flik_payment.is_paid = False
+                flik_payment.save()
+        else:
+            return Response("Not OK", status=400)
+        return Response("OK", status=200)
             
