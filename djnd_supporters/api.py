@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+from django.http import HttpResponse
 
 from rest_framework import status, views, permissions, mixins, viewsets
 from rest_framework.response import Response
@@ -1071,6 +1072,6 @@ class FlikCallback(views.APIView):
                 flik_payment.is_paid = False
                 flik_payment.save()
         else:
-            return Response("Not OK", status=400)
-        return Response("OK", status=200)
+            return HttpResponse("Not OK", status=400)
+        return HttpResponse("OK", status=200)
             
