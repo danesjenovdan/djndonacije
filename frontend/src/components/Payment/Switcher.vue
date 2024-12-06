@@ -19,7 +19,7 @@
           {{ $t("payment.depositSlip") }}
         </button>
       </div>
-      <div v-if="hasFlik && showFlik && !recurring" class="nav-item">
+      <div v-if="hasFlik && !recurring" class="nav-item">
         <button
           :class="['nav-link', { active: active === 'flik' }]"
           type="button"
@@ -51,7 +51,6 @@ export default {
   data() {
     return {
       active: "card",
-      showFlik: !!this.$route.query.flik_enabled,
     };
   },
   mounted() {
