@@ -1069,7 +1069,7 @@ class FlikCallback(views.APIView):
                 flik_payment.is_paid = False
                 flik_payment.save()
             elif flik_result_response.result == "error" and flik_payment.payment_method == "flik":
-                flik_payment.is_paid = False
+                #flik_payment.is_paid = False
                 flik_payment.save()
         else:
             return HttpResponse("Not OK", status=400)
