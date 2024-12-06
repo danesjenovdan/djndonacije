@@ -173,7 +173,7 @@ export default {
                 "setCustomerId",
                 checkoutResponse.data.customer_id
               );
-              this.$router.push({ name: "payment", query: { flik_enabled: this.$route.query.flik_enabled }, });
+              this.$router.push({ name: "payment" });
             })
             .catch((error) => {
               captchaApi.reload();

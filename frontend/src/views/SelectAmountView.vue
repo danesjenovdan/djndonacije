@@ -100,7 +100,7 @@ export default {
       this.$store.commit("setChosenAmount", sdp.amount);
     },
     continueToNextStage() {
-      this.$router.push({ name: "info", query: { flik_enabled: this.$route.query.flik_enabled }, });
+      this.$router.push({ name: "info" });
     },
   },
 };
