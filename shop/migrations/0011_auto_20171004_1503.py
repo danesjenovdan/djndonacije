@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('shop', '0010_order_delivery_method'),
+        ("shop", "0010_order_delivery_method"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='basket',
-            name='session',
+            model_name="basket",
+            name="session",
             field=models.CharField(max_length=64),
         ),
     ]

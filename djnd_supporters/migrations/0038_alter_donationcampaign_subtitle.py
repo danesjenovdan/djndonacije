@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0037_auto_20230130_1316'),
+        ("djnd_supporters", "0037_auto_20230130_1316"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='donationcampaign',
-            name='subtitle',
-            field=models.TextField(blank=True, help_text='Subtitle shown in embed', null=True),
+            model_name="donationcampaign",
+            name="subtitle",
+            field=models.TextField(
+                blank=True, help_text="Subtitle shown in embed", null=True
+            ),
         ),
     ]

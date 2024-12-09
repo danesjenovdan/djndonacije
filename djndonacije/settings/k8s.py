@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+
 import braintree
 from corsheaders.defaults import default_headers
 
@@ -18,56 +19,59 @@ from corsheaders.defaults import default_headers
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = dict(
-    SECRET_KEY=os.getenv('DJANGO_SECRET_KEY', 'r^&^$8c*g$6db1s!s7uk9c!v%*ps)_0)h$!f3m7$%(o4b+5qwk'),
-    DEBUG=os.getenv('DJANGO_DEBUG', False),
-    DATABASE_HOST=os.getenv('DJANGO_DATABASE_HOST', 'localhost'),
-    DATABASE_PORT=os.getenv('DJANGO_DATABASE_PORT', '5432'),
-    DATABASE_NAME=os.getenv('DJANGO_DATABASE_NAME', 'donacije'),
-    DATABASE_USER=os.getenv('DJANGO_DATABASE_USER', 'postgres'),
-    DATABASE_PASSWORD=os.getenv('DJANGO_DATABASE_PASSWORD', 'postgres'),
-    STATIC_ROOT=os.getenv('DJANGO_STATIC_ROOT', os.path.join(BASE_DIR, '../static')),
-    STATIC_URL=os.getenv('DJANGO_STATIC_URL_BASE', '/static/'),
-    MEDIA_ROOT=os.getenv('DJANGO_MEDIA_ROOT', '/media/'),
-    MEDIA_URL=os.getenv('DJANGO_MEDIA_URL_BASE', '/media/'),
-    MAUTIC_URL=os.getenv('MAUTIC_URL', 'http://mautic/api/'),
-    MAUTIC_USER=os.getenv('MAUTIC_USER', 'api@djnd.si'),
-    MAUTIC_PASSWORD=os.getenv('MAUTIC_PASSWORD', 'password'),
-    BRAINTREE_ENV=os.getenv('BRAINTREE_ENV', 'Sandbox'),
-    BRAINTREE_MERCHANT_ID=os.getenv('BRAINTREE_MERCHANT_ID', ''),
-    BRAINTREE_PUBLIC_KEY=os.getenv('BRAINTREE_PUBLIC_KEY', ''),
-    BRAINTREE_PRIVATE_KEY=os.getenv('BRAINTREE_PRIVATE_KEY', ''),
-    SALT=os.getenv('SALT', ''),
-    DJANGO_BASE_URL=os.getenv('DJANGO_BASE_URL', 'http://localhost:8000'),
-    IBAN=os.getenv('DJND_UPN_IBAN', 'SI56 6100 0000 5740 710'),
-    TO_NAME=os.getenv('DJND_UPN_TO_NAME', 'Danes je nov dan'),
-    TO_ADDRESS1=os.getenv('DJND_UPN_TO_ADDRESS1', 'Resljeva cesta 25'),
-    TO_ADDRESS2=os.getenv('DJND_UPN_TO_ADDRESS2', '1000 Ljubljana'),
-    EMAIL_TOKEN=os.getenv('EMAIL_TOKEN', ''),
-    AGRUM_TOKEN=os.getenv('AGRUM_TOKEN', ''),
-    SLACK_KEY=os.getenv('SLACK_KEY', ''),
-    CEBELCA_KEY=os.getenv('CEBELCA_KEY', ''),
-    FRONTEND_URL=os.getenv('FRONTEND_URL', 'http://localhost:3000'),
+    SECRET_KEY=os.getenv(
+        "DJANGO_SECRET_KEY", "r^&^$8c*g$6db1s!s7uk9c!v%*ps)_0)h$!f3m7$%(o4b+5qwk"
+    ),
+    DEBUG=os.getenv("DJANGO_DEBUG", False),
+    DATABASE_HOST=os.getenv("DJANGO_DATABASE_HOST", "localhost"),
+    DATABASE_PORT=os.getenv("DJANGO_DATABASE_PORT", "5432"),
+    DATABASE_NAME=os.getenv("DJANGO_DATABASE_NAME", "donacije"),
+    DATABASE_USER=os.getenv("DJANGO_DATABASE_USER", "postgres"),
+    DATABASE_PASSWORD=os.getenv("DJANGO_DATABASE_PASSWORD", "postgres"),
+    STATIC_ROOT=os.getenv("DJANGO_STATIC_ROOT", os.path.join(BASE_DIR, "../static")),
+    STATIC_URL=os.getenv("DJANGO_STATIC_URL_BASE", "/static/"),
+    MEDIA_ROOT=os.getenv("DJANGO_MEDIA_ROOT", "/media/"),
+    MEDIA_URL=os.getenv("DJANGO_MEDIA_URL_BASE", "/media/"),
+    MAUTIC_URL=os.getenv("MAUTIC_URL", "http://mautic/api/"),
+    MAUTIC_USER=os.getenv("MAUTIC_USER", "api@djnd.si"),
+    MAUTIC_PASSWORD=os.getenv("MAUTIC_PASSWORD", "password"),
+    BRAINTREE_ENV=os.getenv("BRAINTREE_ENV", "Sandbox"),
+    BRAINTREE_MERCHANT_ID=os.getenv("BRAINTREE_MERCHANT_ID", ""),
+    BRAINTREE_PUBLIC_KEY=os.getenv("BRAINTREE_PUBLIC_KEY", ""),
+    BRAINTREE_PRIVATE_KEY=os.getenv("BRAINTREE_PRIVATE_KEY", ""),
+    SALT=os.getenv("SALT", ""),
+    DJANGO_BASE_URL=os.getenv("DJANGO_BASE_URL", "http://localhost:8000"),
+    IBAN=os.getenv("DJND_UPN_IBAN", "SI56 6100 0000 5740 710"),
+    TO_NAME=os.getenv("DJND_UPN_TO_NAME", "Danes je nov dan"),
+    TO_ADDRESS1=os.getenv("DJND_UPN_TO_ADDRESS1", "Resljeva cesta 25"),
+    TO_ADDRESS2=os.getenv("DJND_UPN_TO_ADDRESS2", "1000 Ljubljana"),
+    EMAIL_TOKEN=os.getenv("EMAIL_TOKEN", ""),
+    AGRUM_TOKEN=os.getenv("AGRUM_TOKEN", ""),
+    SLACK_KEY=os.getenv("SLACK_KEY", ""),
+    CEBELCA_KEY=os.getenv("CEBELCA_KEY", ""),
+    FRONTEND_URL=os.getenv("FRONTEND_URL", "http://localhost:3000"),
 )
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
-    'sentry-trace', 'baggage', # client side sentry can send this header
+    "sentry-trace",
+    "baggage",  # client side sentry can send this header
 ]
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env['SECRET_KEY']
+SECRET_KEY = env["SECRET_KEY"]
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env['DEBUG']
+DEBUG = env["DEBUG"]
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'HOST': env['DATABASE_HOST'],
-        'PORT': env['DATABASE_PORT'],
-        'NAME': env['DATABASE_NAME'],
-        'USER': env['DATABASE_USER'],
-        'PASSWORD': env['DATABASE_PASSWORD'],
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "HOST": env["DATABASE_HOST"],
+        "PORT": env["DATABASE_PORT"],
+        "NAME": env["DATABASE_NAME"],
+        "USER": env["DATABASE_USER"],
+        "PASSWORD": env["DATABASE_PASSWORD"],
     }
 }
 
@@ -78,64 +82,62 @@ DATABASES = {
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     # installed libraries
-    'adminsortable2',
-    'rest_framework',
-    'behaviors.apps.BehaviorsConfig',
-    'corsheaders',
-    'wkhtmltopdf',
-    'tinymce',
-    'import_export',
+    "adminsortable2",
+    "rest_framework",
+    "behaviors.apps.BehaviorsConfig",
+    "corsheaders",
+    "wkhtmltopdf",
+    "tinymce",
+    "import_export",
     # apps
-    'djnd_supporters',
-    'shop'
+    "djnd_supporters",
+    "shop",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'djndonacije.urls'
+ROOT_URLCONF = "djndonacije.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'djndonacije.wsgi.application'
+WSGI_APPLICATION = "djndonacije.wsgi.application"
 
 LANGUAGES = [
     ("sl", "Slovenski"),
 ]
 
-LOCALE_PATHS = (
-    os.path.join(BASE_DIR, '../locales'),
-)
+LOCALE_PATHS = (os.path.join(BASE_DIR, "../locales"),)
 
 
 # Password validation
@@ -143,16 +145,16 @@ LOCALE_PATHS = (
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -160,9 +162,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'sl'
+LANGUAGE_CODE = "sl"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -170,66 +172,69 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, '../staticfiles')
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "../staticfiles")]
 
 # static files for development
-#STATIC_URL = '/static/'
-STATIC_ROOT = env['STATIC_ROOT']
+# STATIC_URL = '/static/'
+STATIC_ROOT = env["STATIC_ROOT"]
 
 # static files for production
-STATIC_URL = env['STATIC_URL']
+STATIC_URL = env["STATIC_URL"]
 
-MEDIA_ROOT = env['MEDIA_ROOT']
-MEDIA_URL = env['MEDIA_URL']
+MEDIA_ROOT = env["MEDIA_ROOT"]
+MEDIA_URL = env["MEDIA_URL"]
 
 
-
-SALT = env['SALT']
-BASE_URL = env['DJANGO_BASE_URL']
-FRONTEND_URL = env['FRONTEND_URL']
+SALT = env["SALT"]
+BASE_URL = env["DJANGO_BASE_URL"]
+FRONTEND_URL = env["FRONTEND_URL"]
 
 # mautic credentials
-MAUTIC_URL = env['MAUTIC_URL']
-MAUTIC_USER = env['MAUTIC_USER']
-MAUTIC_PASS = env['MAUTIC_PASSWORD']
+MAUTIC_URL = env["MAUTIC_URL"]
+MAUTIC_USER = env["MAUTIC_USER"]
+MAUTIC_PASS = env["MAUTIC_PASSWORD"]
 
 # third party services
-CEBELCA_KEY = env['CEBELCA_KEY']
-SLACK_KEY = env['SLACK_KEY']
+CEBELCA_KEY = env["CEBELCA_KEY"]
+SLACK_KEY = env["SLACK_KEY"]
 
 
-IBAN = env['IBAN']
-TO_NAME = env['TO_NAME']
-TO_ADDRESS1 = env['TO_ADDRESS1']
-TO_ADDRESS2 = env['TO_ADDRESS2']
-EMAIL_TOKEN = env['EMAIL_TOKEN']
-AGRUM_TOKEN = env['AGRUM_TOKEN']
+IBAN = env["IBAN"]
+TO_NAME = env["TO_NAME"]
+TO_ADDRESS1 = env["TO_ADDRESS1"]
+TO_ADDRESS2 = env["TO_ADDRESS2"]
+EMAIL_TOKEN = env["EMAIL_TOKEN"]
+AGRUM_TOKEN = env["AGRUM_TOKEN"]
 
 # DJANGO STORAGE SETTINGS
-if os.getenv('DJANGO_ENABLE_S3', False):
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    AWS_ACCESS_KEY_ID = os.getenv('DJANGO_AWS_ACCESS_KEY_ID', '')
-    AWS_SECRET_ACCESS_KEY = os.getenv('DJANGO_AWS_SECRET_ACCESS_KEY', '')
-    AWS_STORAGE_BUCKET_NAME = os.getenv('DJANGO_AWS_STORAGE_BUCKET_NAME', '')
-    AWS_DEFAULT_ACL = 'public-read' # if files are not public they won't show up for end users
-    AWS_QUERYSTRING_AUTH = False # query strings expire and don't play nice with the cache
-    AWS_LOCATION = os.getenv('DJANGO_AWS_LOCATION', 'podpri')
-    AWS_S3_REGION_NAME = os.getenv('DJANGO_AWS_REGION_NAME', 'fr-par')
-    AWS_S3_ENDPOINT_URL = os.getenv('DJANGO_AWS_S3_ENDPOINT_URL', 'https://s3.fr-par.scw.cloud')
-    AWS_S3_SIGNATURE_VERSION = os.getenv('DJANGO_AWS_S3_SIGNATURE_VERSION', 's3v4')
+if os.getenv("DJANGO_ENABLE_S3", False):
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    AWS_ACCESS_KEY_ID = os.getenv("DJANGO_AWS_ACCESS_KEY_ID", "")
+    AWS_SECRET_ACCESS_KEY = os.getenv("DJANGO_AWS_SECRET_ACCESS_KEY", "")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("DJANGO_AWS_STORAGE_BUCKET_NAME", "")
+    AWS_DEFAULT_ACL = (
+        "public-read"  # if files are not public they won't show up for end users
+    )
+    AWS_QUERYSTRING_AUTH = (
+        False  # query strings expire and don't play nice with the cache
+    )
+    AWS_LOCATION = os.getenv("DJANGO_AWS_LOCATION", "podpri")
+    AWS_S3_REGION_NAME = os.getenv("DJANGO_AWS_REGION_NAME", "fr-par")
+    AWS_S3_ENDPOINT_URL = os.getenv(
+        "DJANGO_AWS_S3_ENDPOINT_URL", "https://s3.fr-par.scw.cloud"
+    )
+    AWS_S3_SIGNATURE_VERSION = os.getenv("DJANGO_AWS_S3_SIGNATURE_VERSION", "s3v4")
     AWS_S3_FILE_OVERWRITE = False
 
 
-if env['BRAINTREE_MERCHANT_ID']:
+if env["BRAINTREE_MERCHANT_ID"]:
     GATEWAY = braintree.BraintreeGateway(
-    braintree.Configuration(
-        environment=getattr(braintree.Environment, env['BRAINTREE_ENV']),
-        merchant_id=env['BRAINTREE_MERCHANT_ID'],
-        public_key=env['BRAINTREE_PUBLIC_KEY'],
-        private_key=env['BRAINTREE_PRIVATE_KEY']
-    )
+        braintree.Configuration(
+            environment=getattr(braintree.Environment, env["BRAINTREE_ENV"]),
+            merchant_id=env["BRAINTREE_MERCHANT_ID"],
+            public_key=env["BRAINTREE_PUBLIC_KEY"],
+            private_key=env["BRAINTREE_PRIVATE_KEY"],
+        )
     )
 
 
@@ -237,25 +242,25 @@ if env['BRAINTREE_MERCHANT_ID']:
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'djnd_supporters.authentication.SubscriberAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "djnd_supporters.authentication.SubscriberAuthentication",
     ),
     #'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
 THUMB_SIZE = (50, 50)
 
-UPLOAD_IMAGE_URL = ''
+UPLOAD_IMAGE_URL = ""
 
-DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 WKHTMLTOPDF_CMD_OPTIONS = {
-    'quiet': False,
+    "quiet": False,
 }
 
-WKHTMLTOPDF_CMD = 'xvfb-run -a wkhtmltopdf'
+WKHTMLTOPDF_CMD = "xvfb-run -a wkhtmltopdf"
 
-if sentry_url := os.getenv('DJANGO_SENTRY_URL', False):
+if sentry_url := os.getenv("DJANGO_SENTRY_URL", False):
     # imports should only happen if necessary
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
@@ -263,40 +268,39 @@ if sentry_url := os.getenv('DJANGO_SENTRY_URL', False):
     sentry_sdk.init(
         sentry_url,
         integrations=[DjangoIntegration()],
-
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production.
-        traces_sample_rate=float(os.getenv('SENTRY_TRACES_SAMPLE_RATE', 0.001)),
+        traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", 0.001)),
         send_default_pii=True,
     )
 
 # TODO deprecate this objects
 MAIL_TEMPLATES = {
-    'SHOP_BT_PP' :289,
-    'SHOP_UPN': 288,
+    "SHOP_BT_PP": 289,
+    "SHOP_UPN": 288,
 }
 
 SEGMENTS = {
-    'agrument': 1,
-    'mesecne-novice-nov-segment': 12,
-    'general': 2,
-    'parlameter': 3,
-    'donations': 4,
-    'huda-pobuda': 17,
-    'obljuba-dela-dolg': 18,
-    'newsgradient': 19,
-    'stanovanja-najemniski-sos': 20,
-    'huda-pobuda-pusca-na-pomoc': 23,
-    'huda-pobuda-glas-skupnosti': 24,
-    'huda-pobuda-zapisimo-spomine': 25,
-    'pravna-mreza': 26,
-    'glas-ljudstva': 27,
+    "agrument": 1,
+    "mesecne-novice-nov-segment": 12,
+    "general": 2,
+    "parlameter": 3,
+    "donations": 4,
+    "huda-pobuda": 17,
+    "obljuba-dela-dolg": 18,
+    "newsgradient": 19,
+    "stanovanja-najemniski-sos": 20,
+    "huda-pobuda-pusca-na-pomoc": 23,
+    "huda-pobuda-glas-skupnosti": 24,
+    "huda-pobuda-zapisimo-spomine": 25,
+    "pravna-mreza": 26,
+    "glas-ljudstva": 27,
 }
 
-CAPTCHA_BASE_URL = 'https://captcha.lb.djnd.si/api'
+CAPTCHA_BASE_URL = "https://captcha.lb.djnd.si/api"
 
-FLIK_API_KEY = os.getenv('FLIK_API_KEY', '')
-FLIK_SS = os.getenv('FLIK_SS', '')
-FLIK_USERNAME = os.getenv('FLIK_USERNAME', '')
-FLIK_PASSWORD = os.getenv('FLIK_PASSWORD', '')
+FLIK_API_KEY = os.getenv("FLIK_API_KEY", "")
+FLIK_SS = os.getenv("FLIK_SS", "")
+FLIK_USERNAME = os.getenv("FLIK_USERNAME", "")
+FLIK_PASSWORD = os.getenv("FLIK_PASSWORD", "")

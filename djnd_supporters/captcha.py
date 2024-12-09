@@ -4,7 +4,11 @@ from sentry_sdk import capture_exception, capture_message
 
 
 def validate_captcha(captcha_query):
-    if not captcha_query or not isinstance(captcha_query, str) or ";" not in captcha_query:
+    if (
+        not captcha_query
+        or not isinstance(captcha_query, str)
+        or ";" not in captcha_query
+    ):
         return False
 
     captcha_id, captcha_answer = captcha_query.split(";", maxsplit=1)

@@ -8,20 +8,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('shop', '0003_auto_20171002_2049'),
+        ("shop", "0003_auto_20171002_2049"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='order',
-            name='payer_id',
-            field=models.CharField(default='', max_length=64),
+            model_name="order",
+            name="payer_id",
+            field=models.CharField(default="", max_length=64),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='order',
-            name='payment_method',
-            field=models.CharField(default='', max_length=64),
+            model_name="order",
+            name="payment_method",
+            field=models.CharField(default="", max_length=64),
             preserve_default=False,
         ),
     ]

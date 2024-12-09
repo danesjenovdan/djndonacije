@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0017_auto_20210826_0722'),
+        ("djnd_supporters", "0017_auto_20210826_0722"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='donationcampaign',
-            name='has_upload_image',
-            field=models.BooleanField(default=False, help_text='Has donation uploading image'),
+            model_name="donationcampaign",
+            name="has_upload_image",
+            field=models.BooleanField(
+                default=False, help_text="Has donation uploading image"
+            ),
         ),
     ]

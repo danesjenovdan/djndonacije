@@ -13,19 +13,23 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
+
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import include, path
 
 import djnd_supporters
 
-admin.site.site_url = '/api/transaction-export/'
+admin.site.site_url = "/api/transaction-export/"
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include(('djnd_supporters.urls', 'djnd_supporters'), namespace='supporters')),
-    path('tinymce/', include('tinymce.urls')),
-    path('shop/', include('shop.urls')),
-    path('api/shop/', include('shop.urls_api')),
+    path("admin/", admin.site.urls),
+    path(
+        "api/",
+        include(("djnd_supporters.urls", "djnd_supporters"), namespace="supporters"),
+    ),
+    path("tinymce/", include("tinymce.urls")),
+    path("shop/", include("shop.urls")),
+    path("api/shop/", include("shop.urls_api")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

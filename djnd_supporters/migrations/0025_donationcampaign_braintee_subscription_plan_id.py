@@ -6,13 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0024_auto_20220114_1215'),
+        ("djnd_supporters", "0024_auto_20220114_1215"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='donationcampaign',
-            name='braintee_subscription_plan_id',
-            field=models.CharField(blank=True, help_text='Braintree subscription plan id', max_length=32, null=True),
+            model_name="donationcampaign",
+            name="braintee_subscription_plan_id",
+            field=models.CharField(
+                blank=True,
+                help_text="Braintree subscription plan id",
+                max_length=32,
+                null=True,
+            ),
         ),
     ]

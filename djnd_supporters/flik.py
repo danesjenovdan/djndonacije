@@ -1,15 +1,13 @@
-import requests
-import hmac
-import hashlib
-import json
 import base64
-import arrow
-
-from requests.auth import HTTPBasicAuth
+import hashlib
+import hmac
+import json
 from enum import Enum
 
+import arrow
+import requests
 from django.conf import settings
-
+from requests.auth import HTTPBasicAuth
 
 FLIK_INITIAL_URL = (
     f"https://gateway.bankart.si/api/v3/transaction/{settings.FLIK_API_KEY}/debit"
@@ -49,19 +47,19 @@ class PaymentResponse:
         self.amount = kwargs.get("amount")
         self.currency = kwargs.get("currency")
         self.customer = kwargs.get("customer")
-        self.extra_data = kwargs.get("extraData") 
+        self.extra_data = kwargs.get("extraData")
 
 
 class PaymentSuccessResponse(PaymentResponse):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.status = 'success'
+        self.status = "success"
 
 
 class PaymentRefundResponse(PaymentResponse):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.status = 'refund'
+        self.status = "refund"
         self.message = kwargs.get("message")
         self.code = kwargs.get("code")
         self.adapter_message = kwargs.get("adapterMessage")
@@ -71,7 +69,7 @@ class PaymentRefundResponse(PaymentResponse):
 class PaymentErrorResponse(PaymentResponse):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.status = 'error'
+        self.status = "error"
         self.message = kwargs.get("message")
         self.code = kwargs.get("code")
         self.adapter_message = kwargs.get("adapterMessage")

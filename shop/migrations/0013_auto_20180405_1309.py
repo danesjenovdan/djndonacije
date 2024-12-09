@@ -3,71 +3,86 @@
 from __future__ import unicode_literals
 
 import datetime
+
+import django.utils.timezone
 from django.db import migrations, models
 from django.utils.timezone import utc
-import django.utils.timezone
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('shop', '0012_article_mergable'),
+        ("shop", "0012_article_mergable"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='created',
-            field=models.DateTimeField(auto_now_add=True, db_index=True, default=datetime.datetime(2018, 4, 5, 13, 9, 20, 829456, tzinfo=utc)),
+            model_name="article",
+            name="created",
+            field=models.DateTimeField(
+                auto_now_add=True,
+                db_index=True,
+                default=datetime.datetime(2018, 4, 5, 13, 9, 20, 829456, tzinfo=utc),
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='article',
-            name='modified',
+            model_name="article",
+            name="modified",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='basket',
-            name='created',
-            field=models.DateTimeField(auto_now_add=True, db_index=True, default=datetime.datetime(2018, 4, 5, 13, 9, 30, 271395, tzinfo=utc)),
+            model_name="basket",
+            name="created",
+            field=models.DateTimeField(
+                auto_now_add=True,
+                db_index=True,
+                default=datetime.datetime(2018, 4, 5, 13, 9, 30, 271395, tzinfo=utc),
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='basket',
-            name='modified',
+            model_name="basket",
+            name="modified",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='category',
-            name='created',
-            field=models.DateTimeField(auto_now_add=True, db_index=True, default=django.utils.timezone.now),
+            model_name="category",
+            name="created",
+            field=models.DateTimeField(
+                auto_now_add=True, db_index=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='category',
-            name='modified',
+            model_name="category",
+            name="modified",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='item',
-            name='created',
-            field=models.DateTimeField(auto_now_add=True, db_index=True, default=django.utils.timezone.now),
+            model_name="item",
+            name="created",
+            field=models.DateTimeField(
+                auto_now_add=True, db_index=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='item',
-            name='modified',
+            model_name="item",
+            name="modified",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='order',
-            name='created',
-            field=models.DateTimeField(auto_now_add=True, db_index=True, default=django.utils.timezone.now),
+            model_name="order",
+            name="created",
+            field=models.DateTimeField(
+                auto_now_add=True, db_index=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='order',
-            name='modified',
+            model_name="order",
+            name="modified",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

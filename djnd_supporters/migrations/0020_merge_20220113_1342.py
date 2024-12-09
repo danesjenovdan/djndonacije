@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0018_donationcampaign_has_upload_image'),
-        ('djnd_supporters', '0019_recurringdonation_is_active'),
+        ("djnd_supporters", "0018_donationcampaign_has_upload_image"),
+        ("djnd_supporters", "0019_recurringdonation_is_active"),
     ]
 
-    operations = [
-    ]
+    operations = []

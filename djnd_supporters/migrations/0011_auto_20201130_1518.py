@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0010_recurringdonation'),
+        ("djnd_supporters", "0010_recurringdonation"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='donation',
-            name='is_paid',
+            model_name="donation",
+            name="is_paid",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='donation',
-            name='payment_method',
-            field=models.CharField(default='braintree', max_length=50),
+            model_name="donation",
+            name="payment_method",
+            field=models.CharField(default="braintree", max_length=50),
         ),
         migrations.AddField(
-            model_name='donation',
-            name='reference',
+            model_name="donation",
+            name="reference",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
     ]

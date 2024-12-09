@@ -6,21 +6,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0042_auto_20240730_1228'),
+        ("djnd_supporters", "0042_auto_20240730_1228"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='VerificationQuestion',
+            name="VerificationQuestion",
         ),
         migrations.AlterField(
-            model_name='donationcampaign',
-            name='add_to_newsletter_confirmation_required',
-            field=models.BooleanField(default=False, verbose_name='Prijava na novičnik zahteva potrditev'),
+            model_name="donationcampaign",
+            name="add_to_newsletter_confirmation_required",
+            field=models.BooleanField(
+                default=False, verbose_name="Prijava na novičnik zahteva potrditev"
+            ),
         ),
         migrations.AlterField(
-            model_name='donationcampaign',
-            name='edit_subscriptions_email_tempalte',
-            field=models.IntegerField(blank=True, null=True, verbose_name='Mautic email ID za urejanje naročnine'),
+            model_name="donationcampaign",
+            name="edit_subscriptions_email_tempalte",
+            field=models.IntegerField(
+                blank=True,
+                null=True,
+                verbose_name="Mautic email ID za urejanje naročnine",
+            ),
         ),
     ]

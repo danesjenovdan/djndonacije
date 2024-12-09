@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('shop', '0014_order_is_sent'),
+        ("shop", "0014_order_is_sent"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='order',
-            name='is_on_cebelca',
+            model_name="order",
+            name="is_on_cebelca",
             field=models.BooleanField(default=False),
         ),
     ]
