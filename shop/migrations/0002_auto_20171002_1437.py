@@ -8,18 +8,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('shop', '0001_initial'),
+        ("shop", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='basket',
-            name='session',
+            model_name="basket",
+            name="session",
             field=models.IntegerField(max_length=64),
         ),
         migrations.AlterField(
-            model_name='basket',
-            name='total',
+            model_name="basket",
+            name="total",
             field=models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
         ),
     ]

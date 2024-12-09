@@ -6,18 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0034_alter_predefinedamount_amount'),
+        ("djnd_supporters", "0034_alter_predefinedamount_amount"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='donationcampaign',
-            name='css_file',
-            field=models.FileField(blank=True, null=True, upload_to='css'),
+            model_name="donationcampaign",
+            name="css_file",
+            field=models.FileField(blank=True, null=True, upload_to="css"),
         ),
         migrations.AddField(
-            model_name='donationcampaign',
-            name='redirect_url',
-            field=models.URLField(blank=True, help_text='Redirect url on success', null=True),
+            model_name="donationcampaign",
+            name="redirect_url",
+            field=models.URLField(
+                blank=True, help_text="Redirect url on success", null=True
+            ),
         ),
     ]

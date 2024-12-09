@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0018_auto_20211028_1437'),
+        ("djnd_supporters", "0018_auto_20211028_1437"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='recurringdonation',
-            name='is_active',
+            model_name="recurringdonation",
+            name="is_active",
             field=models.BooleanField(default=False),
         ),
     ]

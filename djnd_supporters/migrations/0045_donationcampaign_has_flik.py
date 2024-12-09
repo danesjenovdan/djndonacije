@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0044_remove_donationcampaign_css_file_url'),
+        ("djnd_supporters", "0044_remove_donationcampaign_css_file_url"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='donationcampaign',
-            name='has_flik',
-            field=models.BooleanField(default=False, verbose_name='Sprejemamo flik donacije?'),
+            model_name="donationcampaign",
+            name="has_flik",
+            field=models.BooleanField(
+                default=False, verbose_name="Sprejemamo flik donacije?"
+            ),
         ),
     ]

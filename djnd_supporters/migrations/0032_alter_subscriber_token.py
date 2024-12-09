@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0031_rename_answear_verificationquestion_answer'),
+        ("djnd_supporters", "0031_rename_answear_verificationquestion_answer"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subscriber',
-            name='token',
-            field=models.TextField(default=''),
+            model_name="subscriber",
+            name="token",
+            field=models.TextField(default=""),
         ),
     ]

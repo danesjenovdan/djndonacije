@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0017_auto_20210826_0722'),
+        ("djnd_supporters", "0017_auto_20210826_0722"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='subscriber',
-            name='braintree_id',
+            model_name="subscriber",
+            name="braintree_id",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='subscriber',
-            name='uid',
+            model_name="subscriber",
+            name="uid",
             field=models.TextField(blank=True, null=True),
         ),
     ]

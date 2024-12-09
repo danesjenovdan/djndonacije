@@ -6,21 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0023_donationcampaign_web_hook_url'),
+        ("djnd_supporters", "0023_donationcampaign_web_hook_url"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='subscriber',
-            name='braintree_id',
+            model_name="subscriber",
+            name="braintree_id",
         ),
         migrations.RemoveField(
-            model_name='subscriber',
-            name='uid',
+            model_name="subscriber",
+            name="uid",
         ),
         migrations.AddField(
-            model_name='subscriber',
-            name='customer_id',
-            field=models.TextField(blank=True, help_text='Braintree customer id', null=True),
+            model_name="subscriber",
+            name="customer_id",
+            field=models.TextField(
+                blank=True, help_text="Braintree customer id", null=True
+            ),
         ),
     ]
