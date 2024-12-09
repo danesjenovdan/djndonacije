@@ -18,11 +18,15 @@ from djnd_supporters.models import Subscriber
 from djndonacije import payment
 from djndonacije.slack_utils import send_slack_msg
 from shop.models import Article, Basket, Category, Item, Order
-from shop.serializers import (ArticleSerializer, CategorySerializer,
-                              ItemSerializer)
+from shop.serializers import ArticleSerializer, CategorySerializer, ItemSerializer
 from shop.spam_mailer import send_mail_spam
-from shop.utils import (add_article_to_basket, get_basket, get_basket_data,
-                        update_basket, update_stock)
+from shop.utils import (
+    add_article_to_basket,
+    get_basket,
+    get_basket_data,
+    update_basket,
+    update_stock,
+)
 from shop.views import getPDFodOrder
 
 # Create your views here.

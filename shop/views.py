@@ -14,9 +14,6 @@ from .qrcode import UPNQRException, generate_upnqr_svg
 # from .payments_braintree import client_token
 
 
-
-
-
 def index(requst):
     return HttpResponse("")
 

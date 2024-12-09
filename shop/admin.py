@@ -1,12 +1,27 @@
 from django.contrib import admin
-from django.db.models import (Case, CharField, Count, ImageField, IntegerField,
-                              Sum, Value, When)
+from django.db.models import (
+    Case,
+    CharField,
+    Count,
+    ImageField,
+    IntegerField,
+    Sum,
+    Value,
+    When,
+)
 from django.db.models.functions import Concat
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-from shop.models import (Article, ArticleImage, Basket, BoundleItem, Category,
-                         Item, Order)
+from shop.models import (
+    Article,
+    ArticleImage,
+    Basket,
+    BoundleItem,
+    Category,
+    Item,
+    Order,
+)
 
 
 class ArticleImageInline(admin.TabularInline):
