@@ -20,6 +20,10 @@ spec:
             env:
               - name: DOCKER_MAUTIC_ROLE
                 value: "mautic_cron"
+            command:
+              - php
+              - /var/www/html/bin/console
+              - mautic:segments:update
           resources:
             requests:
               memory: 200Mi
