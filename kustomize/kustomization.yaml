@@ -15,6 +15,7 @@ resources:
   - mautic-5/statefulset.yaml
   - mautic-5/service.yaml
   - mautic-5/ingress.yaml
+  - mautic-5/mautic-cronjobs.yaml
 
 images:
   - name: podpri
