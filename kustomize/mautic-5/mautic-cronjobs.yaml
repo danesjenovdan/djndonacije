@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mautic-cronjobs
+spec:
+  schedule: "0 3 * * *" # 3 AM every day
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          containers:
+          - name: mautic-cronjobs
+            image: podpri-mautic
+            envFrom:
+              - secretRef:
+                  name: mautic-5-credentials
+            env:
+              - name: DOCKER_MAUTIC_ROLE
+                value: "mautic_cron"
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 200m
+            limits:
+              memory: 1000Mi
+              cpu: 300m
+          volumeMounts:
+            - mountPath: /var/www/html/docroot/media
+              name: mautic-5-static
+              subPath: media
+            - mountPath: /var/www/html/var/logs
+              name: mautic-5-static
+              subPath: logs
+            - mountPath: /var/www/html/config
+              name: mautic-5-static
+              subPath: config
+          restartPolicy: Never
+      volumes:
+        - name: mautic-5-static
+          persistentVolumeClaim:
+            claimName: mautic-5-volumeclaim
