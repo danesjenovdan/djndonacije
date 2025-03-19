@@ -140,20 +140,15 @@ export default {
     };
   },
   async mounted() {
-    // store token
-    const { token } = this.$route.query;
-    if (token) {
-      this.$store.commit("setToken", token);
-    }
-    // store email
-    const { email } = this.$route.query;
-    if (email) {
-      this.$store.commit("setEmail", email);
+    const { email, token } = this.$route.query;
+    if (!email || !token) {
+      this.$router.push("/404");
+      return;
     }
 
-    if (!(email && token)) {
-      this.$router.push("/404");
-    }
+    // store email and token
+    this.$store.commit("setEmail", email);
+    this.$store.commit("setToken", token);
 
     // get campaign subscriptions list
     this.$store
