@@ -1,16 +1,17 @@
-import { fileURLToPath } from "node:url";
-import { resolve, dirname } from "node:path";
-
-import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vite";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  clearScreen: false,
   server: {
-    port: 3000,
     host: true,
+    port: 3000,
+    strictPort: true,
   },
   plugins: [vue()],
   resolve: {
