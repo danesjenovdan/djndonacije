@@ -66,6 +66,12 @@ const router = createRouter({
         title: "Urejanje naročnine",
       },
     },
+    // 404 (last, catch-all route)
+    {
+      path: "/:notFound(.*)",
+      name: "notFound",
+      component: () => import("../views/NotFoundView.vue"),
+    },
   ],
 });
 
