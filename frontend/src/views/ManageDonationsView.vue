@@ -2,36 +2,56 @@
   <div class="checkout">
     <div v-if="success" class="alert alert-success text-center">
       <p class="my-3">
-        {{ $t('manageDonationsView.cancelDonation', { don: last_cancelled_campaign }) }}
+        {{
+          $t("manageDonationsView.cancelDonation", {
+            don: last_cancelled_campaign,
+          })
+        }}
       </p>
     </div>
     <div v-if="error" class="alert alert-danger text-center">
-      <p class="my-3" v-html="$t('manageDonationsView.cancelDonationError')"></p>
+      <!-- eslint-disable vue/no-v-html -->
+      <p
+        class="my-3"
+        v-html="$t('manageDonationsView.cancelDonationError')"
+      ></p>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <checkout-stage no-header show-djnd-footer>
-      <template v-slot:content>
-        <div class="row justify-content-center my-4" v-for="donationCampaign in this.campaign_subscriptions"
-          :key="donationCampaign.id">
+      <template #content>
+        <div
+          v-for="donationCampaign in campaign_subscriptions"
+          :key="donationCampaign.id"
+          class="row justify-content-center my-4"
+        >
           <div class="col-md-4">
             <p class="m-0">
-              {{ $t('manageDonationsView.cancelMyDonation') }}
+              {{ $t("manageDonationsView.cancelMyDonation") }}
               <strong>{{ donationCampaign.campaign.name }}</strong>
             </p>
           </div>
           <div class="col-md-4">
-            <more-button :disabled="loading" :text="$t('manageDonationsView.confirmCancellation')" class="my-2"
-              color="secondary" @click="
+            <more-button
+              :disabled="loading"
+              :text="$t('manageDonationsView.confirmCancellation')"
+              class="my-2"
+              color="secondary"
+              @click="
                 cancelDonation(
                   donationCampaign.campaign.name,
-                  donationCampaign.subscription_id
+                  donationCampaign.subscription_id,
                 )
-              " />
+              "
+            />
           </div>
         </div>
-        <div v-if="this.campaign_subscriptions.length === 0" class="row justify-content-center my-4">
+        <div
+          v-if="campaign_subscriptions.length === 0"
+          class="row justify-content-center my-4"
+        >
           <div class="col-md-8">
             <p class="m-0 text-center">
-              {{ $t('manageDonationsView.noActiveDonation') }}
+              {{ $t("manageDonationsView.noActiveDonation") }}
             </p>
           </div>
         </div>
@@ -64,12 +84,12 @@ export default {
   },
   async mounted() {
     // store token
-    const token = this.$route.query.token;
+    const { token } = this.$route.query;
     if (token) {
       this.$store.commit("setToken", token);
     }
     // store email
-    const email = this.$route.query.email;
+    const { email } = this.$route.query;
     if (email) {
       this.$store.commit("setEmail", email);
     }
@@ -86,6 +106,7 @@ export default {
           this.campaign_subscriptions = response.data;
         } else {
           // catch error
+          // eslint-disable-next-line no-console
           console.log("Not successful", response);
           this.success = false;
           this.error = true;
@@ -93,6 +114,7 @@ export default {
       })
       .catch((error) => {
         // catch error
+        // eslint-disable-next-line no-console
         console.log("Error", error);
         this.success = false;
         this.error = true;
@@ -102,22 +124,23 @@ export default {
       });
   },
   methods: {
-    async cancelDonation(campaign_name, subscription_id) {
+    async cancelDonation(campaignName, subscriptionId) {
       this.loading = true;
 
       this.$store
         .dispatch("cancelDonationSubscription", {
-          subscription_id: subscription_id,
+          subscription_id: subscriptionId,
         })
         .then((response) => {
           if (response.status === 200) {
             this.campaign_subscriptions = this.campaign_subscriptions.filter(
-              (campaign) => campaign.subscription_id != subscription_id
+              (campaign) => campaign.subscription_id != subscriptionId,
             );
             this.success = true;
-            this.last_cancelled_campaign = campaign_name;
+            this.last_cancelled_campaign = campaignName;
           } else {
             // catch error
+            // eslint-disable-next-line no-console
             console.log("Not successful", response);
             this.success = false;
             this.error = true;
@@ -127,6 +150,7 @@ export default {
           // catch error
           this.success = false;
           this.error = true;
+          // eslint-disable-next-line no-console
           console.log("Error", error);
         })
         .finally(() => {

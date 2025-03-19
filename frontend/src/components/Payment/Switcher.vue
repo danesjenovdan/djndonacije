@@ -34,6 +34,7 @@
 
 <script>
 export default {
+  name: "PaymentSwitcher",
   props: {
     recurring: {
       type: Boolean,
@@ -48,6 +49,7 @@ export default {
       default: true,
     },
   },
+  emits: ["change"],
   data() {
     return {
       active: "card",

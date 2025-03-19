@@ -1,16 +1,16 @@
 <template>
   <div class="checkout">
     <checkout-stage no-header>
-      <template v-slot:content>
+      <template #content>
         <div class="row justify-content-center my-5">
           <div class="col-md-6 col-lg-4">
             <img class="img-fluid" src="../assets/hvala.svg" />
           </div>
         </div>
         <div class="row justify-content-center">
-          <h2 class="thankyou__title">{{ $t('thankYouView.title') }}</h2>
+          <h2 class="thankyou__title">{{ $t("thankYouView.title") }}</h2>
           <p class="text-center">
-            {{ $t('thankYouView.note') }}
+            {{ $t("thankYouView.note") }}
           </p>
         </div>
       </template>

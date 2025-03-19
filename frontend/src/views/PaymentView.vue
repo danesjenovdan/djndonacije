@@ -14,8 +14,8 @@
       </p>
     </div>
     <checkout-stage show-terms>
-      <template v-slot:title>{{ $t("paymentView.title") }}</template>
-      <template v-slot:content>
+      <template #title>{{ $t("paymentView.title") }}</template>
+      <template #content>
         <div class="payment-container">
           <payment-switcher
             :recurring="recurringDonation"
@@ -58,7 +58,7 @@
           </div>
         </div>
       </template>
-      <template v-slot:footer>
+      <template #footer>
         <div class="confirm-button-container">
           <confirm-button
             key="next-payment"
@@ -98,19 +98,19 @@ export default {
     PaymentSwitcher,
   },
   data() {
-    const campaignSlug = this.$route.params.campaignSlug;
+    const { campaignSlug } = this.$route.params;
     const payment =
       this.$store.getters.getPaymentOptions.oneTime ||
       this.$store.getters.getPaymentOptions.monthly
         ? "card"
         : "upn";
-    const lang = this.$route.params.lang;
+    const { lang } = this.$route.params;
 
     return {
       campaignSlug,
       lang,
       error: null,
-      payment: payment,
+      payment,
       checkoutLoading: false,
       paymentInfoValid: false,
       paymentInProgress: false,
@@ -219,15 +219,16 @@ export default {
           this.paymentInProgress = false;
           // eslint-disable-next-line no-console
           console.error("Napaka pri klicu na strežnik.");
+          // eslint-disable-next-line no-console
           console.error(error);
           this.error = error.response;
         });
     },
     paymentError(error) {
       this.paymentInProgress = false;
-      // eslint-disable-next-line
+      // eslint-disable-next-line no-console
       console.error("Napaka pri plačilu.");
-      // eslint-disable-next-line
+      // eslint-disable-next-line no-console
       console.error(error);
       this.error = error;
     },
@@ -237,7 +238,6 @@ export default {
           this.payFunction();
         }
       }
-      return;
     },
   },
 };

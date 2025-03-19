@@ -2,11 +2,11 @@
   <div class="upn-payment">
     <form>
       <svg
+        id="flik-logo"
         xmlns="http://www.w3.org/2000/svg"
         width="80"
         height="80"
         viewBox="0 0 80 80"
-        id="flik-logo"
       >
         <circle r="40" cx="40" cy="40" fill="transparent"></circle>
         <path
@@ -24,10 +24,8 @@
 
 <script>
 export default {
-  props: {},
-  data() {
-    return {};
-  },
+  name: "FlikPayment",
+  emits: ["ready", "success"],
   mounted() {
     this.$emit("ready", { pay: this.sendFlikRequest });
   },

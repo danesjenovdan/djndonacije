@@ -5,43 +5,71 @@
       <form>
         <div class="form-group">
           <div class="lonec-medu">
-            <input type="text" name="name" placeholder="Your full name please" v-model="honeyPotName" />
-            <input type="text" name="address" placeholder="Your address please" v-model="honeyPotAddress" />
-            <input type="text" name="post" placeholder="Your postal code and office name please"
-              v-model="honeyPotPost" />
+            <input
+              v-model="honeyPotName"
+              type="text"
+              name="name"
+              placeholder="Your full name please"
+            />
+            <input
+              v-model="honeyPotAddress"
+              type="text"
+              name="address"
+              placeholder="Your address please"
+            />
+            <input
+              v-model="honeyPotPost"
+              type="text"
+              name="post"
+              placeholder="Your postal code and office name please"
+            />
           </div>
-          <div id="cc-number" :class="[
+          <div
+            id="cc-number"
+            :class="[
               'form-control',
               'form-control-lg',
               { focus: numberFocused },
-            ]" />
+            ]"
+          />
         </div>
         <div class="form-group">
-          <div id="cc-expirationDate" :class="[
+          <div
+            id="cc-expirationDate"
+            :class="[
               'form-control',
               'form-control-lg',
               { focus: expirationDateFocused },
-            ]" />
+            ]"
+          />
         </div>
         <div class="form-group">
-          <div id="cc-cvv" :class="['form-control', 'form-control-lg', { focus: cvvFocused }]" />
+          <div
+            id="cc-cvv"
+            :class="['form-control', 'form-control-lg', { focus: cvvFocused }]"
+          />
         </div>
       </form>
       <div class="card-info">
-        {{ $t('payment.cardNote') }}
+        {{ $t("payment.cardNote") }}
         <br />
-        <img src="https://s3.amazonaws.com/braintree-badges/braintree-badge-light.png" width="164" height="44"
-          border="0" />
+        <img
+          src="https://s3.amazonaws.com/braintree-badges/braintree-badge-light.png"
+          width="164"
+          height="44"
+          border="0"
+        />
       </div>
     </template>
   </div>
 </template>
 
 <script>
-import PaymentError from './Error.vue';
-import braintree from 'braintree-web';
+import braintree from "braintree-web";
+import PaymentError from "./Error.vue";
 
 export default {
+  name: "CardPayment",
   components: {
     PaymentError,
   },
@@ -59,6 +87,7 @@ export default {
       required: true,
     },
   },
+  emits: ["ready", "success", "error", "payment-start", "validity-change"],
   data() {
     return {
       hostedFieldsInstance: null,
@@ -69,9 +98,9 @@ export default {
       cvvFocused: false,
       formValid: false,
       paymentInProgress: false,
-      honeyPotName: '',
-      honeyPotAddress: '',
-      honeyPotPost: '',
+      honeyPotName: "",
+      honeyPotAddress: "",
+      honeyPotPost: "",
     };
   },
   async mounted() {
@@ -83,85 +112,84 @@ export default {
         const placeholderStyle = {
           // 'font-style': 'italic',
           // 'font-weight': '300',
-          color: '#444',
+          color: "#444",
           // 'text-decoration': 'underline',
         };
         const options = {
           client: clientInstance,
           styles: {
             input: {
-              'font-size': '19.2px',
-              'font-family': 'monospace',
+              "font-size": "19.2px",
+              "font-family": "monospace",
             },
-            'input.invalid': {
-              color: '#dd786b',
+            "input.invalid": {
+              color: "#dd786b",
             },
             // placeholder styles need to be individually adjusted
-            '::-webkit-input-placeholder': placeholderStyle,
-            '::-ms-input-placeholder': placeholderStyle,
-            '::placeholder': placeholderStyle,
+            "::-webkit-input-placeholder": placeholderStyle,
+            "::-ms-input-placeholder": placeholderStyle,
+            "::placeholder": placeholderStyle,
           },
           fields: {
             number: {
-              selector: '#cc-number',
-              placeholder: this.$t('paymentView.cardNumber'),
+              selector: "#cc-number",
+              placeholder: this.$t("paymentView.cardNumber"),
             },
             expirationDate: {
-              selector: '#cc-expirationDate',
-              placeholder: this.$t('paymentView.expiryDate'),
+              selector: "#cc-expirationDate",
+              placeholder: this.$t("paymentView.expiryDate"),
             },
             cvv: {
-              selector: '#cc-cvv',
+              selector: "#cc-cvv",
               placeholder: "CVV",
             },
           },
         };
-        this.hostedFieldsInstance = await braintree.hostedFields.create(
-          options,
-        );
+        this.hostedFieldsInstance =
+          await braintree.hostedFields.create(options);
         this.threeDSecureInstance = await braintree.threeDSecure.create({
           client: clientInstance,
           version: 2,
         });
 
-        this.hostedFieldsInstance.on('focus', (event) => {
+        this.hostedFieldsInstance.on("focus", (event) => {
           this[`${event.emittedBy}Focused`] = true;
         });
-        this.hostedFieldsInstance.on('blur', (event) => {
+        this.hostedFieldsInstance.on("blur", (event) => {
           this[`${event.emittedBy}Focused`] = false;
         });
-        this.hostedFieldsInstance.on('validityChange', (event) => {
+        this.hostedFieldsInstance.on("validityChange", (event) => {
           const formValid = Object.keys(event.fields).every((key) => {
             return event.fields[key].isValid;
           });
           this.formValid = formValid;
-          this.$emit('validity-change', formValid);
+          this.$emit("validity-change", formValid);
         });
-        this.hostedFieldsInstance.on('inputSubmitRequest', () => {
+        this.hostedFieldsInstance.on("inputSubmitRequest", () => {
           this.payWithCreditCard();
         });
 
-        this.$emit('ready', { pay: this.payWithCreditCard });
+        this.$emit("ready", { pay: this.payWithCreditCard });
       } catch (error) {
         // eslint-disable-next-line no-console
         // console.error(error);
         this.error = error;
-        this.$emit('error', { error });
+        this.$emit("error", { error });
       }
     }
   },
   methods: {
     payWithCreditCard() {
       if (
-        this.honeyPotName !== '' ||
-        this.honeyPotAddress !== '' ||
-        this.honeyPotPost !== ''
+        this.honeyPotName !== "" ||
+        this.honeyPotAddress !== "" ||
+        this.honeyPotPost !== ""
       ) {
-        this.error = 'Preveč medu.';
-        this.$emit('error', 'Preveč medu.');
+        this.error = "Preveč medu.";
+        this.$emit("error", "Preveč medu.");
       } else if (this.hostedFieldsInstance && !this.paymentInProgress) {
         this.paymentInProgress = true;
-        this.$emit('payment-start');
+        this.$emit("payment-start");
         this.error = null;
         this.hostedFieldsInstance
           .tokenize({
@@ -179,18 +207,19 @@ export default {
           })
           .then((payload) => {
             if (!payload.liabilityShifted) {
-              console.log('Liability did not shift', payload);
-              this.error = 'Avtentikacija plačila ni uspela.';
-              this.$emit('error', { message: this.error });
+              // eslint-disable-next-line no-console
+              console.log("Liability did not shift", payload);
+              this.error = "Avtentikacija plačila ni uspela.";
+              this.$emit("error", { message: this.error });
             } else {
-              this.$emit('success', { nonce: payload.nonce });
+              this.$emit("success", { nonce: payload.nonce });
             }
           })
           .catch((error) => {
             // eslint-disable-next-line no-console
             // console.error(error);
             this.error = error.message;
-            this.$emit('error', { error });
+            this.$emit("error", { error });
           });
       }
     },
@@ -229,5 +258,4 @@ export default {
     }
   }
 }
-
 </style>
