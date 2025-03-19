@@ -1,79 +1,84 @@
-services:
-  donacije:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
-    ports:
-      - 8000:8000
-    depends_on:
-      - db
-    environment:
-      PYTHONUNBUFFERED: 1
-      DJANGO_DEBUG: "yes"
-      DJANGO_SECRET_KEY: make-me-secret
-      DJANGO_DATABASE_HOST: db
-      DJANGO_DATABASE_USER: postgres
-      DJANGO_DATABASE_PASSWORD: postgres
-      DJANGO_DATABASE_NAME: donacije
-      MAUTIC_URL: http://mautic/api/
-      MAUTIC_USER: api@djnd.si
-      MAUTIC_PASSWORD: password
-      BRAINTREE_ENV: Sandbox
-      BRAINTREE_MERCHANT_ID: rw9qmsd283dw2gy4
-      BRAINTREE_PUBLIC_KEY: 96jqgv5dfsv94hnq
-      BRAINTREE_PRIVATE_KEY: 06c33c3f91486f5f7be13276bd59a853
-      DJANGO_SETTINGS_MODULE: djndonacije.settings.k8s
-    volumes:
-      - ./:/app
-
-  db:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: donacije
-    ports:
-      - 5432:5432
-
-  mauticdb:
-    image: percona/percona-server:5.7
-    container_name: mauticdb
-    volumes:
-      - mysql_data:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=mysecret
-    command:
-      --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
-
-  mautic:
-    image: mautic/mautic:5.1-apache
-    #image: mautic/mautic:v4
-    container_name: mautic
-    links:
-      - mauticdb:mysql
-    depends_on:
-      - mauticdb
-    restart: on-failure
-    ports:
-      - 8080:80
-    volumes:
-      - mautic_data:/var/www/html
-    environment:
-      - MAUTIC_DB_HOST=mauticdb
-      - MYSQL_PORT_3306_TCP=3306
-      - MAUTIC_DB_USER=root
-      - MAUTIC_DB_PASSWORD=mysecret
-      - MAUTIC_DB_NAME=mautic
-      - MAUTIC_RUN_CRON_JOBS=false
-
-  # podprifrontend:
-  #   build: frontend/.
-  #   ports:
-  #     - 80:8000
-  #   volumes:
-  #     - ./frontend/.:/app
-
 volumes:
   mysql_data:
-    driver: local
   mautic_data:
-    driver: local
+
+
+services:
+  # donacije:
+  #   build: .
+  #   command: python manage.py runserver 0.0.0.0:8000
+  #   ports:
+  #     - 8000:8000
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     PYTHONUNBUFFERED: 1
+  #     DJANGO_DEBUG: "yes"
+  #     DJANGO_SECRET_KEY: make-me-secret
+  #     DJANGO_DATABASE_HOST: db
+  #     DJANGO_DATABASE_USER: postgres
+  #     DJANGO_DATABASE_PASSWORD: postgres
+  #     DJANGO_DATABASE_NAME: donacije
+  #     MAUTIC_URL: http://mautic/api/
+  #     MAUTIC_USER: api@djnd.si
+  #     MAUTIC_PASSWORD: password
+  #     BRAINTREE_ENV: Sandbox
+  #     BRAINTREE_MERCHANT_ID: rw9qmsd283dw2gy4
+  #     BRAINTREE_PUBLIC_KEY: 96jqgv5dfsv94hnq
+  #     BRAINTREE_PRIVATE_KEY: 06c33c3f91486f5f7be13276bd59a853
+  #     DJANGO_SETTINGS_MODULE: djndonacije.settings.k8s
+  #   volumes:
+  #     - ./:/app
+
+  # db:
+  #   image: postgres:latest
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: donacije
+  #   ports:
+  #     - 5432:5432
+
+  # mauticdb:
+  #   image: percona/percona-server:5.7
+  #   container_name: mauticdb
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=mysecret
+  #   command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+
+  # mautic:
+  #   image: mautic/mautic:5.1-apache
+  #   #image: mautic/mautic:v4
+  #   container_name: mautic
+  #   links:
+  #     - mauticdb:mysql
+  #   depends_on:
+  #     - mauticdb
+  #   restart: on-failure
+  #   ports:
+  #     - 8080:80
+  #   volumes:
+  #     - mautic_data:/var/www/html
+  #   environment:
+  #     - MAUTIC_DB_HOST=mauticdb
+  #     - MYSQL_PORT_3306_TCP=3306
+  #     - MAUTIC_DB_USER=root
+  #     - MAUTIC_DB_PASSWORD=mysecret
+  #     - MAUTIC_DB_NAME=mautic
+  #     - MAUTIC_RUN_CRON_JOBS=false
+
+  podprifrontend:
+    build:
+      context: ./frontend
+      dockerfile: dev.Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/src/:/app/src
+      - ./frontend/.eslintrc.cjs:/app/.eslintrc.cjs
+      - ./frontend/.prettierrc.json:/app/.prettierrc.json
+      - ./frontend/favicon.ico:/app/favicon.ico
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.js:/app/vite.config.js
