@@ -42,7 +42,7 @@ spec:
                 name: mautic-5-static
                 subPath: config
           restartPolicy: Never
-      volumes:
-        - name: mautic-5-static
-          persistentVolumeClaim:
-            claimName: mautic-5-volumeclaim
+          volumes:
+            - name: mautic-5-static
+              persistentVolumeClaim:
+                claimName: mautic-5-volumeclaim
