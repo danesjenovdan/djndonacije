@@ -24,23 +24,23 @@ spec:
               - php
               - /var/www/html/bin/console
               - mautic:segments:update
-          resources:
-            requests:
-              memory: 200Mi
-              cpu: 200m
-            limits:
-              memory: 1000Mi
-              cpu: 300m
-          volumeMounts:
-            - mountPath: /var/www/html/docroot/media
-              name: mautic-5-static
-              subPath: media
-            - mountPath: /var/www/html/var/logs
-              name: mautic-5-static
-              subPath: logs
-            - mountPath: /var/www/html/config
-              name: mautic-5-static
-              subPath: config
+            resources:
+              requests:
+                memory: 200Mi
+                cpu: 200m
+              limits:
+                memory: 1000Mi
+                cpu: 300m
+            volumeMounts:
+              - mountPath: /var/www/html/docroot/media
+                name: mautic-5-static
+                subPath: media
+              - mountPath: /var/www/html/var/logs
+                name: mautic-5-static
+                subPath: logs
+              - mountPath: /var/www/html/config
+                name: mautic-5-static
+                subPath: config
           restartPolicy: Never
       volumes:
         - name: mautic-5-static
