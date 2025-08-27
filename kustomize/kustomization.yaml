@@ -17,6 +17,7 @@ resources:
   - mautic-5/service.yaml
   - mautic-5/ingress.yaml
   - mautic-5/mautic-cronjobs.yaml
+  - mautic-5/backup-mautic-static-files.yaml
 
 images:
   - name: podpri

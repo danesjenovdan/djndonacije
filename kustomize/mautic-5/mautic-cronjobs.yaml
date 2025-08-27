@@ -11,19 +11,32 @@ spec:
       backoffLimit: 1
       template:
         spec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - mautic-5
+                topologyKey: "kubernetes.io/hostname"
           containers:
           - name: mautic-cronjobs
             image: podpri-mautic
+            workingDir: /var/www/html
+            command: ["/bin/sh", "-c"]
+            args:
+            - |
+              php bin/console mautic:segments:update
+              php bin/console mautic:campaigns:update
+              php bin/console mautic:campaigns:trigger
             envFrom:
               - secretRef:
                   name: mautic-5-credentials
             env:
               - name: DOCKER_MAUTIC_ROLE
                 value: "mautic_cron"
-            command:
-              - php
-              - /var/www/html/bin/console
-              - mautic:segments:update
             resources:
               requests:
                 memory: 200Mi
@@ -45,4 +58,4 @@ spec:
           volumes:
             - name: mautic-5-static
               persistentVolumeClaim:
-                claimName: mautic-5-volumeclaim
+                claimName: mautic-5-static
