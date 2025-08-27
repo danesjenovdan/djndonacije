@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mautic-5
+  labels:
+    app: mautic-5
+spec:
+  selector:
+    matchLabels:
+      app: mautic-5
+  template:
+    metadata:
+      labels:
+        app: mautic-5
+    spec:
+      containers:
+        - name: mautic-5
+          image: podpri-mautic
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: mautic-5-credentials
+          resources:
+            requests:
+              memory: 1000Mi
+              cpu: 500m
+            limits:
+              memory: 2000Mi
+              cpu: 1000m
+          volumeMounts:
+            - mountPath: /var/www/html/docroot/media
+              name: mautic-5-static
+              subPath: media
+            - mountPath: /var/www/html/var/logs
+              name: mautic-5-static
+              subPath: logs
+            - mountPath: /var/www/html/config
+              name: mautic-5-static
+              subPath: config
+      volumes:
+        - name: mautic-5-static
+          persistentVolumeClaim:
+            claimName: mautic-5-static

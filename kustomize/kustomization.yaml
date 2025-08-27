@@ -12,7 +12,8 @@ resources:
   - frontend/deployment.yaml
   - frontend/ingress.yaml
   - frontend/service.yaml
-  - mautic-5/statefulset.yaml
+  - mautic-5/pvc.yaml
+  - mautic-5/deployment.yaml
   - mautic-5/service.yaml
   - mautic-5/ingress.yaml
   - mautic-5/mautic-cronjobs.yaml

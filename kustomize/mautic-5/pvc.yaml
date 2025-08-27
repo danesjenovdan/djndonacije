@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mautic-5-static
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: scw-bssd-retain
+  volumeName: pvc-772b1a92-944a-47b2-88bf-a70c25d1927c
