@@ -130,3 +130,4 @@ prod.py
 .vscode
 
 secrets.yaml
+secrets-backup.yaml
