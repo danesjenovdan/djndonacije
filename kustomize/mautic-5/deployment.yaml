@@ -29,9 +29,12 @@ spec:
               memory: 2000Mi
               cpu: 1000m
           volumeMounts:
-            - mountPath: /var/www/html/docroot/media
+            - mountPath: /var/www/html/docroot/media/images
               name: mautic-5-static
-              subPath: media
+              subPath: media/images
+            - mountPath: /var/www/html/docroot/media/files
+              name: mautic-5-static
+              subPath: media/files
             - mountPath: /var/www/html/var/logs
               name: mautic-5-static
               subPath: logs
