@@ -13,6 +13,18 @@ spec:
       labels:
         app: mautic-5
     spec:
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - mautic-5
+            topologyKey: "kubernetes.io/hostname"
       containers:
         - name: mautic-5
           image: podpri-mautic

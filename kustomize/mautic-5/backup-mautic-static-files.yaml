@@ -32,7 +32,7 @@ spec:
                 - name: SOURCE_BASE_DIR
                   value: "/var/www/html" # Glavna pot, kjer so podmape
                 - name: SUB_DIRS_TO_BACKUP
-                  value: "docroot/media,var/logs,config"
+                  value: "docroot/media/images,docroot/media/files,var/logs,config"
                 - name: PROJECT
                   value: "mautic" # Ime projekta za poimenovanje datotek
                 - name: BACKUP_DIR
