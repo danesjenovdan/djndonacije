@@ -24,7 +24,7 @@ spec:
                   operator: In
                   values:
                   - mautic-5
-            topologyKey: "kubernetes.io/hostname"
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: mautic-5
           image: podpri-mautic
