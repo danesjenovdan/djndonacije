@@ -18,6 +18,7 @@ from djnd_supporters.mautic_api import MauticApi
 from djnd_supporters.views import getPDForDonation
 from djndonacije import payment
 from djndonacije.slack_utils import send_slack_msg
+from shop.qrcode import UPNQRException, generate_upnqr_svg
 
 mautic_api = MauticApi()
 
@@ -498,6 +499,15 @@ class GenericDonationCampaign(views.APIView):
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
         donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
         donation_obj.update(payment.client_token(subscriber))
+        try:
+            qr_code = generate_upnqr_svg(
+            purpose=donation_campaign.upn_name if donation_campaign.upn_name else "Donacija",
+            reference="SI00 11" + str(donation_campaign.id).zfill(8),
+        )
+        except UPNQRException as e:
+            capture_exception(e)
+            qr_code = None
+        donation_obj.update({"upn_qr_code": qr_code})
         return Response(donation_obj)
 
     def post(self, request, campaign=""):
