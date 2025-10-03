@@ -43,6 +43,7 @@ def poloznica(request):
             code=bill["code"],
             purpose=bill["purpose"],
             reference=bill["referencemath"],
+            include_xml_declaration=True,
         )
     except UPNQRException as e:
         capture_exception(e)
@@ -94,6 +95,7 @@ def getPDFodOrder(request, pk):
             code=bill["code"],
             purpose=bill["purpose"],
             reference=bill["referencemath"],
+            include_xml_declaration=True,
         )
     except UPNQRException as e:
         capture_exception(e)
