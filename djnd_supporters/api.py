@@ -503,6 +503,8 @@ class GenericDonationCampaign(views.APIView):
             qr_code = generate_upnqr_svg(
             purpose=donation_campaign.upn_name if donation_campaign.upn_name else "Donacija",
             reference="SI00 11" + str(donation_campaign.id).zfill(8),
+            amount=request.GET.get("amount", 5),
+            include_xml_declaration=True
         )
         except UPNQRException as e:
             capture_exception(e)
