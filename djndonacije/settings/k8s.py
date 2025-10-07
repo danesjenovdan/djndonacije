@@ -98,7 +98,6 @@ INSTALLED_APPS = [
     "import_export",
     # apps
     "djnd_supporters",
-    "shop",
 ]
 
 MIDDLEWARE = [
