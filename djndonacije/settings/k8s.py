@@ -98,7 +98,6 @@ INSTALLED_APPS = [
     "import_export",
     # apps
     "djnd_supporters",
-    "shop",
 ]
 
 MIDDLEWARE = [
@@ -274,12 +273,6 @@ if sentry_url := os.getenv("DJANGO_SENTRY_URL", False):
         traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", 0.001)),
         send_default_pii=True,
     )
-
-# TODO deprecate this objects
-MAIL_TEMPLATES = {
-    "SHOP_BT_PP": 289,
-    "SHOP_UPN": 288,
-}
 
 SEGMENTS = {
     "agrument": 1,

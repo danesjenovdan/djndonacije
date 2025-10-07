@@ -1,45 +1,23 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: podpri-frontend
+  name: podpri-pic-frontend
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-production"
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - doniraj.lb.djnd.si
-        - moj.djnd.si
-        - moj.danesjenovdan.si
-      secretName: podpri-frontend-tls
+        - pic-frontend.lb.djnd.si
+      secretName: podpri-pic-frontend-tls
   rules:
-    - host: doniraj.lb.djnd.si
+    - host: pic-frontend.lb.djnd.si
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: podpri-frontend
-                port:
-                  number: 80
-    - host: moj.djnd.si
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: podpri-frontend
-                port:
-                  number: 80
-    - host: moj.danesjenovdan.si
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: podpri-frontend
+                name: podpri-pic-frontend
                 port:
                   number: 80

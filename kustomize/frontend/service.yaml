@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: podpri-frontend
+  name: podpri-pic-frontend
 spec:
   selector:
-    app: podpri-frontend
+    app: podpri-pic-frontend
   ports:
     - protocol: TCP
       port: 80

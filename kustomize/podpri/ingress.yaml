@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: podpri
+  name: podpri-pic
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-production"
     nginx.ingress.kubernetes.io/proxy-body-size: 10m
@@ -9,24 +9,24 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - podpri.lb.djnd.si
-      secretName: podpri-tls
+        - podpri-pic.lb.djnd.si
+      secretName: podpri-pic-tls
   rules:
-    - host: podpri.lb.djnd.si
+    - host: podpri-pic.lb.djnd.si
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: podpri
+                name: podpri-pic
                 port:
                   number: 8000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: podpri-nginx
+  name: podpri-pic-nginx
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-production"
     nginx.ingress.kubernetes.io/enable-cors: "true"
@@ -38,16 +38,16 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - files.podpri.lb.djnd.si
-      secretName: podpri-nginx-tls
+        - files.podpri-pic.lb.djnd.si
+      secretName: podpri-pic-nginx-tls
   rules:
-    - host: files.podpri.lb.djnd.si
+    - host: files.podpri-pic.lb.djnd.si
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: podpri-nginx
+                name: podpri-pic-nginx
                 port:
                   number: 80

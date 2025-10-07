@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: podpri-deployment
+  name: podpri-pic-deployment
   labels:
-    app: podpri
+    app: podpri-pic
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: podpri
+      app: podpri-pic
   template:
     metadata:
       labels:
-        app: podpri
+        app: podpri-pic
     spec:
       volumes:
-        - name: podpri-storage
+        - name: podpri-pic-storage
           emptyDir: {}
       initContainers:
         - name: collectstatic
-          image: podpri
+          image: podpri-pic
           volumeMounts:
-            - name: podpri-storage
+            - name: podpri-pic-storage
               mountPath: /storage
           command:
             - python
@@ -35,7 +35,7 @@ spec:
               value: '/storage/static'
           envFrom:
             - secretRef:
-                name: podpri-credentials
+                name: podpri-pic-credentials
           resources:
             requests:
               memory: 200Mi
@@ -44,7 +44,7 @@ spec:
               memory: 200Mi
               cpu: 200m
         - name: migrate
-          image: podpri
+          image: podpri-pic
           command:
             - python
             - manage.py
@@ -54,7 +54,7 @@ spec:
               value: djndonacije.settings.k8s
           envFrom:
             - secretRef:
-                name: podpri-credentials
+                name: podpri-pic-credentials
           resources:
             requests:
               memory: 200Mi
@@ -63,10 +63,10 @@ spec:
               memory: 200Mi
               cpu: 200m
       containers:
-        - name: podpri
-          image: podpri
+        - name: podpri-pic
+          image: podpri-pic
           volumeMounts:
-            - name: podpri-storage
+            - name: podpri-pic-storage
               mountPath: /storage
           command:
             - gunicorn
@@ -85,7 +85,7 @@ spec:
             - containerPort: 8000
           envFrom:
             - secretRef:
-                name: podpri-credentials
+                name: podpri-pic-credentials
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: djndonacije.settings.k8s
@@ -100,7 +100,7 @@ spec:
             - name: DJANGO_STATIC_ROOT
               value: '/storage/static'
             - name: DJANGO_STATIC_URL_BASE
-              value: "https://files.podpri.lb.djnd.si/static/"
+              value: "https://files.podpri-pic.lb.djnd.si/static/"
           resources:
             requests:
               memory: 400Mi
@@ -108,14 +108,14 @@ spec:
             limits:
               memory: 400Mi
               cpu: 200m
-        - name: podpri-nginx
+        - name: podpri-pic-nginx
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
           image: nginx:alpine
           volumeMounts:
-            - name: podpri-storage
+            - name: podpri-pic-storage
               mountPath: /usr/share/nginx/html
           resources:
             requests:
