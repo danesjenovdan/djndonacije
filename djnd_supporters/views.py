@@ -11,7 +11,7 @@ from wkhtmltopdf.views import PDFTemplateResponse
 
 from djnd_supporters import models, utils
 from djndonacije import payment
-from shop.qrcode import UPNQRException, generate_upnqr_svg
+from djndonacije.qrcode import UPNQRException, generate_upnqr_svg
 
 
 class TestPaymentView(TemplateView):
