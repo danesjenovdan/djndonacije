@@ -2,32 +2,18 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: shared
 resources:
-  # - mautic/statefulset.yaml
-  # - mautic/service.yaml
-  # - mautic/ingress.yaml
   - podpri/deployment.yaml
   - podpri/service.yaml
   - podpri/ingress.yaml
-  - podpri/pair-mauitc-contact-cronjob.yaml
   - frontend/deployment.yaml
   - frontend/ingress.yaml
   - frontend/service.yaml
-  - mautic-5/pvc.yaml
-  - mautic-5/deployment.yaml
-  - mautic-5/service.yaml
-  - mautic-5/ingress.yaml
-  - mautic-5/mautic-cronjobs.yaml
-  - mautic-5/backup-mautic-static-files.yaml
 
 images:
   - name: podpri
-    newName: rg.fr-par.scw.cloud/djnd/podpri
-    newTag: '12c649a016d6bc5207171736f4f06c79b0eba099'
+    newName: rg.fr-par.scw.cloud/djnd/podpri-pic
+    newTag: 'latest'
 
   - name: podpri-frontend
-    newName: rg.fr-par.scw.cloud/djnd/podpri-frontend
-    newTag: '12c649a016d6bc5207171736f4f06c79b0eba099'
-  
-  - name: podpri-mautic
-    newName: rg.fr-par.scw.cloud/djnd/podpri-mautic
-    newTag: '12c649a016d6bc5207171736f4f06c79b0eba099'
+    newName: rg.fr-par.scw.cloud/djnd/podpri-frontend-pic
+    newTag: 'latest'
