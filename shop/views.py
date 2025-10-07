@@ -9,7 +9,7 @@ from sentry_sdk import capture_exception
 from wkhtmltopdf.views import PDFTemplateResponse
 
 from . import models
-from .qrcode import UPNQRException, generate_upnqr_svg
+from djndonacije.qrcode import UPNQRException, generate_upnqr_svg
 
 # from .payments_braintree import client_token
 
