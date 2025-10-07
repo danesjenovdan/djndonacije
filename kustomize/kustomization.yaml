@@ -1,6 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: shared
+namespace: pic
 resources:
   - podpri/deployment.yaml
   - podpri/service.yaml
@@ -10,10 +10,10 @@ resources:
   - frontend/service.yaml
 
 images:
-  - name: podpri
+  - name: podpri-pic
     newName: rg.fr-par.scw.cloud/djnd/podpri-pic
     newTag: 'latest'
 
-  - name: podpri-frontend
-    newName: rg.fr-par.scw.cloud/djnd/podpri-frontend-pic
+  - name: podpri-pic-frontend
+    newName: rg.fr-par.scw.cloud/djnd/podpri-pic-frontend
     newTag: 'latest'

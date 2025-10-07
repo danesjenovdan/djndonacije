@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: podpri-frontend-deployment
+  name: podpri-pic-frontend-deployment
   labels:
-    app: podpri-frontend
+    app: podpri-pic-frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: podpri-frontend
+      app: podpri-pic-frontend
   template:
     metadata:
       labels:
-        app: podpri-frontend
+        app: podpri-pic-frontend
     spec:
       containers:
-        - name: podpri-frontend
-          image: podpri-frontend
+        - name: podpri-pic-frontend
+          image: podpri-pic-frontend
           ports:
             - containerPort: 80
           resources:
