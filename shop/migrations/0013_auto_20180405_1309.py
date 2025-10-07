@@ -3,10 +3,10 @@
 from __future__ import unicode_literals
 
 import datetime
+from datetime import timezone
 
 import django.utils.timezone
 from django.db import migrations, models
-from django.utils.timezone import utc
 
 
 class Migration(migrations.Migration):
@@ -22,7 +22,9 @@ class Migration(migrations.Migration):
             field=models.DateTimeField(
                 auto_now_add=True,
                 db_index=True,
-                default=datetime.datetime(2018, 4, 5, 13, 9, 20, 829456, tzinfo=utc),
+                default=datetime.datetime(
+                    2018, 4, 5, 13, 9, 20, 829456, tzinfo=timezone.utc
+                ),
             ),
             preserve_default=False,
         ),
@@ -37,7 +39,9 @@ class Migration(migrations.Migration):
             field=models.DateTimeField(
                 auto_now_add=True,
                 db_index=True,
-                default=datetime.datetime(2018, 4, 5, 13, 9, 30, 271395, tzinfo=utc),
+                default=datetime.datetime(
+                    2018, 4, 5, 13, 9, 30, 271395, tzinfo=timezone.utc
+                ),
             ),
             preserve_default=False,
         ),

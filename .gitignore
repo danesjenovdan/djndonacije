@@ -131,3 +131,5 @@ prod.py
 
 secrets.yaml
 secrets-backup.yaml
+
+*.dump

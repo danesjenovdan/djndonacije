@@ -11,7 +11,7 @@ from wkhtmltopdf.views import PDFTemplateResponse
 
 from djnd_supporters import models, utils
 from djndonacije import payment
-from shop.qrcode import UPNQRException, generate_upnqr_svg
+from djndonacije.qrcode import UPNQRException, generate_upnqr_svg
 
 
 class TestPaymentView(TemplateView):
@@ -41,6 +41,7 @@ class TestUPNView(TemplateView):
             reference="SI00 0000008",
             code="ADCS",
             # unused={'1': TestUPNView},
+            include_xml_declaration=True,
         )
         # context['qr_code'] = None
         # print(context['qr_code'])
@@ -77,6 +78,7 @@ def getPDForDonation(request, pk):
             code=bill["code"],
             purpose=bill["purpose"],
             reference=bill["referencemath"],
+            include_xml_declaration=True,
         )
     except UPNQRException as e:
         capture_exception(e)

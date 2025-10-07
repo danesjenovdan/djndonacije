@@ -35,19 +35,19 @@ services:
       - 5432:5432
 
   mauticdb:
-    image: percona/percona-server:5.7
-    container_name: mauticdb
+    image: mariadb:11.7.2
     volumes:
       - mysql_data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=mysecret
-    command:
-      --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    #command:
+    #  --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
 
   mautic:
-    image: mautic/mautic:5.1-apache
+    #image: mautic/mautic:5.2.1-apache
+    build: mautic/.
     #image: mautic/mautic:v4
-    container_name: mautic
+    #container_name: mautic
     links:
       - mauticdb:mysql
     depends_on:

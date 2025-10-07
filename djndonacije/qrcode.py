@@ -165,6 +165,26 @@ def _encode_reference(reference):
     return reference
 
 
+def qr_to_svg(qr: QrCode, border: int = 4, scale: int = 2) -> str:
+    size = qr.get_size()
+    svg_size = (size + border * 2) * scale
+
+    svg = [
+        f"<svg xmlns='http://www.w3.org/2000/svg' width='{svg_size}' height='{svg_size}' viewBox='0 0 {svg_size} {svg_size}'>"
+    ]
+    svg.append("<rect width='100%' height='100%' fill='white'/>")
+
+    for y in range(size):
+        for x in range(size):
+            if qr.get_module(x, y):  # črna pika
+                svg.append(
+                    f"<rect x='{(x + border) * scale}' y='{(y + border) * scale}' width='{scale}' height='{scale}' fill='black'/>"
+                )
+
+    svg.append("</svg>")
+    return "\n".join(svg)
+
+
 def generate_upnqr_svg(**kwargs):
     include_xml_declaration = _pop_kwarg(kwargs, bool, "include_xml_declaration", False)
 
@@ -249,7 +269,7 @@ def generate_upnqr_svg(**kwargs):
         mask=2,
         boostecl=False,
     )
-    qr_string = qr_segments.to_svg_str(2)
+    qr_string = qr_to_svg(qr_segments)
 
     if not include_xml_declaration:
         qr_string = "\n".join(qr_string.split("\n")[2:])
