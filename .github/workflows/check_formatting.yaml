@@ -6,6 +6,7 @@ on:
   pull_request:
     branches:
       - "k8s"
+      - "pic"
 jobs:
   check_python_formatting:
     name: Check Python formatting
