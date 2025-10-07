@@ -169,7 +169,9 @@ def qr_to_svg(qr: QrCode, border: int = 4, scale: int = 2) -> str:
     size = qr.get_size()
     svg_size = (size + border * 2) * scale
 
-    svg = [f"<svg xmlns='http://www.w3.org/2000/svg' width='{svg_size}' height='{svg_size}' viewBox='0 0 {svg_size} {svg_size}'>"]
+    svg = [
+        f"<svg xmlns='http://www.w3.org/2000/svg' width='{svg_size}' height='{svg_size}' viewBox='0 0 {svg_size} {svg_size}'>"
+    ]
     svg.append("<rect width='100%' height='100%' fill='white'/>")
 
     for y in range(size):
