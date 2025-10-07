@@ -15,3 +15,10 @@ jobs:
         destination_branch: "k8s"
         github_token: ${{ secrets.GITHUB_TOKEN }}
         pr_title: "Pulling ${{ github.ref }} into k8s"
+
+    - name: pull-request-pic
+      uses: repo-sync/pull-request@v2
+      with:
+        destination_branch: "pic"
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        pr_title: "Pulling ${{ github.ref }} into pic"
