@@ -17,8 +17,8 @@ from djnd_supporters.captcha import validate_captcha
 from djnd_supporters.mautic_api import MauticApi
 from djnd_supporters.views import getPDForDonation
 from djndonacije import payment
+from djndonacije.qrcode import UPNQRException, generate_upnqr_svg
 from djndonacije.slack_utils import send_slack_msg
-from shop.qrcode import UPNQRException, generate_upnqr_svg
 
 mautic_api = MauticApi()
 
