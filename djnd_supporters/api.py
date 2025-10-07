@@ -490,11 +490,7 @@ class GenericDonationCampaign(views.APIView):
                         customer_id = subscriber.customer_id
                     else:
                         token = contacts[mautic_id]["fields"]["core"]["token"]["value"]
-                        subscriber = models.Subscriber(
-                            mautic_id=mautic_id,
-                            token=token
-                        )
-                        
+                        subscriber = models.Subscriber(mautic_id=mautic_id, token=token)
 
         if customer_id and not subscriber:
             subscriber = models.Subscriber.objects.filter(customer_id=customer_id)
