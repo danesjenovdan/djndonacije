@@ -8,8 +8,9 @@ from django.views.decorators.csrf import csrf_exempt
 from sentry_sdk import capture_exception
 from wkhtmltopdf.views import PDFTemplateResponse
 
-from . import models
 from djndonacije.qrcode import UPNQRException, generate_upnqr_svg
+
+from . import models
 
 # from .payments_braintree import client_token
 
