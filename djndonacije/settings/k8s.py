@@ -274,12 +274,6 @@ if sentry_url := os.getenv("DJANGO_SENTRY_URL", False):
         send_default_pii=True,
     )
 
-# TODO deprecate this objects
-MAIL_TEMPLATES = {
-    "SHOP_BT_PP": 289,
-    "SHOP_UPN": 288,
-}
-
 SEGMENTS = {
     "agrument": 1,
     "mesecne-novice-nov-segment": 12,

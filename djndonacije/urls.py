@@ -30,5 +30,4 @@ urlpatterns = [
         include(("djnd_supporters.urls", "djnd_supporters"), namespace="supporters"),
     ),
     path("tinymce/", include("tinymce.urls")),
-    path("api/shop/", include("shop.urls_api")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
