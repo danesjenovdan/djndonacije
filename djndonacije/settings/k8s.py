@@ -53,6 +53,9 @@ env = dict(
 )
 
 ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = [
+    env["DJANGO_BASE_URL"],
+]
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "sentry-trace",
