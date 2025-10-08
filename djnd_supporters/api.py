@@ -449,6 +449,17 @@ class DonationCampaignInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.DonationCampaign.objects.all()
 
 
+class DonationCampaignBraintreeNonce(views.APIView):
+    def get(self, request):
+        # check captcha
+        captcha_validated = validate_captcha(request.GET.get("captcha", ""))
+        if not captcha_validated:
+            return Response(
+                {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
+            )
+        return Response(payment.client_token(None))
+
+
 class GenericDonationCampaign(views.APIView):
     """
     GET get client token and donation specifics
@@ -466,42 +477,9 @@ class GenericDonationCampaign(views.APIView):
     authentication_classes = [authentication.SubscriberAuthentication]
 
     def get(self, request, campaign=""):
-        customer_id = request.GET.get("customer_id", None)
-        email = request.GET.get("email", None)
-        subscriber = None
-
-        # check captcha
-        captcha_validated = validate_captcha(request.GET.get("captcha", ""))
-        if not captcha_validated:
-            return Response(
-                {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
-            )
-
-        if email and not customer_id:
-            response, response_status = mautic_api.getContactByEmail(email)
-            if response_status == 200:
-                contacts = response["contacts"]
-                if contacts:
-                    mautic_id = list(contacts.keys())[0]
-                    subscriber = models.Subscriber.objects.filter(
-                        mautic_id=mautic_id
-                    ).first()
-                    if subscriber and subscriber.customer_id:
-                        customer_id = subscriber.customer_id
-                    else:
-                        token = contacts[mautic_id]["fields"]["core"]["token"]["value"]
-                        subscriber = models.Subscriber(mautic_id=mautic_id, token=token)
-
-        if customer_id and not subscriber:
-            subscriber = models.Subscriber.objects.filter(customer_id=customer_id)
-            if subscriber:
-                subscriber = subscriber[0]
-            else:
-                subscriber = None
-
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
         donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
-        donation_obj.update(payment.client_token(subscriber))
+        donation_obj.update(payment.client_token(None))
         try:
             qr_code = generate_upnqr_svg(
                 purpose=(
@@ -733,6 +711,46 @@ class GenericCampaignSubscription(views.APIView):
     """
 
     authentication_classes = [authentication.SubscriberAuthentication]
+
+    def get(self, request, campaign=""):
+        customer_id = request.GET.get("customer_id", None)
+        email = request.GET.get("email", None)
+        subscriber = None
+
+        # check captcha
+        captcha_validated = validate_captcha(request.GET.get("captcha", ""))
+        if not captcha_validated:
+            return Response(
+                {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
+            )
+
+        if email and not customer_id:
+            response, response_status = mautic_api.getContactByEmail(email)
+            if response_status == 200:
+                contacts = response["contacts"]
+                if contacts:
+                    mautic_id = list(contacts.keys())[0]
+                    subscriber = models.Subscriber.objects.filter(
+                        mautic_id=mautic_id
+                    ).first()
+                    if subscriber and subscriber.customer_id:
+                        customer_id = subscriber.customer_id
+                    else:
+                        token = contacts[mautic_id]["fields"]["core"]["token"]["value"]
+                        subscriber = models.Subscriber(mautic_id=mautic_id, token=token)
+
+        if customer_id and not subscriber:
+            subscriber = models.Subscriber.objects.filter(customer_id=customer_id)
+            if subscriber:
+                subscriber = subscriber[0]
+            else:
+                subscriber = None
+
+        donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
+        donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
+        donation_obj.update(payment.client_token(subscriber))
+
+        return Response(donation_obj)
 
     def post(self, request, campaign=""):
         data = request.data

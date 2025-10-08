@@ -52,7 +52,6 @@ services:
       - mauticdb:mysql
     depends_on:
       - mauticdb
-    restart: on-failure
     ports:
       - 8080:80
     volumes:
