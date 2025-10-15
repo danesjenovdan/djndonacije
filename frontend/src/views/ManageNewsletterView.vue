@@ -36,7 +36,7 @@
     <checkout-stage no-header show-djnd-footer>
       <template #content>
         <div v-if="showInputForm">
-          {{ "TEST" }}
+          {{ "TODO: showInputForm" }}
         </div>
         <template v-else>
           <div
@@ -142,13 +142,14 @@ export default {
       error: false,
       errorMessage: "",
       lastCancelledNewsletter: null,
-      showInputForm: true,
+      showInputForm: false, // TODO: true,
     };
   },
   async mounted() {
     const { email, token } = this.$route.query;
     if (!email || !token) {
-      this.showInputForm = true;
+      this.$router.push("/404");
+      // TODO: this.showInputForm = true;
       this.loading = false;
       return;
     }
