@@ -195,8 +195,7 @@ const store = createStore({
       return axios.get(url);
     },
     async getUserNewsletterSubscriptions(context, payload) {
-      // console.log("campaign", payload.campaign);
-      const url = `${api}/api/segments/my?token=${context.getters.getToken}&email=${context.getters.getEmail}&campaign=${payload.campaign}`;
+      const url = `${api}/api/segments/my/?token=${context.getters.getToken}&email=${context.getters.getEmail}&campaign=${payload.campaign}`;
       return axios.get(url);
     },
     async verifyCaptcha(context, payload) {
