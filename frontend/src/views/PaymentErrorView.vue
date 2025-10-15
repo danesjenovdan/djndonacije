@@ -1,7 +1,7 @@
 <template>
   <div class="checkout">
     <checkout-stage no-header>
-      <template v-slot:content>
+      <template #content>
         <div class="row justify-content-center my-5">
           <div class="image-container">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
@@ -18,10 +18,12 @@
           <h2 class="paymenterror__title">
             {{ $t("paymentErrorView.title") }}
           </h2>
+          <!-- eslint-disable vue/no-v-html -->
           <p
             class="text-center"
             v-html="$t('paymentErrorView.note', { startHref })"
           />
+          <!-- eslint-enable vue/no-v-html -->
         </div>
       </template>
     </checkout-stage>
@@ -42,7 +44,8 @@ export default {
   },
   mounted() {
     if (typeof window !== "undefined") {
-      this.startHref = window.location.href.split("/napaka")[0];
+      const hrefPart = window.location.href.split("/napaka")[0];
+      this.startHref = hrefPart;
     }
   },
 };

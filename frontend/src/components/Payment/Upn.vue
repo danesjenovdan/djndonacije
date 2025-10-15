@@ -3,7 +3,7 @@
     <form>
       <img id="poloznica-img" src="../../assets/poloznica.png" />
       <div class="form-group">
-        <label>{{ $t('payment.depositSlipNote') }}</label>
+        <label>{{ $t("payment.depositSlipNote") }}</label>
       </div>
     </form>
   </div>
@@ -11,12 +11,8 @@
 
 <script>
 export default {
-  props: {
-  },
-  data() {
-    return {
-    };
-  },
+  name: "UpnPayment",
+  emits: ["ready", "success"],
   mounted() {
     this.$emit("ready", { pay: this.sendUPN });
   },

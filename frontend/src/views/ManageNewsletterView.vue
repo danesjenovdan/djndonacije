@@ -1,71 +1,116 @@
 <template>
   <div class="checkout">
-    <div v-if="success && !last_cancelled_newsletter" class="alert alert-success text-center">
+    <div
+      v-if="success && !lastCancelledNewsletter"
+      class="alert alert-success text-center"
+    >
       <p class="my-3">
-        {{ $t('manageNewsletterView.unsubscribeAndDeleteData') }}
+        {{ $t("manageNewsletterView.unsubscribeAndDeleteData") }}
       </p>
     </div>
-    <div v-if="success && last_cancelled_newsletter" class="alert alert-success text-center">
+    <div
+      v-if="success && lastCancelledNewsletter"
+      class="alert alert-success text-center"
+    >
       <p class="my-3">
-        {{ $t('manageNewsletterView.unsubscribeSuccessful') }}
+        {{ $t("manageNewsletterView.unsubscribeSuccessful") }}
       </p>
     </div>
     <div v-if="error" class="alert alert-danger text-center">
       <p class="my-3">
-        {{ $t('manageNewsletterView.error') }}
+        {{ $t("manageNewsletterView.error") }}
       </p>
       <p v-if="errorMessage == 'No such subscriber'" class="my-3">
-        <b>{{ $t('manageNewsletterView.noSuchUser') }}</b>
+        <b>{{ $t("manageNewsletterView.noSuchUser") }}</b>
       </p>
-      <p class="my-3" v-html="$t('manageNewsletterView.help', { email: 'vsi@danesjenovdan.si'})"></p>
+      <!-- eslint-disable vue/no-v-html -->
+      <p
+        class="my-3"
+        v-html="
+          $t('manageNewsletterView.help', { email: 'vsi@danesjenovdan.si' })
+        "
+      ></p>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
 
-    <checkout-stage no-header :show-djnd-footer="true">
-      <template v-slot:content>
-        <div class="row justify-content-center my-4" v-for="segment in this.campaignSubscriptions" :key="segment.id">
-          <div class="col-md-8">
-            <div class="row">
-              <div class="col-md-6">
-                <p class="m-0" v-if="segment.id === 21">
-                  {{ $t('manageNewsletterView.unsubscribeObcasnik') }}
-                </p>
-                <p class="small-paragraph" v-if="segment.id === 21">
-                  {{ $t('manageNewsletterView.unsubscribeObcasnikNote') }}
-                </p>
-                <p class="m-0" v-else>
-                  {{ $t('manageNewsletterView.unsubscribeNewsletter') }} <strong>{{ segment.name }}</strong>.
-                </p>
+    <checkout-stage no-header show-djnd-footer>
+      <template #content>
+        <div v-if="showInputForm">
+          {{ "TEST" }}
+        </div>
+        <template v-else>
+          <div
+            v-for="segment in campaignSubscriptions"
+            :key="segment.id"
+            class="row justify-content-center my-4"
+          >
+            <div class="col-md-8">
+              <div class="row">
+                <div class="col-md-6">
+                  <p v-if="segment.id === 21" class="m-0">
+                    {{ $t("manageNewsletterView.unsubscribeObcasnik") }}
+                  </p>
+                  <p v-if="segment.id === 21" class="small-paragraph">
+                    {{ $t("manageNewsletterView.unsubscribeObcasnikNote") }}
+                  </p>
+                  <p v-else class="m-0">
+                    {{ $t("manageNewsletterView.unsubscribeNewsletter") }}
+                    <strong>{{ segment.name }}</strong
+                    >.
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <more-button
+                    :disabled="loading"
+                    :text="$t('manageNewsletterView.confirmUnsubscribe')"
+                    class="my-2"
+                    color="secondary"
+                    @click="cancelSubscription(segment.name, segment.id)"
+                  />
+                </div>
               </div>
-              <div class="col-md-6">
-                <more-button :disabled="loading"
-                  :text="$t('manageNewsletterView.confirmUnsubscribe')"
-                  class="my-2" color="secondary" @click="cancelSubscription(segment.name, segment.id)" />
+              <div class="row mt-4">
+                <div class="col-12">
+                  <hr />
+                </div>
               </div>
             </div>
-            <div class="row mt-4">
-              <div class="col-12">
-                <hr />
-              </div>
+          </div>
+          <div class="row justify-content-center mb-4">
+            <div class="col-md-4">
+              <!-- eslint-disable vue/no-v-html -->
+              <p
+                class="m-0"
+                v-html="$t('manageNewsletterView.unsubscribeFromAll')"
+              ></p>
+              <!-- eslint-enable vue/no-v-html -->
+              <p class="small-paragraph mb-0">
+                {{ $t("manageNewsletterView.yourNewsletters") }}:
+              </p>
+              <ul>
+                <li
+                  v-for="segment in allSubscriptions"
+                  :key="segment.id"
+                  class="my-0"
+                >
+                  {{ segment.name }}
+                </li>
+              </ul>
+              <p class="small-paragraph">
+                {{ $t("manageNewsletterView.deleteAllData") }}
+              </p>
+            </div>
+            <div class="col-md-4">
+              <more-button
+                :disabled="loading"
+                :text="$t('manageNewsletterView.confirmDeleteData')"
+                class="my-2"
+                color="secondary"
+                @click="deleteUserData()"
+              />
             </div>
           </div>
-        </div>
-        <div class="row justify-content-center mb-4">
-          <div class="col-md-4">
-            <p class="m-0" v-html="$t('manageNewsletterView.unsubscribeFromAll')"></p>
-            <p class="small-paragraph mb-0">{{ $t('manageNewsletterView.yourNewsletters') }}:</p>
-            <ul>
-              <li v-for="segment in this.allSubscriptions" class="my-0">{{ segment.name }}</li>
-            </ul>
-            <p class="small-paragraph">
-              {{ $t('manageNewsletterView.deleteAllData') }}
-            </p>
-          </div>
-          <div class="col-md-4">
-            <more-button :disabled="loading"
-              :text="$t('manageNewsletterView.confirmDeleteData')" class="my-2"
-              color="secondary" @click="deleteUserData()" />
-          </div>
-        </div>
+        </template>
         <div v-if="loading" class="payment-loader">
           <div class="lds-dual-ring" />
         </div>
@@ -79,13 +124,12 @@ import CheckoutStage from "../components/CheckoutStage.vue";
 import MoreButton from "../components/MoreButton.vue";
 
 export default {
-  props: ["lang"],
   components: {
     CheckoutStage,
     MoreButton,
   },
   data() {
-    const campaignSlug = this.$route.params.campaignSlug;
+    const { campaignSlug } = this.$route.params;
 
     return {
       campaignSubscriptions: [],
@@ -97,103 +141,78 @@ export default {
       success: false,
       error: false,
       errorMessage: "",
-      last_cancelled_newsletter: null,
+      lastCancelledNewsletter: null,
+      showInputForm: true,
     };
   },
   async mounted() {
-    // store token
-    const token = this.$route.query.token;
-    if (token) {
-      this.$store.commit("setToken", token);
-    }
-    // store email
-    const email = this.$route.query.email;
-    if (email) {
-      this.$store.commit("setEmail", email);
+    const { email, token } = this.$route.query;
+    if (!email || !token) {
+      this.showInputForm = true;
+      this.loading = false;
+      return;
     }
 
-    if (!(email && token)) {
-      this.$router.push("/404");
-    }
+    this.showInputForm = false;
 
-    // get campaign subscriptions list
-    this.$store
-      .dispatch("getUserNewsletterSubscriptions", {
+    // store email and token
+    this.$store.commit("setEmail", email);
+    this.$store.commit("setToken", token);
+
+    Promise.all([
+      this.$store.dispatch("getUserNewsletterSubscriptions", {
         campaign: this.campaignSlug,
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          this.campaignSubscriptions = response.data.segments;
+      }),
+      this.$store.dispatch("getUserNewsletterSubscriptions", {}),
+    ])
+      .then((responses) => {
+        const [campaignResponse, allResponse] = responses;
+        if (campaignResponse.status === 200 && allResponse.status === 200) {
+          this.campaignSubscriptions = campaignResponse.data.segments;
+          this.allSubscriptions = allResponse.data.segments;
         } else {
-          // catch error
-          console.log("Not successful", response);
           this.success = false;
           this.error = true;
+          this.showInputForm = true;
         }
       })
       .catch((error) => {
-        // catch error
         this.success = false;
         this.error = true;
-        this.errorMessage = error?.response?.data?.detail
-      })
-      .finally(() => {
-        this.loading = false;
-      });
-
-    // get all subscriptions list
-    this.$store
-      .dispatch("getUserNewsletterSubscriptions", {})
-      .then((response) => {
-        if (response.status === 200) {
-          this.allSubscriptions = response.data.segments;
-        } else {
-          // catch error
-          console.log("Not successful", response);
-          this.success = false;
-          this.error = true;
-        }
-      })
-      .catch((error) => {
-        // catch error
-        this.success = false;
-        this.error = true;
-        this.errorMessage = error?.response?.data?.detail
+        this.errorMessage = error?.response?.data?.detail;
+        this.showInputForm = true;
       })
       .finally(() => {
         this.loading = false;
       });
   },
   methods: {
-    async cancelSubscription(campaign_name, segment_id) {
+    async cancelSubscription(campaignName, segmentId) {
       this.loading = true;
 
       this.$store
         .dispatch("cancelNewsletterSubscription", {
-          segment_id: segment_id,
+          segment_id: segmentId,
         })
         .then((response) => {
           if (response.status === 200) {
             this.campaignSubscriptions = this.campaignSubscriptions.filter(
-              (campaign) => campaign.id != segment_id
+              (campaign) => campaign.id !== segmentId,
             );
             this.allSubscriptions = this.allSubscriptions.filter(
-              (campaign) => campaign.id != segment_id
+              (campaign) => campaign.id !== segmentId,
             );
             this.success = true;
-            this.last_cancelled_newsletter = campaign_name;
+            this.lastCancelledNewsletter = campaignName;
           } else {
-            // catch error
-            console.log("Not successful", response);
             this.success = false;
             this.error = true;
           }
         })
         .catch((error) => {
-          // catch error
           this.success = false;
           this.error = true;
-          this.errorMessage = error?.response?.data?.detail
+          this.errorMessage = error?.response?.data?.detail;
         })
         .finally(() => {
           this.loading = false;
@@ -206,20 +225,19 @@ export default {
         .dispatch("deleteUserData")
         .then((response) => {
           if (response.status === 204) {
-            this.subscriptions = [];
+            this.campaignSubscriptions = [];
+            this.allSubscriptions = [];
             this.success = true;
+            this.lastCancelledNewsletter = null;
           } else {
-            // catch error
-            console.log("Not successful", response);
             this.success = false;
             this.error = true;
           }
         })
         .catch((error) => {
-          // catch error
           this.success = false;
           this.error = true;
-          this.errorMessage = error?.response?.data?.detail
+          this.errorMessage = error?.response?.data?.detail;
         })
         .finally(() => {
           this.loading = false;
@@ -230,10 +248,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/main.scss";
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins/breakpoints";
 
 .checkout-stage {
-  p, li {
+  p,
+  li {
     font-size: 20px;
     color: #333333;
     font-weight: 200;
@@ -250,7 +271,9 @@ export default {
     }
   }
 
-  p.small-paragraph, li {
+  p.small-paragraph,
+  li {
     font-size: 16px;
   }
-}</style>
+}
+</style>

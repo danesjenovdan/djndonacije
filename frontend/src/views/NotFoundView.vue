@@ -1,10 +1,13 @@
 <template>
   <div class="checkout">
     <div class="nothing">
-      <p>
-        Tukaj ni ničesar. Pojdi na
-        <a href="https://danesjenovdan.si/">danesjenovdan.si</a>.
-      </p>
+      <div>
+        <h1>404</h1>
+        <p>
+          Tukaj ni ničesar. Pojdi na
+          <a href="https://danesjenovdan.si/">danesjenovdan.si</a>.
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -21,6 +24,16 @@
     align-items: center;
     margin-top: 25%;
     text-align: center;
+  }
+
+  h1 {
+    font-size: 40px;
+    font-weight: 700;
+    color: #333333;
+
+    @include media-breakpoint-up(md) {
+      font-size: 60px;
+    }
   }
 
   p {

@@ -2,46 +2,72 @@
   <div class="checkout">
     <checkout-stage show-terms>
       <!-- <template v-slot:title>{{ $t('infoView.title') }}</template> -->
-      <template v-slot:title>{{ donationDescriptionForTitle }}</template>
-      <template v-slot:content>
+      <template #title>{{ donationDescriptionForTitle }}</template>
+      <template #content>
         <div v-if="loading" class="payment-loader">
           <div class="lds-dual-ring" />
         </div>
         <div class="info-content">
           <p>
-            {{ $t('infoView.whyEmail') }}
+            {{ $t("infoView.whyEmail") }}
           </p>
           <div class="form-group">
-            <input id="email" v-model="email" type="email" :placeholder="$t('infoView.email')"
-              class="form-control form-control-lg" />
+            <input
+              id="email"
+              v-model="email"
+              type="email"
+              :placeholder="$t('infoView.email')"
+              class="form-control form-control-lg"
+            />
           </div>
-          <div class="custom-control custom-checkbox" v-if="hasNewsletter">
-            <input id="info-newsletter" v-model="subscribeToNewsletter" type="checkbox" name="subscribeNewsletter"
-              class="custom-control-input" />
-            <label class="custom-control-label" for="info-newsletter">{{ $t('infoView.newsletterLabel') }}</label>
+          <div v-if="hasNewsletter" class="custom-control custom-checkbox">
+            <input
+              id="info-newsletter"
+              v-model="subscribeToNewsletter"
+              type="checkbox"
+              name="subscribeNewsletter"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="info-newsletter">{{
+              $t("infoView.newsletterLabel")
+            }}</label>
           </div>
           <hr />
           <p>
-            {{ $t('infoView.bots') }}
+            {{ $t("infoView.bots") }}
           </p>
           <div class="form-group">
             <div v-if="robotError" class="alert alert-danger py-2 my-2">
-              {{ $t('infoView.wrongAnswer') }}
+              {{ $t("infoView.wrongAnswer") }}
             </div>
             <div ref="captcha"></div>
           </div>
           <div class="lonec-medu">
-            <input type="text" name="name" placeholder="Your full name please" v-model="honeyPotName" />
+            <input
+              v-model="honeyPotName"
+              type="text"
+              name="name"
+              placeholder="Your full name please"
+            />
           </div>
         </div>
       </template>
-      <template v-slot:footer>
+      <template #footer>
         <div class="confirm-button-container">
-          <confirm-button key="next-info" :disabled="!canContinueToNextStage" :loading="infoSubmitting"
-            :text="$t('infoView.next')" arrow hearts @click.native="continueToNextStage" />
+          <confirm-button
+            key="next-info"
+            :disabled="!canContinueToNextStage"
+            :loading="infoSubmitting"
+            :text="$t('infoView.next')"
+            arrow
+            hearts
+            @click="continueToNextStage"
+          />
         </div>
         <div class="secondary-link">
-          <RouterLink :to="{ name: 'selectAmount' }">{{ $t('infoView.back') }}</RouterLink>
+          <RouterLink :to="{ name: 'selectAmount' }">{{
+            $t("infoView.back")
+          }}</RouterLink>
         </div>
       </template>
     </checkout-stage>
@@ -152,9 +178,10 @@ export default {
     async continueToNextStage() {
       if (this.canContinueToNextStage) {
         if (this.honeyPotName !== "") {
+          // eslint-disable-next-line no-console
           console.error("Preveč medu.");
         } else {
-          const captchaApi = window.djnCAPTCHA["captcha"];
+          const captchaApi = window.djnCAPTCHA.captcha;
           if (!captchaApi) {
             this.robotError = true;
             return;
@@ -171,11 +198,11 @@ export default {
               this.$store.commit("setToken", checkoutResponse.data.token);
               this.$store.commit(
                 "setCustomerId",
-                checkoutResponse.data.customer_id
+                checkoutResponse.data.customer_id,
               );
               this.$router.push({ name: "payment" });
             })
-            .catch((error) => {
+            .catch(() => {
               captchaApi.reload();
               this.loading = false;
               this.robotError = true;

@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import DynamicLink from './DynamicLink.vue';
+import DynamicLink from "./DynamicLink.vue";
 
 export default {
   components: {
@@ -31,7 +31,7 @@ export default {
   props: {
     to: {
       type: String,
-      default: '',
+      default: "",
     },
     text: {
       type: String,
@@ -39,7 +39,7 @@ export default {
     },
     color: {
       type: String,
-      default: 'primary',
+      default: "primary",
     },
     icon: {
       type: String,
@@ -135,14 +135,14 @@ export default {
   }
 
   // &.more-button--lg {
-    // @include media-breakpoint-up(md) {
-    //   .icon {
-    //     width: 1em;
-    //     height: 1em;
-    //   }
+  // @include media-breakpoint-up(md) {
+  //   .icon {
+  //     width: 1em;
+  //     height: 1em;
+  //   }
 
-    //   font-size: 2rem;
-    // }
+  //   font-size: 2rem;
+  // }
   // }
 
   &.more-button--block {

@@ -1,5 +1,6 @@
-import { createStore } from "vuex";
+/* eslint-disable no-param-reassign */
 import axios from "axios";
+import { createStore } from "vuex";
 
 // const api = "http://localhost:8000";
 const api = "https://podpri.lb.djnd.si";
@@ -107,7 +108,8 @@ const store = createStore({
 
       // create objects from the api
       const donationPresets = [];
-      for (let dp of newDonationPresets) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const dp of newDonationPresets) {
         donationPresets.push({
           custom: false,
           amount: dp.amount,
@@ -165,7 +167,7 @@ const store = createStore({
   actions: {
     async getCampaignData(context, payload) {
       const data = await axios.get(
-        `${api}/api/donation-campaign/${payload.campaignSlug}/`
+        `${api}/api/donation-campaign/${payload.campaignSlug}/`,
       );
 
       context.commit("setDonationCampaignId", data.data.id);
@@ -187,22 +189,22 @@ const store = createStore({
         context.commit("setRedirectToThankYou", true);
       }
     },
+    // eslint-disable-next-line no-unused-vars
     async getUserDonations(context, payload) {
       const url = `${api}/api/subscriptions/my?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
-      return await axios.get(url);
+      return axios.get(url);
     },
     async getUserNewsletterSubscriptions(context, payload) {
-      // console.log("campaign", payload.campaign);
-      const url = `${api}/api/segments/my?token=${context.getters.getToken}&email=${context.getters.getEmail}&campaign=${payload.campaign}`;
-      return await axios.get(url);
+      const url = `${api}/api/segments/my/?token=${context.getters.getToken}&email=${context.getters.getEmail}&campaign=${payload.campaign}`;
+      return axios.get(url);
     },
     async verifyCaptcha(context, payload) {
-      return await axios.get(
+      return axios.get(
         `${api}/api/generic-donation/${
           payload.campaignSlug
         }/?question_id=2&captcha=${encodeURIComponent(
-          payload.captcha
-        )}&email=${encodeURIComponent(payload.email)}`
+          payload.captcha,
+        )}&email=${encodeURIComponent(payload.email)}`,
       );
     },
     async onPaymentSuccess(context, payload) {
@@ -210,7 +212,7 @@ const store = createStore({
         ? `${api}/api/generic-donation/subscription/${payload.campaignSlug}/`
         : `${api}/api/generic-donation/${payload.campaignSlug}/`;
 
-      return await axios.post(paymentURL, {
+      return axios.post(paymentURL, {
         payment_type: payload.type === "card" ? "braintree" : payload.type,
         nonce: payload.nonce,
         customer_id: context.getters.getCustomerId,
@@ -226,6 +228,7 @@ const store = createStore({
         const response = await axios.post(url);
         return response;
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.log("ERROR at sending request", err.message);
         return null;
       }
@@ -240,6 +243,7 @@ const store = createStore({
         });
         return response;
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.log("ERROR at sending request", err.message);
         return null;
       }
@@ -251,14 +255,16 @@ const store = createStore({
         const response = await axios.delete(url);
         return response;
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.log("ERROR at sending request", err.message);
         return null;
       }
     },
+    // eslint-disable-next-line no-unused-vars
     async deleteUserData(context, payload) {
       const url = `${api}/api/delete-all-user-data?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
 
-      return await axios.delete(url);
+      return axios.delete(url);
     },
   },
 });

@@ -1,3 +1,8 @@
+volumes:
+  mysql_data:
+  mautic_data:
+
+
 services:
   donacije:
     build: .
@@ -65,14 +70,15 @@ services:
       - MAUTIC_RUN_CRON_JOBS=false
 
   podprifrontend:
-    build: frontend/.
+    build:
+      context: ./frontend
+      dockerfile: dev.Dockerfile
     ports:
-      - 80:8000
+      - 3000:3000
     volumes:
-      - ./frontend/.:/app
-
-volumes:
-  mysql_data:
-    driver: local
-  mautic_data:
-    driver: local
+      - ./frontend/src/:/app/src
+      - ./frontend/.eslintrc.cjs:/app/.eslintrc.cjs
+      - ./frontend/.prettierrc.json:/app/.prettierrc.json
+      - ./frontend/favicon.ico:/app/favicon.ico
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.js:/app/vite.config.js

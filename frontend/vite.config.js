@@ -1,21 +1,31 @@
-import { fileURLToPath, URL } from "node:url";
-
-import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vite";
 
-const path = require('path')
+const currentDir = dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  clearScreen: false,
   server: {
-    port: 3000,
     host: true,
+    port: 3000,
+    strictPort: true,
   },
   plugins: [vue()],
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-      '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
+      "@": resolve(currentDir, "src"),
+      "~bootstrap": resolve(currentDir, "node_modules/bootstrap"),
+    },
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: ["import"], // remove when updating to sass 3.0.0
+        quietDeps: true, // remove when bootstrap is updated
+      },
     },
   },
 });
