@@ -1,7 +1,10 @@
 <template>
   <div class="upn-payment">
     <form>
-      <img id="poloznica-img" src="../../assets/poloznica.png" />
+      <div class="qr-code-container">
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <div v-if="ready && qrCode" class="qr-code" v-html="qrCode"></div>
+      </div>
       <div class="form-group">
         <label>{{ $t("payment.depositSlipNote") }}</label>
       </div>
@@ -12,11 +15,41 @@
 <script>
 export default {
   name: "UpnPayment",
+  props: {
+    amount: {
+      type: Number,
+      required: true,
+    },
+    qrCode: {
+      type: String,
+      default: null,
+    },
+  },
   emits: ["ready", "success"],
+  data() {
+    return {
+      ready: false,
+    };
+  },
+  watch: {
+    qrCode(newVal) {
+      if (newVal) {
+        this.setReady();
+      }
+    },
+  },
   mounted() {
-    this.$emit("ready", { pay: this.sendUPN });
+    if (this.qrCode) {
+      this.setReady();
+    }
   },
   methods: {
+    setReady() {
+      if (!this.ready) {
+        this.ready = true;
+        this.$emit("ready", { pay: this.sendUPN });
+      }
+    },
     sendUPN() {
       this.$emit("success");
     },
@@ -26,25 +59,29 @@ export default {
 
 <style lang="scss" scoped>
 .upn-payment {
-  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 360px;
+  min-height: 295px;
   margin: 0 auto;
 
   label {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 300;
     text-align: center;
     display: block;
-    padding-top: 10px;
-    padding-bottom: 30px;
+    padding-top: 1rem;
   }
 
-  #poloznica-img {
-    width: 100px;
-    height: auto;
-    margin: auto;
-    display: block;
-    margin-bottom: 10px;
-    padding-top: 40px;
+  .qr-code-container {
+    .qr-code {
+      display: block;
+      width: 170px;
+      height: auto;
+      margin-inline: auto;
+    }
   }
 }
 </style>

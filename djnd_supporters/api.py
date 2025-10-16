@@ -460,6 +460,48 @@ class DonationCampaignBraintreeNonce(views.APIView):
         return Response(payment.client_token(None))
 
 
+class GenericDonationCampaignQRCode(views.APIView):
+    def get(self, request, campaign=""):
+        donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
+
+        if not donation_campaign.has_upn:
+            return Response(
+                {"msg": "Invalid campaign."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        donation_amount = request.GET.get("amount", "0")
+        try:
+            donation_amount = float(donation_amount)
+        except:
+            donation_amount = 0
+
+        if donation_amount <= 0:
+            return Response(
+                {"msg": "Invalid amount."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            qr_code = generate_upnqr_svg(
+                purpose=(
+                    donation_campaign.upn_name
+                    if donation_campaign.upn_name
+                    else "Donacija"
+                ),
+                reference="SI00 11" + str(donation_campaign.id).zfill(8),
+                amount=donation_amount,
+                include_xml_declaration=True,
+            )
+            return Response({"upn_qr_code": qr_code})
+        except UPNQRException as e:
+            capture_exception(e)
+            return Response(
+                {"msg": "Cannot generate QR code."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
 class GenericDonationCampaign(views.APIView):
     """
     GET get client token and donation specifics
@@ -475,27 +517,6 @@ class GenericDonationCampaign(views.APIView):
     """
 
     authentication_classes = [authentication.SubscriberAuthentication]
-
-    def get(self, request, campaign=""):
-        donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
-        donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
-        donation_obj.update(payment.client_token(None))
-        try:
-            qr_code = generate_upnqr_svg(
-                purpose=(
-                    donation_campaign.upn_name
-                    if donation_campaign.upn_name
-                    else "Donacija"
-                ),
-                reference="SI00 11" + str(donation_campaign.id).zfill(8),
-                amount=request.GET.get("amount", 5),
-                include_xml_declaration=True,
-            )
-        except UPNQRException as e:
-            capture_exception(e)
-            qr_code = None
-        donation_obj.update({"upn_qr_code": qr_code})
-        return Response(donation_obj)
 
     def post(self, request, campaign=""):
         data = request.data

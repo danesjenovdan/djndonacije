@@ -28,6 +28,7 @@ const store = createStore({
         subscribeToNewsletter: false,
         token: "",
         customerId: "",
+        QRCode: null,
       },
       lang: "sl",
     };
@@ -61,6 +62,9 @@ const store = createStore({
     },
     getHasNewsletter(state) {
       return state.campaignData.hasNewsletter;
+    },
+    getQRCode(state) {
+      return state.userData.QRCode;
     },
     getChosenAmount(state) {
       return state.userData.chosenAmount;
@@ -142,8 +146,12 @@ const store = createStore({
     setHasNewsletter(state, segment) {
       state.campaignData.hasNewsletter = !!segment;
     },
+    setQRCode(state, qr) {
+      state.userData.QRCode = qr;
+    },
     setChosenAmount(state, amount) {
       state.userData.chosenAmount = amount;
+      state.userData.QRCode = null;
     },
     setRecurringDonation(state, recurringDonation) {
       state.userData.recurringDonation = recurringDonation;
@@ -189,9 +197,15 @@ const store = createStore({
         context.commit("setRedirectToThankYou", true);
       }
     },
+    async getQRCode(context, payload) {
+      const data = await axios.get(
+        `${api}/api/donation-campaign/${payload.campaignSlug}/qrcode?amount=${payload.amount}`,
+      );
+      context.commit("setQRCode", data.data.upn_qr_code);
+    },
     // eslint-disable-next-line no-unused-vars
     async getUserDonations(context, payload) {
-      const url = `${api}/api/subscriptions/my?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+      const url = `${api}/api/subscriptions/my/?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
       return axios.get(url);
     },
     async getUserNewsletterSubscriptions(context, payload) {
@@ -200,11 +214,9 @@ const store = createStore({
     },
     async verifyCaptcha(context, payload) {
       return axios.get(
-        `${api}/api/generic-donation/${
-          payload.campaignSlug
-        }/?question_id=2&captcha=${encodeURIComponent(
+        `${api}/api/donation-nonce/?captcha=${encodeURIComponent(
           payload.captcha,
-        )}&email=${encodeURIComponent(payload.email)}`,
+        )}`,
       );
     },
     async onPaymentSuccess(context, payload) {

@@ -1,15 +1,6 @@
 <template>
   <div class="payment-switcher">
     <nav class="nav nav-pills justify-content-center">
-      <div class="nav-item">
-        <button
-          :class="['nav-link', { active: active === 'card' }]"
-          type="button"
-          @click="changeActive('card')"
-        >
-          {{ $t("payment.card") }}
-        </button>
-      </div>
       <div v-if="hasUpn && !recurring" class="nav-item">
         <button
           :class="['nav-link', { active: active === 'upn' }]"
@@ -26,6 +17,15 @@
           @click="changeActive('flik')"
         >
           {{ $t("payment.flik") }}
+        </button>
+      </div>
+      <div class="nav-item">
+        <button
+          :class="['nav-link', { active: active === 'card' }]"
+          type="button"
+          @click="changeActive('card')"
+        >
+          {{ $t("payment.card") }}
         </button>
       </div>
     </nav>
@@ -52,7 +52,7 @@ export default {
   emits: ["change"],
   data() {
     return {
-      active: "card",
+      active: "upn",
     };
   },
   mounted() {
