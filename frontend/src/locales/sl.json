@@ -12,6 +12,7 @@
         "donationWithAmount": "Donacija: {amount} €",
         "monthlyDonationWithAmount": "Mesečna donacija: {amount} €",
         "whyEmail": "Tvoj e-naslov potrebujemo, da ti lahko pošljemo potrdilo o donaciji. Način plačila izbereš v naslednjem koraku.",
+        "whyEmailPost": "Tvoj e-naslov potrebujemo, da ti lahko pošljemo potrdilo o donaciji.",
         "email": "E-naslov",
         "newsletterLabel": "Obveščajte me o novih projektih in aktivnostih.",
         "bots": "Zadnje čase nas pogosto napadajo roboti. Ker se želimo prepričati, da si človek, prosim vpiši spodnje znake.",

@@ -237,6 +237,15 @@ const store = createStore({
         mailing: context.getters.getSubscribeToNewsletter,
       });
     },
+    async afterPaymentAddEmail(context, payload) {
+      const url = `${api}/api/subscribe/`;
+
+      axios.post(url, {
+        transaction_id: payload.transaction_id,
+        email: context.getters.getEmail,
+        mailing: context.getters.getSubscribeToNewsletter,
+      });
+    },
     async confirmNewsletterSubscription(context, payload) {
       const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
 
