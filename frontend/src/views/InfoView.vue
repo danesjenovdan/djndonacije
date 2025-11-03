@@ -32,24 +32,6 @@
               $t("infoView.newsletterLabel")
             }}</label>
           </div>
-          <hr />
-          <p>
-            {{ $t("infoView.bots") }}
-          </p>
-          <div class="form-group">
-            <div v-if="robotError" class="alert alert-danger py-2 my-2">
-              {{ $t("infoView.wrongAnswer") }}
-            </div>
-            <div ref="captcha"></div>
-          </div>
-          <div class="lonec-medu">
-            <input
-              v-model="honeyPotName"
-              type="text"
-              name="name"
-              placeholder="Your full name please"
-            />
-          </div>
         </div>
       </template>
       <template #footer>
@@ -90,9 +72,6 @@ export default {
   data() {
     return {
       campaignSlug: this.$route.params.campaignSlug,
-      answer: "",
-      honeyPotName: "",
-      robotError: false,
       loading: false,
       infoSubmitting: false,
     };
@@ -165,49 +144,11 @@ export default {
     if (this.chosenAmount <= 0) {
       this.$router.push({ name: "selectAmount" });
     }
-
-    if (this.$refs.captcha && !document.querySelector("#djncaptcha")) {
-      const s = document.createElement("script");
-      s.dataset.inputName = "captcha";
-      s.dataset.locale = this.lang;
-      s.src = "https://captcha.lb.djnd.si/js/djncaptcha.js";
-      this.$refs.captcha.appendChild(s);
-    }
   },
   methods: {
     async continueToNextStage() {
       if (this.canContinueToNextStage) {
-        if (this.honeyPotName !== "") {
-          // eslint-disable-next-line no-console
-          console.error("Preveč medu.");
-        } else {
-          const captchaApi = window.djnCAPTCHA.captcha;
-          if (!captchaApi) {
-            this.robotError = true;
-            return;
-          }
-          this.loading = true;
-          this.$store
-            .dispatch("verifyCaptcha", {
-              campaignSlug: this.campaignSlug,
-              captcha: captchaApi.value(),
-              email: this.email,
-            })
-            .then((checkoutResponse) => {
-              captchaApi.remove();
-              this.$store.commit("setToken", checkoutResponse.data.token);
-              this.$store.commit(
-                "setCustomerId",
-                checkoutResponse.data.customer_id,
-              );
-              this.$router.push({ name: "payment" });
-            })
-            .catch(() => {
-              captchaApi.reload();
-              this.loading = false;
-              this.robotError = true;
-            });
-        }
+        this.$router.push({ name: "payment" });
       }
     },
   },
@@ -216,10 +157,6 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/assets/main.scss";
-
-.lonec-medu {
-  display: none !important;
-}
 
 .checkout {
   .info-content {

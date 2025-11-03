@@ -213,11 +213,15 @@ const store = createStore({
       return axios.get(url);
     },
     async verifyCaptcha(context, payload) {
-      return axios.get(
-        `${api}/api/donation-nonce/?captcha=${encodeURIComponent(
-          payload.captcha,
-        )}`,
-      );
+      let url = `${api}/api/donation-nonce/`;
+      url += `?captcha=${encodeURIComponent(payload.captcha)}`;
+      return axios.get(url);
+    },
+    async verifyCaptchaRecurring(context, payload) {
+      let url = `${api}/api/generic-donation/subscription/${payload.campaignSlug}/`;
+      url += `?captcha=${encodeURIComponent(payload.captcha)}`;
+      url += `&email=${encodeURIComponent(payload.email)}`;
+      return axios.get(url);
     },
     async onPaymentSuccess(context, payload) {
       const paymentURL = context.getters.getRecurringDonation

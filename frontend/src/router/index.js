@@ -29,11 +29,11 @@ const router = createRouter({
           name: "selectAmount",
           component: () => import("../views/SelectAmountView.vue"),
         },
-        // {
-        //   path: "info",
-        //   name: "info",
-        //   component: () => import("../views/InfoView.vue"),
-        // },
+        {
+          path: "info",
+          name: "info",
+          component: () => import("../views/InfoView.vue"),
+        },
         // {
         //   path: "placilo",
         //   name: "payment",

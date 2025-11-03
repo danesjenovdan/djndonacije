@@ -44,7 +44,6 @@ export default {
   align-items: center;
   justify-content: center;
   max-width: 360px;
-  min-height: 295px;
   margin: 0 auto;
 
   label {

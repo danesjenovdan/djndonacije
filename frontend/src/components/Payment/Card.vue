@@ -95,6 +95,18 @@ export default {
       type: Number,
       required: true,
     },
+    recurring: {
+      type: Boolean,
+      default: false,
+    },
+    email: {
+      type: String,
+      default: "",
+    },
+    campaignSlug: {
+      type: String,
+      required: true,
+    },
   },
   emits: [
     "captcha-ready",
@@ -141,7 +153,11 @@ export default {
       s.dataset.locale = this.lang;
       s.src = "https://captcha.lb.djnd.si/js/djncaptcha.js";
       this.$refs.captcha.appendChild(s);
-      this.$emit("captcha-ready", { submit: this.submitCaptcha });
+      if (this.recurring) {
+        this.$emit("captcha-ready", { submit: this.submitCaptchaRecurring });
+      } else {
+        this.$emit("captcha-ready", { submit: this.submitCaptcha });
+      }
     }
   },
   methods: {
@@ -167,6 +183,33 @@ export default {
         .catch(() => {
           captchaApi.reload();
           this.$emit("captcha-ready", { submit: this.submitCaptcha });
+          this.robotError = true;
+        });
+    },
+    submitCaptchaRecurring() {
+      const captchaApi = window.djnCAPTCHA.captcha;
+      if (!captchaApi) {
+        this.robotError = true;
+        return;
+      }
+      this.$emit("captcha-done");
+      this.$store
+        .dispatch("verifyCaptchaRecurring", {
+          captcha: captchaApi.value(),
+          email: this.email,
+          campaignSlug: this.campaignSlug,
+        })
+        .then((checkoutResponse) => {
+          captchaApi.remove();
+          this.$store.commit("setToken", checkoutResponse.data.token);
+          this.$store.commit(
+            "setCustomerId",
+            checkoutResponse.data.customer_id,
+          );
+        })
+        .catch(() => {
+          captchaApi.reload();
+          this.$emit("captcha-ready", { submit: this.submitCaptchaRecurring });
           this.robotError = true;
         });
     },
@@ -300,7 +343,6 @@ export default {
   align-items: center;
   justify-content: center;
   max-width: 360px;
-  min-height: 295px;
   margin: 0 auto;
 
   .captcha-container {

@@ -123,7 +123,11 @@ export default {
       this.$store.commit("setChosenAmount", sdp.amount);
     },
     continueToNextStage() {
-      this.$router.push({ name: "payment" });
+      if (this.recurringDonation) {
+        this.$router.push({ name: "info" });
+      } else {
+        this.$router.push({ name: "payment" });
+      }
     },
   },
 };

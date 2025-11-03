@@ -45,6 +45,9 @@
             <card-payment
               :token="token"
               :amount="chosenAmount"
+              :recurring="recurringDonation"
+              :email="email"
+              :campaign-slug="campaignSlug"
               @captcha-ready="onCaptchaReady"
               @captcha-done="onCaptchaDone"
               @ready="onPaymentReady"
@@ -61,7 +64,7 @@
         </div>
       </template>
       <template #footer>
-        <div class="confirm-button-container">
+        <div v-if="payment !== 'upn'" class="confirm-button-container">
           <confirm-button
             key="next-payment"
             :disabled="!canContinueToNextStage"
@@ -101,7 +104,7 @@ export default {
   },
   data() {
     const { campaignSlug } = this.$route.params;
-    const payment = "upn";
+    const payment = this.$store.getters.getRecurringDonation ? "card" : "upn";
     const { lang } = this.$route.params;
 
     return {
@@ -121,6 +124,9 @@ export default {
     },
     recurringDonation() {
       return this.$store.getters.getRecurringDonation;
+    },
+    email() {
+      return this.$store.getters.getEmail;
     },
     paymentOptions() {
       return this.$store.getters.getPaymentOptions;

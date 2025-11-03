@@ -52,7 +52,7 @@ export default {
   emits: ["change"],
   data() {
     return {
-      active: "upn",
+      active: this.recurring ? "card" : "upn",
     };
   },
   mounted() {
