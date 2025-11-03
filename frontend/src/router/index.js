@@ -34,15 +34,10 @@ const router = createRouter({
           name: "info",
           component: () => import("../views/InfoView.vue"),
         },
-        // {
-        //   path: "placilo",
-        //   name: "payment",
-        //   component: () => import("../views/PaymentView.vue"),
-        // },
         {
           path: "placilo",
           name: "payment",
-          component: () => import("../views/PaymentNewView.vue"),
+          component: () => import("../views/PaymentView.vue"),
         },
       ],
     },
