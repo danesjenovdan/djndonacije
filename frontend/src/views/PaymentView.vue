@@ -226,6 +226,11 @@ export default {
             if (this.lang) {
               options.params = { lang: this.lang };
             }
+            if (response.data.transaction_id) {
+              options.query = {
+                transaction_id: response.data.transaction_id,
+              };
+            }
             this.$router.push(options);
           }
         })

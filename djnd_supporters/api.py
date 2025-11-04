@@ -71,12 +71,14 @@ class Subscribe(views.APIView):
         data = request.data
         email = data.get("email", None)
         segment = data.get("segment_id", None)
-        campaign_id = data.get("campaign_id", None)
+        campaign_slug = data.get("campaign_id", None)
         transaction_id = data.get("transaction_id", None)
         add_to_mailing = data.get("add_to_mailing", True)
 
-        if campaign_id:
-            campaign = models.DonationCampaign.objects.filter(slug=campaign).first()
+        if campaign_slug:
+            campaign = models.DonationCampaign.objects.filter(
+                slug=campaign_slug
+            ).first()
 
         # segment from argument has priority on segment from campaign
         if not segment and campaign:

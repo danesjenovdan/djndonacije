@@ -2,8 +2,10 @@
 import axios from "axios";
 import { createStore } from "vuex";
 
-// const api = "http://localhost:8000";
-const api = "https://podpri.lb.djnd.si";
+const api = import.meta.env.VITE_API_URL;
+if (!api) {
+  throw new Error("VITE_API_URL not set in environment variables!");
+}
 
 const store = createStore({
   state() {
@@ -241,9 +243,10 @@ const store = createStore({
       const url = `${api}/api/subscribe/`;
 
       axios.post(url, {
-        transaction_id: payload.transaction_id,
-        email: context.getters.getEmail,
-        mailing: context.getters.getSubscribeToNewsletter,
+        campaign_id: payload.campaignSlug,
+        transaction_id: payload.transactionId,
+        email: payload.email,
+        add_to_mailing: payload.addToMailing,
       });
     },
     async confirmNewsletterSubscription(context, payload) {
