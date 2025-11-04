@@ -225,7 +225,9 @@ if ENABLE_S3:
                 ),
                 "location": os.getenv("DJANGO_AWS_LOCATION", "podpri"),
                 "file_overwrite": os.getenv("DJANGO_AWS_S3_FILE_OVERWRITE", False),
-                "signature_version": os.getenv("DJANGO_AWS_S3_SIGNATURE_VERSION", "s3v4"),
+                "signature_version": os.getenv(
+                    "DJANGO_AWS_S3_SIGNATURE_VERSION", "s3v4"
+                ),
                 "querystring_auth": os.getenv("DJANGO_AWS_QUERYSTRING_AUTH", False),
                 "default_acl": os.getenv("DJANGO_AWS_DEFAULT_ACL", "public-read"),
             },
