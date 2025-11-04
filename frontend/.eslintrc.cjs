@@ -1,14 +1,32 @@
-/* eslint-env node */
-require("@rushstack/eslint-patch/modern-module-resolution");
+const { resolve } = require("path");
 
 module.exports = {
   root: true,
+  env: {
+    node: true,
+  },
   extends: [
-    "plugin:vue/vue3-essential",
-    "eslint:recommended",
-    "@vue/eslint-config-prettier",
+    "airbnb-base",
+    "plugin:vue/vue3-recommended",
+    "plugin:prettier/recommended",
   ],
-  parserOptions: {
-    ecmaVersion: "latest",
+  plugins: ["vue", "prettier"],
+  rules: {
+    "import/extensions": ["error", "always"],
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        optionalDependencies: false,
+        devDependencies: [
+          "**/vite.config.{js,cjs,mjs}",
+          "**/.eslintrc.{js,cjs,mjs}",
+        ],
+      },
+    ],
+  },
+  settings: {
+    "import/resolver": {
+      alias: [["@", resolve(__dirname, "src")]],
+    },
   },
 };

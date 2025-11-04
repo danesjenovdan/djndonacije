@@ -1,15 +1,6 @@
 <template>
   <div class="payment-switcher">
     <nav class="nav nav-pills justify-content-center">
-      <div class="nav-item">
-        <button
-          :class="['nav-link', { active: active === 'card' }]"
-          type="button"
-          @click="changeActive('card')"
-        >
-          {{ $t("payment.card") }}
-        </button>
-      </div>
       <div v-if="hasUpn && !recurring" class="nav-item">
         <button
           :class="['nav-link', { active: active === 'upn' }]"
@@ -28,12 +19,22 @@
           {{ $t("payment.flik") }}
         </button>
       </div>
+      <div class="nav-item">
+        <button
+          :class="['nav-link', { active: active === 'card' }]"
+          type="button"
+          @click="changeActive('card')"
+        >
+          {{ $t("payment.card") }}
+        </button>
+      </div>
     </nav>
   </div>
 </template>
 
 <script>
 export default {
+  name: "PaymentSwitcher",
   props: {
     recurring: {
       type: Boolean,
@@ -48,9 +49,10 @@ export default {
       default: true,
     },
   },
+  emits: ["change"],
   data() {
     return {
-      active: "card",
+      active: this.recurring ? "card" : "upn",
     };
   },
   mounted() {

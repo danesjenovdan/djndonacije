@@ -235,8 +235,8 @@ class DonationCampaign(Timestamped):
     upn_email_template = models.IntegerField(
         null=True, blank=True, verbose_name="Mautic email ID za UPN donacijo"
     )
-    bt_email_template = models.IntegerField(
-        null=True, blank=True, verbose_name="Mautic email ID za braintree donacijo"
+    onetime_donation_email_template = models.IntegerField(
+        null=True, blank=True, verbose_name="Mautic email ID za enkratno donacijo"
     )
     bt_subscription_email_template = models.IntegerField(
         null=True,
