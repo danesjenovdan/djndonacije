@@ -14,8 +14,8 @@
       </p>
     </div>
     <checkout-stage show-terms>
-      <template v-slot:title>{{ $t("paymentView.title") }}</template>
-      <template v-slot:content>
+      <template #title>{{ $t("paymentView.title") }}</template>
+      <template #content>
         <div class="payment-container">
           <payment-switcher
             :recurring="recurringDonation"
@@ -26,21 +26,10 @@
           <div v-if="checkoutLoading" class="payment-loader">
             <div class="lds-dual-ring" />
           </div>
-          <template v-if="payment === 'card'">
-            <card-payment
-              :token="token"
-              :amount="chosenAmount"
-              :email="email"
-              @ready="onPaymentReady"
-              @validity-change="paymentInfoValid = $event"
-              @payment-start="paymentInProgress = true"
-              @success="paymentSuccess"
-              @error="paymentError"
-            />
-          </template>
           <template v-if="payment === 'upn'">
             <upn-payment
               :amount="chosenAmount"
+              :qr-code="QRCode"
               @ready="onUPNPaymentReady"
               @success="paymentSuccess"
             />
@@ -52,14 +41,30 @@
               @success="paymentSuccess"
             />
           </template>
+          <template v-if="payment === 'card'">
+            <card-payment
+              :token="token"
+              :amount="chosenAmount"
+              :recurring="recurringDonation"
+              :email="email"
+              :campaign-slug="campaignSlug"
+              @captcha-ready="onCaptchaReady"
+              @captcha-done="onCaptchaDone"
+              @ready="onPaymentReady"
+              @validity-change="paymentInfoValid = $event"
+              @payment-start="paymentInProgress = true"
+              @success="paymentSuccess"
+              @error="paymentError"
+            />
+          </template>
           <div class="cart-total">
             <span>{{ $t("paymentView.amountToPay") }}</span>
             <i>{{ chosenAmount }} €</i>
           </div>
         </div>
       </template>
-      <template v-slot:footer>
-        <div class="confirm-button-container">
+      <template #footer>
+        <div v-if="payment !== 'upn'" class="confirm-button-container">
           <confirm-button
             key="next-payment"
             :disabled="!canContinueToNextStage"
@@ -71,7 +76,7 @@
           />
         </div>
         <div class="secondary-link">
-          <RouterLink :to="{ name: 'info', params: $route.params }">{{
+          <RouterLink :to="{ name: 'selectAmount', params: $route.params }">{{
             $t("paymentView.back")
           }}</RouterLink>
         </div>
@@ -98,20 +103,16 @@ export default {
     PaymentSwitcher,
   },
   data() {
-    const campaignSlug = this.$route.params.campaignSlug;
-    const payment =
-      this.$store.getters.getPaymentOptions.oneTime ||
-      this.$store.getters.getPaymentOptions.monthly
-        ? "card"
-        : "upn";
-    const lang = this.$route.params.lang;
+    const { campaignSlug } = this.$route.params;
+    const payment = this.$store.getters.getRecurringDonation ? "card" : "upn";
+    const { lang } = this.$route.params;
 
     return {
       campaignSlug,
       lang,
       error: null,
-      payment: payment,
-      checkoutLoading: false,
+      payment,
+      checkoutLoading: true,
       paymentInfoValid: false,
       paymentInProgress: false,
       payFunction: undefined,
@@ -121,20 +122,20 @@ export default {
     token() {
       return this.$store.getters.getToken;
     },
-    customerId() {
-      return this.$store.getters.getCustomerId;
+    recurringDonation() {
+      return this.$store.getters.getRecurringDonation;
     },
     email() {
       return this.$store.getters.getEmail;
-    },
-    recurringDonation() {
-      return this.$store.getters.getRecurringDonation;
     },
     paymentOptions() {
       return this.$store.getters.getPaymentOptions;
     },
     chosenAmount() {
       return this.$store.getters.getChosenAmount;
+    },
+    QRCode() {
+      return this.$store.getters.getQRCode;
     },
     thankYouUrl() {
       return this.$store.getters.getRedirectToThankYou;
@@ -152,14 +153,27 @@ export default {
     // redirect if no amount
     if (this.chosenAmount <= 0) {
       this.$router.push({ name: "selectAmount" });
+      return;
     }
 
-    // redirect if no token or customerid or email
-    if (this.token === "" || this.customerId === "" || this.email === "") {
-      this.$router.push({ name: "info" });
+    if (!this.QRCode) {
+      this.$store.dispatch("getQRCode", {
+        campaignSlug: this.campaignSlug,
+        amount: this.chosenAmount,
+      });
     }
   },
   methods: {
+    onCaptchaReady({ submit } = {}) {
+      this.checkoutLoading = false;
+      this.paymentInfoValid = true;
+      this.payFunction = submit;
+    },
+    onCaptchaDone() {
+      this.checkoutLoading = true;
+      this.paymentInfoValid = false;
+      this.payFunction = undefined;
+    },
     onPaymentReady({ pay } = {}) {
       this.checkoutLoading = false;
       this.paymentInfoValid = false;
@@ -212,6 +226,11 @@ export default {
             if (this.lang) {
               options.params = { lang: this.lang };
             }
+            if (response.data.transaction_id) {
+              options.query = {
+                transaction_id: response.data.transaction_id,
+              };
+            }
             this.$router.push(options);
           }
         })
@@ -219,15 +238,16 @@ export default {
           this.paymentInProgress = false;
           // eslint-disable-next-line no-console
           console.error("Napaka pri klicu na strežnik.");
+          // eslint-disable-next-line no-console
           console.error(error);
           this.error = error.response;
         });
     },
     paymentError(error) {
       this.paymentInProgress = false;
-      // eslint-disable-next-line
+      // eslint-disable-next-line no-console
       console.error("Napaka pri plačilu.");
-      // eslint-disable-next-line
+      // eslint-disable-next-line no-console
       console.error(error);
       this.error = error;
     },
@@ -237,7 +257,6 @@ export default {
           this.payFunction();
         }
       }
-      return;
     },
   },
 };

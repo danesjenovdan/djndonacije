@@ -1,13 +1,22 @@
 <template>
-  <div :class="[
-      'checkout-stage',
-    ]">
+  <div :class="['checkout-stage']">
     <div class="checkout-stage__container">
       <div class="checkout-stage__header">
         <slot name="header">
           <div class="language-switcher">
-            <button :class="{'active': lang != 'en'}" @click="switchLocale('sl')">SL</button> | <button
-              :class="{ 'active': lang == 'en' }" @click="switchLocale('en')">EN</button>
+            <button
+              :class="{ active: lang != 'en' }"
+              @click="switchLocale('sl')"
+            >
+              SL
+            </button>
+            |
+            <button
+              :class="{ active: lang == 'en' }"
+              @click="switchLocale('en')"
+            >
+              EN
+            </button>
           </div>
           <h1 class="checkout-stage__title">
             <slot name="title" />
@@ -23,7 +32,7 @@
     </div>
     <div v-if="showTerms" class="checkout-stage__terms">
       <a href="https://danesjenovdan.si/pogoji" target="_blank">
-        {{ $t('checkoutStage.terms') }}
+        {{ $t("checkoutStage.terms") }}
       </a>
     </div>
     <div v-if="showDjndFooter" class="checkout-stage__footer_djnd">
@@ -31,21 +40,26 @@
       <div>
         <img src="../assets/logo-djnd.png" class="logo-djnd" alt="" />
         <a href="https://danesjenovdan.si/" target="_blank">
-          {{ $t('checkoutStage.djndWebsite') }} <span class="icon-arrow-right">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="30 18 110.9 40" fill="#333333">
+          {{ $t("checkoutStage.djndWebsite") }}
+          <span class="icon-arrow-right">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="30 18 110.9 40"
+              fill="#333333"
+            >
               <path
-                d="M140.9 38a3 3 0 00-.9-2l-16-17c-1-1-3.1-1.4-4.3-.3-1.2 1-1.2 3.2 0 4.4L131 35H30v6h101l-11.3 12c-1 1-1.2 3.2 0 4.3 1.2 1 3.3.8 4.3-.2l16-17c.6-.6.9-1.3.9-2.1z" />
+                d="M140.9 38a3 3 0 00-.9-2l-16-17c-1-1-3.1-1.4-4.3-.3-1.2 1-1.2 3.2 0 4.4L131 35H30v6h101l-11.3 12c-1 1-1.2 3.2 0 4.3 1.2 1 3.3.8 4.3-.2l16-17c.6-.6.9-1.3.9-2.1z"
+              />
             </svg>
           </span>
         </a>
       </div>
-
     </div>
   </div>
 </template>
 
 <script>
-import i18n from "../i18n";
+import i18n from "../i18n.js";
 
 export default {
   props: {
@@ -67,19 +81,19 @@ export default {
       return this.$store.getters.getLang;
     },
   },
+  mounted() {
+    const { lang } = this.$route.query;
+    if (lang === "en") {
+      this.$store.commit("setLang", lang);
+      i18n.global.locale = lang;
+    }
+  },
   methods: {
     switchLocale(newLang) {
       this.$store.commit("setLang", newLang);
       i18n.global.locale = newLang;
-    }
+    },
   },
-  mounted() {
-    const lang = this.$route.query.lang;
-    if (lang == "en") {
-      this.$store.commit("setLang", lang);
-      i18n.global.locale = lang;
-    }
-  }
 };
 </script>
 
@@ -176,7 +190,7 @@ export default {
   }
 
   .checkout-stage__footer_djnd {
-    &>div {
+    & > div {
       display: flex;
       justify-content: center;
       align-items: center;

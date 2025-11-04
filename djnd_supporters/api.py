@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import braintree
 import requests
@@ -51,14 +51,34 @@ class Subscribe(views.APIView):
         campaign
     """
 
+    def send_donation_confirmation(self, mautic_id, campaign, transaction_id):
+        """
+        Send donation confirmation email if mautic_id, campaign and transaction_id are set
+        """
+        if transaction_id and campaign and mautic_id:
+            donation = models.Transaction.objects.filter(
+                id=transaction_id,
+                is_paid=True,
+                created__gte=datetime.now() - timedelta(minutes=5),
+            ).first()
+            if donation and campaign.onetime_donation_email_template:
+                # send email if tempalte is setted in donation campaign
+                response, response_status = mautic_api.sendEmail(
+                    campaign.onetime_donation_email_template, mautic_id, {}
+                )
+
     def post(self, request, format=None):
         data = request.data
         email = data.get("email", None)
         segment = data.get("segment_id", None)
-        campaign = data.get("campaign_id", None)
+        campaign_slug = data.get("campaign_id", None)
+        transaction_id = data.get("transaction_id", None)
+        add_to_mailing = data.get("add_to_mailing", True)
 
-        if campaign:
-            campaign = models.DonationCampaign.objects.filter(slug=campaign).first()
+        if campaign_slug:
+            campaign = models.DonationCampaign.objects.filter(
+                slug=campaign_slug
+            ).first()
 
         # segment from argument has priority on segment from campaign
         if not segment and campaign:
@@ -89,8 +109,10 @@ class Subscribe(views.APIView):
                         subscriber = models.Subscriber.objects.create()
                         subscriber.save()
                         response, response_status = subscriber.save_to_mautic(email)
+                        mautic_id = subscriber.mautic_id
+                    self.send_donation_confirmation(mautic_id, campaign, transaction_id)
                     mail_to_send = None
-                    if segment:
+                    if segment and add_to_mailing:
                         # user is not on a segment then welcome mail
                         response, response_status = mautic_api.getSegmentsOfContact(
                             mautic_id
@@ -108,7 +130,7 @@ class Subscribe(views.APIView):
                                     msg = f"Nova naročnina na novičnik [ {campaign.name} ] ({mautic_id})"
                                     send_slack_msg(msg, "#novicnik-bot")
 
-                    if campaign:
+                    if campaign and add_to_mailing:
                         if (
                             mail_to_send == "edit"
                             and campaign.edit_subscriptions_email_tempalte
@@ -141,7 +163,11 @@ class Subscribe(views.APIView):
                     response, response_status = subscriber.save_to_mautic(email)
                     if response_status != 200:
                         return Response({"msg": response}, status=response_status)
-                    else:
+
+                    self.send_donation_confirmation(
+                        subscriber.mautic_id, campaign, transaction_id
+                    )
+                    if add_to_mailing:
                         if segment:
                             if not campaign.add_to_newsletter_confirmation_required:
                                 mautic_api.addContactToASegment(
@@ -449,9 +475,181 @@ class DonationCampaignInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.DonationCampaign.objects.all()
 
 
+class DonationCampaignBraintreeNonce(views.APIView):
+    def get(self, request):
+        # check captcha
+        captcha_validated = validate_captcha(request.GET.get("captcha", ""))
+        if not captcha_validated:
+            return Response(
+                {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
+            )
+        return Response(payment.client_token(None))
+
+
+class GenericDonationCampaignQRCode(views.APIView):
+    def get(self, request, campaign=""):
+        donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
+
+        if not donation_campaign.has_upn:
+            return Response(
+                {"msg": "Invalid campaign."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        donation_amount = request.GET.get("amount", "0")
+        try:
+            donation_amount = float(donation_amount)
+        except:
+            donation_amount = 0
+
+        if donation_amount <= 0:
+            return Response(
+                {"msg": "Invalid amount."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            qr_code = generate_upnqr_svg(
+                purpose=(
+                    donation_campaign.upn_name
+                    if donation_campaign.upn_name
+                    else "Donacija"
+                ),
+                reference="SI00 11" + str(donation_campaign.id).zfill(8),
+                amount=donation_amount,
+                include_xml_declaration=True,
+            )
+            return Response({"upn_qr_code": qr_code})
+        except UPNQRException as e:
+            capture_exception(e)
+            return Response(
+                {"msg": "Cannot generate QR code."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
 class GenericDonationCampaign(views.APIView):
     """
     GET get client token and donation specifics
+
+    POST json data:
+     - nonce
+     - amount
+     - name
+     - mailing
+     - address
+     - payment_type
+    """
+
+    authentication_classes = [authentication.SubscriberAuthentication]
+
+    def post(self, request, campaign=""):
+        data = request.data
+        nonce = data.get("nonce", None)
+        amount = data.get("amount", None)
+        name = data.get("name", "")
+        payment_type = data.get("payment_type", "braintree")
+
+        donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
+
+        # if no amount deny
+        if not amount:
+            return Response(
+                {"msg": "Missing amount."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if payment_type == "braintree":
+            # check if campaign supports braintree payments
+            if not donation_campaign.has_braintree:
+                return Response(
+                    {"msg": "This campaign does not support braintree payments."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            result = payment.pay_bt_3d(
+                nonce,
+                float(amount),
+                taxExempt=True,
+                description=donation_campaign.name,
+                campaign=donation_campaign.name,
+                merchant_account_id=donation_campaign.braintree_merchant_account_id,
+            )
+            if result.is_success:
+                transaction_id = result.transaction.id
+                payment_instrument_type = result.transaction.payment_instrument_type
+                if payment_instrument_type == "paypal_account":
+                    payment_method = "braintree-paypal"
+                else:
+                    payment_method = "braintree"
+                # create donation and image object without subscriber
+                donation = models.Transaction(
+                    amount=amount,
+                    nonce=nonce,
+                    campaign=donation_campaign,
+                    transaction_id=transaction_id,
+                    payment_method=payment_method,
+                )
+                donation.save()
+
+            else:
+                try:
+                    code = result.transaction.processor_response_code
+                    text = result.transaction.processor_response_text
+                    deep_mgs = f" {code}: {text}"
+                    capture_message(deep_mgs)
+                except:
+                    deep_mgs = ""
+                return Response(
+                    {"msg": f"{result.message}{deep_mgs}"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        elif payment_type == "flik":
+            donation = models.Transaction(
+                amount=amount,
+                nonce=nonce,
+                campaign=donation_campaign,
+                payment_method=payment_type,
+                is_paid=False,
+            )
+            donation.save()
+            flik_response = flik.initialize_payment(
+                transaction_id=donation.id,
+                amount="{:.2f}".format(amount),
+                description=donation_campaign.upn_name,
+                shopper_locale="sl",
+                customer_ip=utils.get_client_ip(request),
+                success_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/hvala",
+                error_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
+                cancel_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
+                callback_url=f"{settings.BASE_URL}/api/flik-callback/",
+            )
+            if flik_response.success:
+                donation.reference = flik_response.purchase_id
+                donation.save()
+                return Response({"redirect_url": flik_response.redirect_url})
+            else:
+                return Response({"error": "Payment data not created"}, status=400)
+
+        # send slack msg
+        try:
+            name = name.split(" ")[0]
+        except:
+            pass
+
+        msg = f"Dinozaverka nam je podarila {payment_type} donacijo za [ { donation_campaign.name } ] v višini: {donation.amount}"
+        send_slack_msg(msg, donation_campaign.slack_report_channel)
+
+        response = {
+            "msg": "Thanks <3",
+            "transaction_id": donation.id,
+        }
+
+        return Response(response)
+
+
+class GenericCampaignSubscription(views.APIView):
+    """
+    GET get client token
 
     POST json data:
      - nonce
@@ -460,7 +658,7 @@ class GenericDonationCampaign(views.APIView):
      - name
      - mailing
      - address
-     - payment_type
+     - customer_id
     """
 
     authentication_classes = [authentication.SubscriberAuthentication]
@@ -502,237 +700,8 @@ class GenericDonationCampaign(views.APIView):
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
         donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
         donation_obj.update(payment.client_token(subscriber))
-        try:
-            qr_code = generate_upnqr_svg(
-                purpose=(
-                    donation_campaign.upn_name
-                    if donation_campaign.upn_name
-                    else "Donacija"
-                ),
-                reference="SI00 11" + str(donation_campaign.id).zfill(8),
-                amount=request.GET.get("amount", 5),
-                include_xml_declaration=True,
-            )
-        except UPNQRException as e:
-            capture_exception(e)
-            qr_code = None
-        donation_obj.update({"upn_qr_code": qr_code})
+
         return Response(donation_obj)
-
-    def post(self, request, campaign=""):
-        data = request.data
-        nonce = data.get("nonce", None)
-        amount = data.get("amount", None)
-        email = data.get("email", None)
-        name = data.get("name", "")
-        add_to_mailing = data.get("mailing", False)
-        address = data.get("address", "")
-        payment_type = data.get("payment_type", "braintree")
-
-        donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
-
-        # if no amount deny
-        if not amount:
-            return Response(
-                {"msg": "Missing amount."}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # email and nonce are both present
-        response, response_status = mautic_api.getContactByEmail(email)
-        if response_status == 200:
-            contacts = response["contacts"]
-        else:
-            # something went wrong with mautic, return
-            return Response({"msg": response}, status=response_status)
-        print(contacts)
-        mautic_id = None
-        if contacts:
-            # subscriber exists on mautic
-            mautic_id = list(contacts.keys())[0]
-            subscriber = models.Subscriber.objects.get(mautic_id=mautic_id)
-            subscriber.name = name
-            subscriber.address = address
-            subscriber.save()
-        else:
-            # subscriber does not exist on mautic
-            subscriber = models.Subscriber.objects.create(name=name, address=address)
-            subscriber.save()
-            response, response_status = subscriber.save_to_mautic(email)
-            if response_status != 200:
-                # something went wrong with saving to mautic, abort
-                return Response({"msg": response}, status=response_status)
-            mautic_id = subscriber.mautic_id
-
-        # add to mailing if they agreed
-        if add_to_mailing and donation_campaign.segment:
-            response, response_status = mautic_api.addContactToASegment(
-                donation_campaign.segment, mautic_id
-            )
-
-        if payment_type == "upn":
-            # check if campaign supports upn payments
-            if not donation_campaign.has_upn:
-                return Response(
-                    {"msg": "This campaign does not support UPN payments."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            donation = models.Transaction(
-                amount=amount,
-                nonce=nonce,
-                subscriber=subscriber,
-                is_paid=False,
-                payment_method="upn",
-                campaign=donation_campaign,
-            )
-            donation.save()
-            reference = "SI00 11" + str(donation.id).zfill(8)
-            donation.reference = reference
-            donation.save()
-
-            pdf = getPDForDonation(None, donation.id).render().content
-
-            response, response_status = mautic_api.saveFile("upn.pdf", pdf)
-            response, response_status = mautic_api.saveAsset(
-                "upn", response["file"]["name"]
-            )
-            asset_id = response["asset"]["id"]
-
-            email_id = donation_campaign.upn_email_template
-
-            response, response_status = mautic_api.getEmail(email_id)
-            content = response["email"]["customHtml"]
-            subject = response["email"]["subject"]
-            response_mail, response_status = mautic_api.createEmail(
-                subject + " copy-for " + name,
-                subject,
-                subject,
-                customHtml=content,
-                # emailType='list',
-                description="email for donation with UPN",
-                assetAttachments=[asset_id],
-                template=None,
-                # lists=[1],
-                fromAddress=response["email"]["fromAddress"],
-                fromName=response["email"]["fromName"],
-                replyToAddress=response["email"]["replyToAddress"],
-            )
-
-            mautic_api.sendEmail(response_mail["email"]["id"], mautic_id, {})
-
-        elif payment_type == "braintree":
-            # check if campaign supports braintree payments
-            if not donation_campaign.has_braintree:
-                return Response(
-                    {"msg": "This campaign does not support braintree payments."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            result = payment.pay_bt_3d(
-                nonce,
-                float(amount),
-                taxExempt=True,
-                description=donation_campaign.name,
-                campaign=donation_campaign.name,
-                merchant_account_id=donation_campaign.braintree_merchant_account_id,
-            )
-            if result.is_success:
-                transaction_id = result.transaction.id
-                payment_instrument_type = result.transaction.payment_instrument_type
-                if payment_instrument_type == "paypal_account":
-                    payment_method = "braintree-paypal"
-                else:
-                    payment_method = "braintree"
-                # create donation and image object without subscriber
-                donation = models.Transaction(
-                    amount=amount,
-                    nonce=nonce,
-                    subscriber=subscriber,
-                    campaign=donation_campaign,
-                    transaction_id=transaction_id,
-                    payment_method=payment_method,
-                )
-                donation.save()
-
-                # send email if tempalte is setted in donation campaign
-                if donation_campaign.bt_email_template:
-                    response, response_status = mautic_api.sendEmail(
-                        donation_campaign.bt_email_template, subscriber.mautic_id, {}
-                    )
-            else:
-                try:
-                    code = result.transaction.processor_response_code
-                    text = result.transaction.processor_response_text
-                    deep_mgs = f" {code}: {text}"
-                    capture_message(deep_mgs)
-                except:
-                    deep_mgs = ""
-                return Response(
-                    {"msg": f"{result.message}{deep_mgs}"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-        elif payment_type == "flik":
-            donation = models.Transaction(
-                amount=amount,
-                nonce=nonce,
-                subscriber=subscriber,
-                campaign=donation_campaign,
-                payment_method=payment_type,
-                is_paid=False,
-            )
-            donation.save()
-            flik_response = flik.initialize_payment(
-                transaction_id=donation.id,
-                amount="{:.2f}".format(amount),
-                description=donation_campaign.upn_name,
-                shopper_locale="sl",
-                customer_ip=utils.get_client_ip(request),
-                success_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/hvala",
-                error_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
-                cancel_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
-                callback_url=f"{settings.BASE_URL}/api/flik-callback/",
-            )
-            if flik_response.success:
-                donation.reference = flik_response.purchase_id
-                donation.save()
-                return Response({"redirect_url": flik_response.redirect_url})
-            else:
-                return Response({"error": "Payment data not created"}, status=400)
-
-        # send slack msg
-        try:
-            name = name.split(" ")[0]
-        except:
-            pass
-
-        msg = f"Dinozaverka nam je podarila {payment_type} donacijo za [ { donation_campaign.name } ] v višini: {donation.amount}"
-        send_slack_msg(msg, donation_campaign.slack_report_channel)
-
-        response = {
-            "msg": "Thanks <3",
-        }
-        if donation_campaign.has_upload_image:
-            image = models.Image(donation=donation)
-            image.save()
-            response.update({"upload_token": image.token})
-
-        return Response(response)
-
-
-class GenericCampaignSubscription(views.APIView):
-    """
-    GET get client token
-
-    POST json data:
-     - nonce
-     - amount
-     - email
-     - name
-     - mailing
-     - address
-     - customer_id
-    """
-
-    authentication_classes = [authentication.SubscriberAuthentication]
 
     def post(self, request, campaign=""):
         data = request.data

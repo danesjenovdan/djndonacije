@@ -30,8 +30,16 @@ urlpatterns = [
         api.GenericDonationCampaign.as_view(),
     ),
     re_path(
+        "donation-campaign/(?P<campaign>[-\w]+)/qrcode$",
+        api.GenericDonationCampaignQRCode.as_view(),
+    ),
+    re_path(
         "donation-statistics/(?:(?P<campaign>[-\w]+)/)?$",
         api.DonationCampaignStatistics.as_view(),
+    ),
+    re_path(
+        "donation-nonce/",
+        api.DonationCampaignBraintreeNonce.as_view(),
     ),
     re_path("braintree-webhook/", api.BraintreeWebhookApiView.as_view()),
     re_path("transaction-export/", views.braintree_export, name="transaction-export"),

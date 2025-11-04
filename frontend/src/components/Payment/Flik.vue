@@ -2,11 +2,11 @@
   <div class="upn-payment">
     <form>
       <svg
+        id="flik-logo"
         xmlns="http://www.w3.org/2000/svg"
         width="80"
         height="80"
         viewBox="0 0 80 80"
-        id="flik-logo"
       >
         <circle r="40" cx="40" cy="40" fill="transparent"></circle>
         <path
@@ -24,10 +24,8 @@
 
 <script>
 export default {
-  props: {},
-  data() {
-    return {};
-  },
+  name: "FlikPayment",
+  emits: ["ready", "success"],
   mounted() {
     this.$emit("ready", { pay: this.sendFlikRequest });
   },
@@ -41,25 +39,27 @@ export default {
 
 <style lang="scss" scoped>
 .upn-payment {
-  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 360px;
   margin: 0 auto;
 
   label {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 300;
     text-align: center;
     display: block;
-    padding-top: 10px;
-    padding-bottom: 30px;
+    padding-top: 1rem;
   }
 
   #flik-logo {
+    display: block;
     width: 80px;
     height: auto;
-    margin: auto;
-    display: block;
-    margin-bottom: 10px;
-    padding-top: 40px;
+    margin-inline: auto;
+    margin-block: 0.5rem;
   }
 }
 </style>

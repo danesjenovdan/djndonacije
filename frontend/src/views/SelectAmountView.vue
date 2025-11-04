@@ -1,34 +1,57 @@
 <template>
   <checkout-stage show-terms>
-    <template v-slot:title>
+    <template #title>
       {{ title }}
     </template>
-    <template v-slot:content>
+    <template #content>
       <div v-if="loading" class="payment-loader">
         <div class="lds-dual-ring" />
       </div>
       <div class="change-monthly">
-        <h2>{{ $t('selectAmountView.selectAmount') }} <strong v-if="recurringDonation">{{
-            $t('selectAmountView.monthly')
-            }}</strong> {{
-          $t('selectAmountView.donation') }}</h2>
-        <a v-if="recurringDonation && paymentOptions.monthly" @click.prevent="setRecurringDonation(false)">
-          {{ $t('selectAmountView.donateOnce') }}
+        <h2>
+          {{ $t("selectAmountView.selectAmount") }}
+          <strong v-if="recurringDonation">{{
+            $t("selectAmountView.monthly")
+          }}</strong>
+          {{ $t("selectAmountView.donation") }}
+        </h2>
+        <a
+          v-if="recurringDonation && paymentOptions.monthly"
+          @click.prevent="setRecurringDonation(false)"
+        >
+          {{ $t("selectAmountView.donateOnce") }}
         </a>
-        <a v-if="!recurringDonation && paymentOptions.monthly" @click.prevent="setRecurringDonation(true)">
-          {{ $t('selectAmountView.donateMonthly') }}
+        <a
+          v-if="!recurringDonation && paymentOptions.monthly"
+          @click.prevent="setRecurringDonation(true)"
+        >
+          {{ $t("selectAmountView.donateMonthly") }}
         </a>
       </div>
       <div class="donation-options">
-        <donation-option v-for="(dp, i) in filteredDonationPresets" :key="`presets-${i}`" :donation-preset="dp"
-          :is-selected="dp.amount === this.chosenAmount" />
-        <div v-for="n in 10" :key="`flex-spacer-${n}`" class="donation-option" />
+        <donation-option
+          v-for="(dp, i) in filteredDonationPresets"
+          :key="`presets-${i}`"
+          :donation-preset="dp"
+          :is-selected="dp.amount === chosenAmount"
+        />
+        <div
+          v-for="n in 10"
+          :key="`flex-spacer-${n}`"
+          class="donation-option"
+        />
       </div>
     </template>
-    <template v-slot:footer>
+    <template #footer>
       <div class="confirm-button-container">
-        <confirm-button key="next-select-amount" :disabled="!canContinueToNextStage"
-          :text="$t('selectAmountView.supportUs')" arrow hearts @click.native="continueToNextStage" />
+        <confirm-button
+          key="next-select-amount"
+          :disabled="!canContinueToNextStage"
+          :text="$t('selectAmountView.supportUs')"
+          arrow
+          hearts
+          @click="continueToNextStage"
+        />
       </div>
     </template>
   </checkout-stage>
@@ -73,7 +96,7 @@ export default {
       return this.donationPresets.filter((dp) =>
         this.recurringDonation
           ? dp.monthly === this.recurringDonation
-          : dp.oneTime !== this.recurringDonation
+          : dp.oneTime !== this.recurringDonation,
       );
     },
     canContinueToNextStage() {
@@ -81,9 +104,9 @@ export default {
     },
   },
   watch: {
-    donationPresets(newDP, oldDP) {
+    donationPresets(newDP) {
       this.loading = newDP.length === 0;
-    }
+    },
   },
   async mounted() {
     this.loading = this.donationPresets.length === 0;
@@ -100,7 +123,11 @@ export default {
       this.$store.commit("setChosenAmount", sdp.amount);
     },
     continueToNextStage() {
-      this.$router.push({ name: "info" });
+      if (this.recurringDonation) {
+        this.$router.push({ name: "info" });
+      } else {
+        this.$router.push({ name: "payment" });
+      }
     },
   },
 };

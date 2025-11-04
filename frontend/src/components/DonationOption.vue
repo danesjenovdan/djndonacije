@@ -73,7 +73,7 @@ export default {
     },
   },
   methods: {
-    onClick(event) {
+    onClick() {
       this.$store.commit("setChosenAmount", this.donationPreset.amount);
     },
   },
@@ -111,7 +111,7 @@ export default {
       stroke-width: 0;
     }
     path.checkmark {
-      fill: #FFFFFF;
+      fill: #ffffff;
       stroke-width: 0;
     }
   }

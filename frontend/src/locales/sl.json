@@ -12,6 +12,7 @@
         "donationWithAmount": "Donacija: {amount} €",
         "monthlyDonationWithAmount": "Mesečna donacija: {amount} €",
         "whyEmail": "Tvoj e-naslov potrebujemo, da ti lahko pošljemo potrdilo o donaciji. Način plačila izbereš v naslednjem koraku.",
+        "whyEmailPost": "Tvoj e-naslov potrebujemo, da ti lahko pošljemo potrdilo o donaciji.",
         "email": "E-naslov",
         "newsletterLabel": "Obveščajte me o novih projektih in aktivnostih.",
         "bots": "Zadnje čase nas pogosto napadajo roboti. Ker se želimo prepričati, da si človek, prosim vpiši spodnje znake.",
@@ -36,10 +37,10 @@
     },
     "payment": {
         "card": "Kartica",
-        "depositSlip": "Položnica",
+        "depositSlip": "Nakazilo",
         "flik": "Flik",
         "cardNote": "Informacij o tvoji kartici ne pošiljamo na svoj strežnik in ne shranjujemo. Za varnost plačila skrbi",
-        "depositSlipNote": "Položnico ti bomo poslali po e-pošti.",
+        "depositSlipNote": "Skeniraj s svojo bančno aplikacijo ali naredi screenshot in uvozi v bančno aplikacijo.",
         "flikNote": "Preusmerili te bomo na spletno stran Flika, kjer boš lahko izvedel_a plačilo."
     },
     "manageNewsletterView": {
