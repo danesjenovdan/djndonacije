@@ -209,25 +209,33 @@ TO_ADDRESS2 = env["TO_ADDRESS2"]
 EMAIL_TOKEN = env["EMAIL_TOKEN"]
 AGRUM_TOKEN = env["AGRUM_TOKEN"]
 
+ENABLE_S3 = os.getenv("DJANGO_ENABLE_S3", False)
 # DJANGO STORAGE SETTINGS
-if os.getenv("DJANGO_ENABLE_S3", False):
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-    AWS_ACCESS_KEY_ID = os.getenv("DJANGO_AWS_ACCESS_KEY_ID", "")
-    AWS_SECRET_ACCESS_KEY = os.getenv("DJANGO_AWS_SECRET_ACCESS_KEY", "")
-    AWS_STORAGE_BUCKET_NAME = os.getenv("DJANGO_AWS_STORAGE_BUCKET_NAME", "")
-    AWS_DEFAULT_ACL = (
-        "public-read"  # if files are not public they won't show up for end users
-    )
-    AWS_QUERYSTRING_AUTH = (
-        False  # query strings expire and don't play nice with the cache
-    )
-    AWS_LOCATION = os.getenv("DJANGO_AWS_LOCATION", "podpri")
-    AWS_S3_REGION_NAME = os.getenv("DJANGO_AWS_REGION_NAME", "fr-par")
-    AWS_S3_ENDPOINT_URL = os.getenv(
-        "DJANGO_AWS_S3_ENDPOINT_URL", "https://s3.fr-par.scw.cloud"
-    )
-    AWS_S3_SIGNATURE_VERSION = os.getenv("DJANGO_AWS_S3_SIGNATURE_VERSION", "s3v4")
-    AWS_S3_FILE_OVERWRITE = False
+if ENABLE_S3:
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": {
+                "access_key": os.getenv("DJANGO_AWS_ACCESS_KEY_ID", ""),
+                "secret_key": os.getenv("DJANGO_AWS_SECRET_ACCESS_KEY", ""),
+                "bucket_name": os.getenv("DJANGO_AWS_STORAGE_BUCKET_NAME", ""),
+                "region_name": os.getenv("DJANGO_AWS_REGION_NAME", "fr-par"),
+                "endpoint_url": os.getenv(
+                    "DJANGO_AWS_S3_ENDPOINT_URL", "https://s3.fr-par.scw.cloud"
+                ),
+                "location": os.getenv("DJANGO_AWS_LOCATION", "podpri"),
+                "file_overwrite": os.getenv("DJANGO_AWS_S3_FILE_OVERWRITE", False),
+                "signature_version": os.getenv(
+                    "DJANGO_AWS_S3_SIGNATURE_VERSION", "s3v4"
+                ),
+                "querystring_auth": os.getenv("DJANGO_AWS_QUERYSTRING_AUTH", False),
+                "default_acl": os.getenv("DJANGO_AWS_DEFAULT_ACL", "public-read"),
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
 
 
 if env["BRAINTREE_MERCHANT_ID"]:
