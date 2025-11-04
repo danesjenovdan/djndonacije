@@ -10,6 +10,7 @@ RUN yarn
 
 # build assets
 COPY . .
+ARG VITE_API_URL
 RUN yarn build
 
 # change base image

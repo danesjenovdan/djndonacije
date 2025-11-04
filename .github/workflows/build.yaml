@@ -35,6 +35,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: frontend/.
+          build-args: |
+            VITE_API_URL=https://podpri.lb.djnd.si
           push: true
           tags: |
             rg.fr-par.scw.cloud/djnd/podpri-pic-frontend:${{ github.sha }}
