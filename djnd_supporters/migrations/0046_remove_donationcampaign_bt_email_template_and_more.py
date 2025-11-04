@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0045_donationcampaign_has_flik'),
+        ("djnd_supporters", "0045_donationcampaign_has_flik"),
     ]
 
     operations = [
@@ -16,33 +16,33 @@ class Migration(migrations.Migration):
             new_name="onetime_donation_email_template",
         ),
         migrations.AlterField(
-            model_name='donationcampaign',
-            name='modified',
+            model_name="donationcampaign",
+            name="modified",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
         migrations.AlterField(
-            model_name='image',
-            name='modified',
+            model_name="image",
+            name="modified",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
         migrations.AlterField(
-            model_name='predefinedamount',
-            name='modified',
+            model_name="predefinedamount",
+            name="modified",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
         migrations.AlterField(
-            model_name='subscriber',
-            name='modified',
+            model_name="subscriber",
+            name="modified",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
         migrations.AlterField(
-            model_name='subscription',
-            name='modified',
+            model_name="subscription",
+            name="modified",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
         migrations.AlterField(
-            model_name='transaction',
-            name='modified',
+            model_name="transaction",
+            name="modified",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
     ]
