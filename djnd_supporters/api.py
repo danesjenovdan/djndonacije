@@ -79,6 +79,8 @@ class Subscribe(views.APIView):
             campaign = models.DonationCampaign.objects.filter(
                 slug=campaign_slug
             ).first()
+        else:
+            campaign = None
 
         # segment from argument has priority on segment from campaign
         if not segment and campaign:
