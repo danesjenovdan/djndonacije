@@ -17,7 +17,7 @@ class Command(BaseCommand):
             has_braintree=True,
             has_braintree_subscription=True,
             upn_email_template=1,
-            bt_email_template=1,
+            onetime_donation_email_template=1,
             bt_subscription_email_template=1,
             segment=1,
         )
