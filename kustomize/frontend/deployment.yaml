@@ -21,7 +21,7 @@ spec:
             - containerPort: 80
           env:
             - name: VITE_API_URL
-              value: https://podpri.lb.djnd.si
+              value: https://podpri-pic.lb.djnd.si
           resources:
             requests:
               memory: 100Mi
