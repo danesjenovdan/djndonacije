@@ -241,9 +241,10 @@ const store = createStore({
       const url = `${api}/api/subscribe/`;
 
       axios.post(url, {
-        transaction_id: payload.transaction_id,
-        email: context.getters.getEmail,
-        mailing: context.getters.getSubscribeToNewsletter,
+        campaign_id: payload.campaignSlug,
+        transaction_id: payload.transactionId,
+        email: payload.email,
+        add_to_mailing: payload.addToMailing,
       });
     },
     async confirmNewsletterSubscription(context, payload) {

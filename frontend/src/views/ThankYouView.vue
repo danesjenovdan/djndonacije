@@ -116,9 +116,10 @@ export default {
         this.infoSubmitting = true;
         this.$store
           .dispatch("afterPaymentAddEmail", {
-            transaction_id: this.transactionId,
+            campaignSlug: this.$route.params.campaignSlug,
+            transactionId: this.transactionId,
             email: this.email,
-            mailing: this.subscribeToNewsletter,
+            addToMailing: this.subscribeToNewsletter,
           })
           .then(() => {
             this.transactionId = null;
