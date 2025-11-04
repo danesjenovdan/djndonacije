@@ -6,38 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('shop', '0023_merge_20220203_0733'),
+        ("shop", "0023_merge_20220203_0733"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='article',
-            name='modified',
+            model_name="article",
+            name="modified",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
         migrations.AlterField(
-            model_name='basket',
-            name='modified',
+            model_name="basket",
+            name="modified",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
         migrations.AlterField(
-            model_name='boundleitem',
-            name='modified',
+            model_name="boundleitem",
+            name="modified",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
         migrations.AlterField(
-            model_name='category',
-            name='modified',
+            model_name="category",
+            name="modified",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
         migrations.AlterField(
-            model_name='item',
-            name='modified',
+            model_name="item",
+            name="modified",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='modified',
+            model_name="order",
+            name="modified",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
     ]
