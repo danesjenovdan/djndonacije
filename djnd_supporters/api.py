@@ -59,7 +59,7 @@ class Subscribe(views.APIView):
             donation = models.Transaction.objects.filter(
                 id=transaction_id,
                 is_paid=True,
-                created__lte=datetime.now() - timedelta(minutes=5),
+                created__gte=datetime.now() - timedelta(minutes=5),
             ).first()
             if donation and campaign.onetime_donation_email_template:
                 # send email if tempalte is setted in donation campaign
