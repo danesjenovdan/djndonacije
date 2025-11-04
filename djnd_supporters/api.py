@@ -79,6 +79,8 @@ class Subscribe(views.APIView):
             campaign = models.DonationCampaign.objects.filter(
                 slug=campaign_slug
             ).first()
+        else:
+            campaign = None
 
         # segment from argument has priority on segment from campaign
         if not segment and campaign:
@@ -618,7 +620,7 @@ class GenericDonationCampaign(views.APIView):
                 description=donation_campaign.upn_name,
                 shopper_locale="sl",
                 customer_ip=utils.get_client_ip(request),
-                success_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/hvala",
+                success_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/hvala?transaction_id={donation.id}",
                 error_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
                 cancel_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
                 callback_url=f"{settings.BASE_URL}/api/flik-callback/",
