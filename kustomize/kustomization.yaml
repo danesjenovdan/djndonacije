@@ -12,8 +12,8 @@ resources:
 images:
   - name: podpri-pic
     newName: rg.fr-par.scw.cloud/djnd/podpri-pic
-    newTag: '66127caa817736d405dd2db3c425bf4fe691e0b4'
+    newTag: 'cab5efbcb41f38f997f822d4355b63729cdaf161'
 
   - name: podpri-pic-frontend
     newName: rg.fr-par.scw.cloud/djnd/podpri-pic-frontend
-    newTag: '66127caa817736d405dd2db3c425bf4fe691e0b4'
+    newTag: 'cab5efbcb41f38f997f822d4355b63729cdaf161'
