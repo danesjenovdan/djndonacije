@@ -18,6 +18,6 @@ psycopg2_binary==2.9.10
 gunicorn==23.0.0
 ipython
 sentry-sdk
-boto3
-django-storages
+boto3==1.40.44
+django-storages==1.14.6
 arrow

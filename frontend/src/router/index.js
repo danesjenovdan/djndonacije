@@ -1,15 +1,4 @@
-import { createRouter, createWebHistory, RouterView } from "vue-router";
-import DonateView from "../views/DonateView.vue";
-import SelectAmountView from "../views/SelectAmountView.vue";
-import InfoView from "../views/InfoView.vue";
-import PaymentView from "../views/PaymentView.vue";
-import ThankYouView from "../views/ThankYouView.vue";
-import PaymentErrorView from "../views/PaymentErrorView.vue";
-import ManageDonationsView from "../views/ManageDonationsView.vue";
-import ManageNewsletterView from "../views/ManageNewsletterView.vue";
-import RootView from "../views/RootView.vue";
-
-import i18n from "../i18n";
+import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,45 +7,44 @@ const router = createRouter({
     {
       path: "/",
       name: "root",
-      component: RootView,
+      component: () => import("../views/RootView.vue"),
     },
-    // user settings
+    // urejanje donacij
     {
       path: "/urejanje-donacij",
       name: "manageDonations",
-      component: ManageDonationsView,
+      component: () => import("../views/ManageDonationsView.vue"),
       meta: {
         title: "Urejanje donacij",
       },
     },
-    //
-    // donations
+    // donacije posamezne kampanje
     {
       path: "/:campaignSlug/doniraj",
-      component: DonateView,
+      component: () => import("../views/DonateView.vue"),
       name: "donate",
       children: [
         {
           path: "",
           name: "selectAmount",
-          component: SelectAmountView,
+          component: () => import("../views/SelectAmountView.vue"),
         },
         {
           path: "info",
           name: "info",
-          component: InfoView,
+          component: () => import("../views/InfoView.vue"),
         },
         {
           path: "placilo",
           name: "payment",
-          component: PaymentView,
+          component: () => import("../views/PaymentView.vue"),
         },
       ],
     },
     {
       path: "/:campaignSlug/doniraj/hvala",
       name: "thankYou",
-      component: ThankYouView,
+      component: () => import("../views/ThankYouView.vue"),
       meta: {
         title: "Hvala!",
       },
@@ -64,33 +52,32 @@ const router = createRouter({
     {
       path: "/:campaignSlug/doniraj/napaka",
       name: "paymentError",
-      component: PaymentErrorView,
+      component: () => import("../views/PaymentErrorView.vue"),
       meta: {
         title: "Napaka!",
       },
     },
+    // naročnine posamezne kampanje
     {
       path: "/:campaignSlug/urejanje-narocnine",
       name: "manageNewsletter",
-      component: ManageNewsletterView,
+      component: () => import("../views/ManageNewsletterView.vue"),
       meta: {
         title: "Urejanje naročnine",
       },
+    },
+    // 404 (last, catch-all route)
+    {
+      path: "/:notFound(.*)",
+      name: "notFound",
+      component: () => import("../views/NotFoundView.vue"),
     },
   ],
 });
 
 router.beforeEach((to, from, next) => {
   document.title = to.meta?.title ?? "Danes je nov dan";
-
-  // use the language from the routing param or default language
-  // let language = to.params.locale;
-  // if (!language) {
-  //   language = "sl";
-  // }
-  // i18n.global.locale = language;
-
   next();
-})
+});
 
 export default router;

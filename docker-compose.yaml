@@ -1,3 +1,9 @@
+volumes:
+  postgres-data:
+  mysql_data:
+  mautic_data:
+
+
 services:
   donacije:
     build: .
@@ -11,9 +17,9 @@ services:
       DJANGO_DEBUG: "yes"
       DJANGO_SECRET_KEY: make-me-secret
       DJANGO_DATABASE_HOST: db
-      DJANGO_DATABASE_USER: postgres
+      DJANGO_DATABASE_USER: podpri
       DJANGO_DATABASE_PASSWORD: postgres
-      DJANGO_DATABASE_NAME: donacije
+      DJANGO_DATABASE_NAME: podpri
       MAUTIC_URL: http://mautic/api/
       MAUTIC_USER: api@djnd.si
       MAUTIC_PASSWORD: password
@@ -26,13 +32,15 @@ services:
       - ./:/app
 
   db:
-    image: postgres:latest
+    image: postgres:16-alpine
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_DB: podpri
+      POSTGRES_USER: podpri
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: donacije
-    ports:
-      - 5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    expose:
+      - "5432"
 
   mauticdb:
     image: mariadb:11.7.2
@@ -52,7 +60,6 @@ services:
       - mauticdb:mysql
     depends_on:
       - mauticdb
-    restart: on-failure
     ports:
       - 8080:80
     volumes:
@@ -66,14 +73,15 @@ services:
       - MAUTIC_RUN_CRON_JOBS=false
 
   podprifrontend:
-    build: frontend/.
+    build:
+      context: ./frontend
+      dockerfile: dev.Dockerfile
     ports:
-      - 80:8000
+      - 3000:3000
     volumes:
-      - ./frontend/.:/app
-
-volumes:
-  mysql_data:
-    driver: local
-  mautic_data:
-    driver: local
+      - ./frontend/src/:/app/src
+      - ./frontend/.eslintrc.cjs:/app/.eslintrc.cjs
+      - ./frontend/.prettierrc.json:/app/.prettierrc.json
+      - ./frontend/favicon.ico:/app/favicon.ico
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.js:/app/vite.config.js

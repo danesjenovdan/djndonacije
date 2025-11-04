@@ -1,0 +1,6 @@
+TODO:
+- fix lint
+- add js check formatting action
+- clean up main.scss imports in vue
+- fix prod docker file
+  - add dockerignore file

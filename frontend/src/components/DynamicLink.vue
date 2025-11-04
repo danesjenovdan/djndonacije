@@ -1,9 +1,5 @@
 <template>
-  <router-link
-    v-if="shouldUseNuxtLink"
-    :to="to"
-    @click=onClick
-  >
+  <router-link v-if="shouldUseNuxtLink" :to="to" @click="onClick">
     <slot />
   </router-link>
   <!-- eslint-disable-next-line vue/valid-template-root -->
@@ -12,7 +8,7 @@
     :href="to"
     :target="isLinkExternal ? '_blank' : null"
     :rel="isLinkExternal ? 'noopener noreferrer' : null"
-    @click=onClick
+    @click="onClick"
   >
     <slot />
   </a>
@@ -23,12 +19,12 @@ export default {
   props: {
     to: {
       type: String,
-      default: '',
+      default: "",
     },
   },
   computed: {
     isLinkEmpty() {
-      return !this.to || this.to === '#';
+      return !this.to || this.to === "#";
     },
     isLinkExternal() {
       return !this.isLinkEmpty && /^https?:\/\//.test(this.to);

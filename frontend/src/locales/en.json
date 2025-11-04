@@ -12,6 +12,7 @@
     "donationWithAmount": "Donation: {amount} €",
     "monthlyDonationWithAmount": "Monthly donation: {amount} €",
     "whyEmail": "We need your email address to send you a donation receipt. You will choose the payment method in the next step.",
+    "whyEmailPost": "We need your email address to send you a donation receipt.",
     "email": "Email address",
     "newsletterLabel": "Keep me informed about new projects and activities.",
     "bots": "Lately, we have been frequently targeted by bots. To ensure that you are human, please enter the characters below.",
