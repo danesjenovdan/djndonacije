@@ -3,8 +3,9 @@
     "selectAmount": "Choose the",
     "donation": "donation amount!",
     "monthly": "monthly",
-    "donateOnce": "Do you want to make a one-time donation?",
-    "donateMonthly": "Do you want to make a monthly donation?",
+    "donateFrequency--template": "Do you want to make a <em>{frequency}</em> donation?",
+    "donateOnce--word": "one-time",
+    "donateMonthly--word": "monthly",
     "supportUs": "SUPPORT US"
   },
   "infoView": {
