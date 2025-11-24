@@ -15,18 +15,22 @@
           }}</strong>
           {{ $t("selectAmountView.donation") }}
         </h2>
-        <a
-          v-if="recurringDonation && paymentOptions.monthly"
-          @click.prevent="setRecurringDonation(false)"
-        >
-          {{ $t("selectAmountView.donateOnce") }}
-        </a>
-        <a
-          v-if="!recurringDonation && paymentOptions.monthly"
-          @click.prevent="setRecurringDonation(true)"
-        >
-          {{ $t("selectAmountView.donateMonthly") }}
-        </a>
+        <template v-if="paymentOptions.monthly">
+          <!-- eslint-disable vue/no-v-html -->
+          <a
+            @click.prevent="setRecurringDonation(!recurringDonation)"
+            v-html="
+              $t('selectAmountView.donateFrequency--template', {
+                frequency: $t(
+                  recurringDonation
+                    ? 'selectAmountView.donateOnce--word'
+                    : 'selectAmountView.donateMonthly--word',
+                ),
+              })
+            "
+          />
+          <!-- eslint-enable vue/no-v-html -->
+        </template>
       </div>
       <div class="donation-options">
         <donation-option
@@ -168,15 +172,24 @@ export default {
     font-weight: 600;
     font-style: italic;
     color: inherit;
-    text-decoration: underline;
+    text-decoration: none;
     cursor: pointer;
 
     @include media-breakpoint-up(md) {
       font-size: 1.5rem;
     }
 
+    :deep(em) {
+      font-style: inherit;
+      text-decoration: underline;
+    }
+
     &:hover {
       text-decoration: none;
+
+      :deep(em) {
+        text-decoration: none;
+      }
     }
   }
 }
