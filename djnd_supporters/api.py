@@ -200,6 +200,25 @@ class Subscribe(views.APIView):
         )
 
 
+class SafeSubscribe(Subscribe):
+    """
+    Add subscriber od edit subscriptions (with captcha)
+    POST:
+        see `Subscribe`
+        captcha
+    """
+
+    def post(self, request, format=None):
+        # check captcha
+        captcha_validated = validate_captcha(request.data.get("captcha", ""))
+        if not captcha_validated:
+            return Response(
+                {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
+            )
+
+        return super().post(request, format=None)
+
+
 class ManageSegments(views.APIView):
     """
     POST/DELETE

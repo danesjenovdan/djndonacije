@@ -66,6 +66,15 @@ const router = createRouter({
         title: "Urejanje naročnine",
       },
     },
+    // prijava na newsletter posamezne kampanje
+    {
+      path: "/:campaignSlug/prijava",
+      name: "newsletterSignup",
+      component: () => import("../views/NewsletterSignupView.vue"),
+      meta: {
+        title: "Prijava na novičnik",
+      },
+    },
     // 404 (last, catch-all route)
     {
       path: "/:notFound(.*)",

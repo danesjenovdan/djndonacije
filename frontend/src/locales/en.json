@@ -71,7 +71,13 @@
     "note": "Your donation is another piece of support in the mosaic of our work. We sincerely hope that our projects will continue to bring you joy and pride."
   },
   "paymentErrorView": {
-      "title": "PAYMENT ERROR!",
-      "note": "An error occurred and our server could not resolve it.<br /><br />We haven’t charged you anything; all the money is still on your card. We suggest going back to <a href=\"{startHref}\">the start</a> and trying again. If it doesn’t work, please write to us at {'<a href=\"mailto:vsi@danesjenovdan.si\">vsi@danesjenovdan.si</a>'} and we will try to help you."
+    "title": "PAYMENT ERROR!",
+    "note": "An error occurred and our server could not resolve it.<br /><br />We haven’t charged you anything; all the money is still on your card. We suggest going back to <a href=\"{startHref}\">the start</a> and trying again. If it doesn’t work, please write to us at {'<a href=\"mailto:vsi@danesjenovdan.si\">vsi@danesjenovdan.si</a>'} and we will try to help you."
+  },
+  "newsletterSignup": {
+    "title": "Newsletter Signup",
+    "signMeUp": "Sign me up!",
+    "thankYou": "Thank you for signing up!",
+    "thankYouConfirm": "To confirm your subscription, please click the link we just sent to your email address."
   }
 }
