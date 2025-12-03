@@ -47,6 +47,7 @@
   "manageNewsletterView": {
     "unsubscribeAndDeleteData": "You have successfully unsubscribed and we have deleted your data.",
     "unsubscribeSuccessful": "You have successfully unsubscribed.",
+    "subscribeSuccessful": "You have successfully subscribed!",
     "error": "An error occurred.",
     "noSuchUser": "The user with this information does not exist.",
     "help": "Contact us at <a href='mailto:{email}'>{email}</a>, and we will solve the problem as soon as possible.",
