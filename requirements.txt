@@ -1,4 +1,4 @@
-Django==5.2.7
+Django==5.2.9
 django-admin-sortable2==2.2.8
 djangorestframework==3.16.1
 django-filter==25.1
