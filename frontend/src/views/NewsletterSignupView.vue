@@ -15,6 +15,18 @@
                   class="form-control form-control-lg"
                 />
               </div>
+              <div class="custom-control custom-checkbox">
+                <input
+                  id="info-newsletter"
+                  v-model="consentCheckbox"
+                  type="checkbox"
+                  name="subscribeNewsletter"
+                  class="custom-control-input"
+                />
+                <label class="custom-control-label" for="info-newsletter">{{
+                  $t("infoView.newsletterLabel")
+                }}</label>
+              </div>
               <p>
                 {{ $t("infoView.bots") }}
               </p>
@@ -68,14 +80,21 @@ export default {
     ConfirmButton,
   },
   data() {
+    const { campaignSlug } = this.$route.params;
+
     return {
+      campaignSlug,
       segmentId: null,
+      consentCheckbox: false,
       robotError: false,
       infoSubmitting: false,
       signupDone: false,
     };
   },
   computed: {
+    CSSFile() {
+      return this.$store.getters.getCSSFile;
+    },
     email: {
       get() {
         return this.$store.getters.getEmail;
@@ -88,6 +107,9 @@ export default {
       return this.infoValid;
     },
     infoValid() {
+      if (!this.consentCheckbox) {
+        return false;
+      }
       if (!this.email || !EMAIL_REGEX.test(this.email)) {
         return false;
       }
@@ -101,9 +123,19 @@ export default {
     },
   },
   mounted() {
+    // kliči backend API, da dobimo informacije o kampanji
+    this.$store
+      .dispatch("getCampaignData", { campaignSlug: this.campaignSlug })
+      .then(() => {
+        if (this.CSSFile) {
+          this.loadCSS(this.CSSFile);
+        }
+      });
+
     const { email, segment_id: segmentId } = this.$route.query;
     if (email) {
       this.email = email;
+      this.consentCheckbox = true;
     }
     if (segmentId) {
       this.segmentId = segmentId;
@@ -118,6 +150,14 @@ export default {
     }
   },
   methods: {
+    loadCSS(filename) {
+      const head = document.getElementsByTagName("head")[0];
+      const style = document.createElement("link");
+      style.href = filename;
+      style.type = "text/css";
+      style.rel = "stylesheet";
+      head.append(style);
+    },
     async onSubmit() {
       if (this.canSubmit) {
         this.infoSubmitting = true;
