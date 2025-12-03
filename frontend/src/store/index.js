@@ -249,6 +249,15 @@ const store = createStore({
         add_to_mailing: payload.addToMailing,
       });
     },
+    async newsletterSafeSubscribe(context, payload) {
+      const url = `${api}/api/safe-subscribe/`;
+
+      return axios.post(url, {
+        captcha: payload.captcha,
+        email: payload.email,
+        segment_id: payload.segmentId,
+      });
+    },
     async confirmNewsletterSubscription(context, payload) {
       const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
 

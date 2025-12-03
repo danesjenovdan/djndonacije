@@ -73,5 +73,11 @@
     "paymentErrorView": {
         "title": "NAPAKA PRI PLAČILU!",
         "note": "Zgodila se je napaka in naš strežnik je ni mogel rešiti.<br /><br />Zaračunali ti nismo ničesar, ves denar je še vedno na tvoji kartici. Predlagamo, da greš nazaj <a href=\"{startHref}\">na začetek</a> in poskusiš ponovno. Če ne bo šlo, nam piši na {'<a href=\"mailto:vsi@danesjenovdan.si\">vsi@danesjenovdan.si</a>'} in ti bomo poskusili pomagati."
+    },
+    "newsletterSignup": {
+        "title": "Prijava na novičnik",
+        "signMeUp": "Prijavi me!",
+        "thankYou": "Hvala za prijavo!",
+        "thankYouConfirm": "Za potrditev prijave klikni na povezavo, ki smo ti jo pravkar poslali na tvoj e-naslov."
     }
 }
