@@ -209,10 +209,23 @@ class DonationCampaign(Timestamped):
         verbose_name="Naslov",
         help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
     )
+    title_en = models.CharField(
+        null=True,
+        blank=True,
+        max_length=256,
+        verbose_name="Naslov (angleščina)",
+        help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
+    )
     subtitle = models.TextField(
         null=True,
         blank=True,
         verbose_name="Podnaslov",
+        help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
+    )
+    subtitle_en = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name="Podnaslov (angleščina)",
         help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
     )
     upn_name = models.CharField(

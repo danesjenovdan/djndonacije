@@ -6,6 +6,7 @@
     "donateFrequency--template": "Do you want to make a <em>{frequency}</em> donation?",
     "donateOnce--word": "one-time",
     "donateMonthly--word": "monthly",
+    "customAmount": "Enter custom amount!",
     "supportUs": "SUPPORT US"
   },
   "infoView": {

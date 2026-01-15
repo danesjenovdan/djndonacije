@@ -13,7 +13,9 @@ const store = createStore({
       campaignData: {
         donationCampaignId: "",
         title: "",
+        title_en: "",
         subtitle: "",
+        subtitle_en: "",
         donationPresets: [],
         has_upn: false,
         has_flik: false,
@@ -40,9 +42,15 @@ const store = createStore({
       return state.campaignData.donationCampaignId;
     },
     getTitle(state) {
+      if (state.lang === "en" && state.campaignData.title_en) {
+        return state.campaignData.title_en;
+      }
       return state.campaignData.title;
     },
     getSubtitle(state) {
+      if (state.lang === "en" && state.campaignData.subtitle_en) {
+        return state.campaignData.subtitle_en;
+      }
       return state.campaignData.subtitle;
     },
     getDonationPresets(state) {
@@ -97,15 +105,21 @@ const store = createStore({
     setTitle(state, title) {
       state.campaignData.title = title;
     },
+    setTitleEn(state, title_en) {
+      state.campaignData.title_en = title_en;
+    },
     setSubtitle(state, subtitle) {
       state.campaignData.subtitle = subtitle;
+    },
+    setSubtitleEn(state, subtitle_en) {
+      state.campaignData.subtitle_en = subtitle_en;
     },
     setDonationPresets(state, newDonationPresets) {
       // create the custom preset object
       const customPreset = {
         custom: true,
         amount: null,
-        description: "Vnesi poljuben znesek!",
+        description: "",
         selected: false,
         eventName: "custom",
         monthly: true,
@@ -182,7 +196,9 @@ const store = createStore({
 
       context.commit("setDonationCampaignId", data.data.id);
       context.commit("setTitle", data.data.title);
+      context.commit("setTitleEn", data.data.title_en);
       context.commit("setSubtitle", data.data.subtitle);
+      context.commit("setSubtitleEn", data.data.subtitle_en);
       context.commit("setDonationPresets", data.data.amounts);
       context.commit("setPaymentOptions", {
         has_upn: data.data.has_upn,
