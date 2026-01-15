@@ -11,6 +11,7 @@ router.register(r"donation-campaign", api.DonationCampaignInfo)
 urlpatterns = [
     path("", include(router.urls)),
     path("subscribe/", api.Subscribe.as_view()),
+    path("safe-subscribe/", api.SafeSubscribe.as_view()),
     path("segments/", api.Segments.as_view()),
     path("segments/my/", api.UserSegments.as_view()),
     path("segments/<segment>/contact/", api.ManageSegments.as_view()),

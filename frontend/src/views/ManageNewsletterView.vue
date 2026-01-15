@@ -1,6 +1,14 @@
 <template>
   <div class="checkout">
     <div
+      v-if="confirmSubscriptionSuccess"
+      class="alert alert-success text-center"
+    >
+      <p class="my-3">
+        {{ $t("manageNewsletterView.subscribeSuccessful") }}
+      </p>
+    </div>
+    <div
       v-if="success && !lastCancelledNewsletter"
       class="alert alert-success text-center"
     >
@@ -142,6 +150,9 @@ export default {
       error: false,
       errorMessage: "",
       lastCancelledNewsletter: null,
+      confirmSubscriptionSuccess: false,
+      confirmSubscriptionToSegment: false,
+      confirmSubscriptionSegmentId: null,
       showInputForm: false, // TODO: true,
     };
   },
@@ -160,34 +171,79 @@ export default {
     this.$store.commit("setEmail", email);
     this.$store.commit("setToken", token);
 
-    Promise.all([
-      this.$store.dispatch("getUserNewsletterSubscriptions", {
-        campaign: this.campaignSlug,
-      }),
-      this.$store.dispatch("getUserNewsletterSubscriptions", {}),
-    ])
-      .then((responses) => {
-        const [campaignResponse, allResponse] = responses;
-        if (campaignResponse.status === 200 && allResponse.status === 200) {
-          this.campaignSubscriptions = campaignResponse.data.segments;
-          this.allSubscriptions = allResponse.data.segments;
-        } else {
-          this.success = false;
-          this.error = true;
-          this.showInputForm = true;
-        }
-      })
-      .catch((error) => {
-        this.success = false;
-        this.error = true;
-        this.errorMessage = error?.response?.data?.detail;
-        this.showInputForm = true;
-      })
-      .finally(() => {
-        this.loading = false;
-      });
+    // check for confirm subscription
+    const { confirm } = this.$route.query;
+
+    if (confirm === "true") {
+      this.confirmSubscriptionToSegment = true;
+      this.confirmSubscriptionSegmentId = this.$route.query.segment_id;
+    }
+
+    if (
+      this.confirmSubscriptionToSegment &&
+      this.confirmSubscriptionSegmentId
+    ) {
+      this.confirmSubscription(this.confirmSubscriptionSegmentId);
+    } else {
+      this.loadSubscriptions();
+    }
   },
   methods: {
+    async loadSubscriptions() {
+      this.loading = true;
+
+      Promise.all([
+        this.$store.dispatch("getUserNewsletterSubscriptions", {
+          campaign: this.campaignSlug,
+        }),
+        this.$store.dispatch("getUserNewsletterSubscriptions", {}),
+      ])
+        .then((responses) => {
+          const [campaignResponse, allResponse] = responses;
+          if (campaignResponse.status === 200 && allResponse.status === 200) {
+            this.campaignSubscriptions = campaignResponse.data.segments;
+            this.allSubscriptions = allResponse.data.segments;
+          } else {
+            this.success = false;
+            this.error = true;
+            this.showInputForm = true;
+          }
+        })
+        .catch((error) => {
+          this.success = false;
+          this.error = true;
+          this.errorMessage = error?.response?.data?.detail;
+          this.showInputForm = true;
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+    async confirmSubscription(segmentId) {
+      this.loading = true;
+
+      this.$store
+        .dispatch("confirmNewsletterSubscription", {
+          segment_id: segmentId,
+        })
+        .then((response) => {
+          if (response.status === 200) {
+            this.confirmSubscriptionSuccess = true;
+          } else {
+            this.confirmSubscriptionSuccess = false;
+            this.error = true;
+          }
+        })
+        .catch((error) => {
+          this.confirmSubscriptionSuccess = false;
+          this.error = true;
+          this.errorMessage = error?.response?.data?.detail;
+        })
+        .finally(() => {
+          this.loading = false;
+          this.loadSubscriptions();
+        });
+    },
     async cancelSubscription(campaignName, segmentId) {
       this.loading = true;
 

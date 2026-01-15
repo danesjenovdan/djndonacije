@@ -79,6 +79,8 @@ class Subscribe(views.APIView):
             campaign = models.DonationCampaign.objects.filter(
                 slug=campaign_slug
             ).first()
+        else:
+            campaign = None
 
         # segment from argument has priority on segment from campaign
         if not segment and campaign:
@@ -196,6 +198,25 @@ class Subscribe(views.APIView):
         return Response(
             {"error": "Missing email and/or token."}, status=status.HTTP_409_CONFLICT
         )
+
+
+class SafeSubscribe(Subscribe):
+    """
+    Add subscriber od edit subscriptions (with captcha)
+    POST:
+        see `Subscribe`
+        captcha
+    """
+
+    def post(self, request, format=None):
+        # check captcha
+        captcha_validated = validate_captcha(request.data.get("captcha", ""))
+        if not captcha_validated:
+            return Response(
+                {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
+            )
+
+        return super().post(request, format=None)
 
 
 class ManageSegments(views.APIView):
@@ -618,7 +639,7 @@ class GenericDonationCampaign(views.APIView):
                 description=donation_campaign.upn_name,
                 shopper_locale="sl",
                 customer_ip=utils.get_client_ip(request),
-                success_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/hvala",
+                success_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/hvala?transaction_id={donation.id}",
                 error_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
                 cancel_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
                 callback_url=f"{settings.BASE_URL}/api/flik-callback/",

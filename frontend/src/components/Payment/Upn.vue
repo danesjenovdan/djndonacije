@@ -80,6 +80,16 @@ export default {
       width: 170px;
       height: auto;
       margin-inline: auto;
+
+      @media (min-width: 360px) {
+        width: 255px;
+        height: 255px;
+      }
+
+      :deep(svg) {
+        width: 100%;
+        height: 100%;
+      }
     }
   }
 }
