@@ -6,6 +6,7 @@
       "donateFrequency--template": "Želiš darovati <em>{frequency}</em>?",
       "donateOnce--word": "enkrat",
       "donateMonthly--word": "mesečno",
+      "customAmount": "Vnesi poljuben znesek!",
       "supportUs": "PODPRI NAS"
     },
     "infoView": {

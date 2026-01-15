@@ -29,7 +29,12 @@
           <span v-else>{{ donationPreset.amount }} €</span>
         </div>
         <div class="donation-option__description">
-          {{ donationPreset.description }}
+          <template v-if="donationPreset.custom">
+            {{ $t("selectAmountView.customAmount") }}
+          </template>
+          <template v-else>
+            {{ donationPreset.description }}
+          </template>
         </div>
       </div>
       <div :class="['donation-option__icon', { 'amount-only': amountOnly }]">

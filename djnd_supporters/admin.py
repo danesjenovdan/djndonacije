@@ -113,7 +113,9 @@ class DonationCampaignAdmin(admin.ModelAdmin):
                 "fields": [
                     "slug",
                     "title",
+                    "title_en",
                     "subtitle",
+                    "subtitle_en",
                     "css_file",
                 ],  # "redirect_url", "has_upload_image",
             },
