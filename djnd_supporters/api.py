@@ -135,17 +135,20 @@ class Subscribe(views.APIView):
                     if campaign and add_to_mailing:
                         if (
                             mail_to_send == "edit"
-                            and campaign.edit_subscriptions_email_tempalte
+                            and campaign.edit_subscriptions_email_template
                         ):
-                            email_id = campaign.edit_subscriptions_email_tempalte
+                            email_id = campaign.edit_subscriptions_email_template
                         elif mail_to_send == "welcome":
                             if campaign.welcome_email_tempalte:
                                 email_id = campaign.welcome_email_tempalte
-                            elif campaign.edit_subscriptions_email_tempalte:
-                                email_id = campaign.edit_subscriptions_email_tempalte
+                            elif campaign.edit_subscriptions_email_template:
+                                email_id = campaign.edit_subscriptions_email_template
                             else:
                                 capture_message(
-                                    f"Campaign {campaign.name} has empty edit_subscriptions_email_tempalte and welcome_email_tempalte"
+                                    f"Campaign {campaign.name} has empty edit_subscriptions_email_template and welcome_email_tempalte"
+                                )
+                                return Response(
+                                    {"msg": "mail not sent"}, status=status.HTTP_409_CONFLICT
                                 )
 
                         response, response_status = mautic_api.sendEmail(
@@ -710,6 +713,7 @@ class GenericCampaignSubscription(views.APIView):
                     else:
                         token = contacts[mautic_id]["fields"]["core"]["token"]["value"]
                         subscriber = models.Subscriber(mautic_id=mautic_id, token=token)
+                        subscriber.save()
 
         if customer_id and not subscriber:
             subscriber = models.Subscriber.objects.filter(customer_id=customer_id)

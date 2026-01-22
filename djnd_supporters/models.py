@@ -50,6 +50,8 @@ class Subscriber(User, Timestamped):
         if not self.pk and not self.token:
             self.token = token_hex(16)
             self.username = self.token
+        elif not self.pk and not self.username:
+            self.username = self.token
         super(Subscriber, self).save(*args, **kwargs)
 
     def save_to_mautic(self, email):
@@ -295,7 +297,7 @@ class DonationCampaign(Timestamped):
     welcome_email_tempalte = models.IntegerField(
         null=True, blank=True, verbose_name="Mautic email ID za welcome mail"
     )
-    edit_subscriptions_email_tempalte = models.IntegerField(
+    edit_subscriptions_email_template = models.IntegerField(
         null=True, blank=True, verbose_name="Mautic email ID za urejanje naročnine"
     )
     redirect_url = models.URLField(
