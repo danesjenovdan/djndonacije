@@ -148,7 +148,8 @@ class Subscribe(views.APIView):
                                     f"Campaign {campaign.name} has empty edit_subscriptions_email_template and welcome_email_tempalte"
                                 )
                                 return Response(
-                                    {"msg": "mail not sent"}, status=status.HTTP_409_CONFLICT
+                                    {"msg": "mail not sent"},
+                                    status=status.HTTP_409_CONFLICT,
                                 )
 
                         response, response_status = mautic_api.sendEmail(

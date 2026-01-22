@@ -6,23 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0046_remove_donationcampaign_bt_email_template_and_more'),
+        ("djnd_supporters", "0046_remove_donationcampaign_bt_email_template_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='donationcampaign',
-            name='subtitle_en',
-            field=models.TextField(blank=True, help_text='Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj', null=True, verbose_name='Podnaslov (angleščina)'),
+            model_name="donationcampaign",
+            name="subtitle_en",
+            field=models.TextField(
+                blank=True,
+                help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
+                null=True,
+                verbose_name="Podnaslov (angleščina)",
+            ),
         ),
         migrations.AddField(
-            model_name='donationcampaign',
-            name='title_en',
-            field=models.CharField(blank=True, help_text='Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj', max_length=256, null=True, verbose_name='Naslov (angleščina)'),
+            model_name="donationcampaign",
+            name="title_en",
+            field=models.CharField(
+                blank=True,
+                help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
+                max_length=256,
+                null=True,
+                verbose_name="Naslov (angleščina)",
+            ),
         ),
         migrations.AlterField(
-            model_name='donationcampaign',
-            name='onetime_donation_email_template',
-            field=models.IntegerField(blank=True, null=True, verbose_name='Mautic email ID za enkratno donacijo'),
+            model_name="donationcampaign",
+            name="onetime_donation_email_template",
+            field=models.IntegerField(
+                blank=True,
+                null=True,
+                verbose_name="Mautic email ID za enkratno donacijo",
+            ),
         ),
     ]
