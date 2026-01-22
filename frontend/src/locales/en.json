@@ -70,7 +70,8 @@
   },
   "thankYouView": {
     "title": "THANK YOU FOR YOUR DONATION!",
-    "note": "Your donation is another piece of support in the mosaic of our work. We sincerely hope that our projects will continue to bring you joy and pride."
+    "note": "Your donation is another piece of support in the mosaic of our work. We sincerely hope that our projects will continue to bring you joy and pride.",
+    "note-generic": "Your donation is another piece of support in the mosaic of our work."
   },
   "paymentErrorView": {
     "title": "PAYMENT ERROR!",

@@ -39,15 +39,15 @@ const router = createRouter({
           name: "payment",
           component: () => import("../views/PaymentView.vue"),
         },
+        {
+          path: "/:campaignSlug/doniraj/hvala",
+          name: "thankYou",
+          component: () => import("../views/ThankYouView.vue"),
+          meta: {
+            title: "Hvala!",
+          },
+        },
       ],
-    },
-    {
-      path: "/:campaignSlug/doniraj/hvala",
-      name: "thankYou",
-      component: () => import("../views/ThankYouView.vue"),
-      meta: {
-        title: "Hvala!",
-      },
     },
     {
       path: "/:campaignSlug/doniraj/napaka",
