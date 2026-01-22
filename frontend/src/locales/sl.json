@@ -70,7 +70,8 @@
     },
     "thankYouView": {
         "title": "HVALA ZA DONACIJO!",
-        "note": "Tvoja donacija predstavlja še en kamenček podpore v mozaiku našega delovanja. Iskreno upamo, da ti bodo naši projekti še naprej v veselje in ponos."
+        "note": "Tvoja donacija predstavlja še en kamenček podpore v mozaiku našega delovanja. Iskreno upamo, da ti bodo naši projekti še naprej v veselje in ponos.",
+        "note-generic": "Tvoja donacija predstavlja še en pomemben kamenček podpore v mozaiku našega delovanja."
     },
     "paymentErrorView": {
         "title": "NAPAKA PRI PLAČILU!",
