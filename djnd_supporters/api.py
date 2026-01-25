@@ -701,20 +701,31 @@ class GenericCampaignSubscription(views.APIView):
             )
 
         if email and not customer_id:
+            # get user with this email from mautic
             response, response_status = mautic_api.getContactByEmail(email)
             if response_status == 200:
                 contacts = response["contacts"]
                 if contacts:
+                    # subscriber exists on mautic
                     mautic_id = list(contacts.keys())[0]
                     subscriber = models.Subscriber.objects.filter(
                         mautic_id=mautic_id
                     ).first()
                     if subscriber and subscriber.customer_id:
                         customer_id = subscriber.customer_id
-                    else:
+                    elif subscriber and not subscriber.token:
+                        # update token
                         token = contacts[mautic_id]["fields"]["core"]["token"]["value"]
-                        subscriber = models.Subscriber(mautic_id=mautic_id, token=token)
-                        subscriber.save()
+                        if token:
+                            subscriber.token = token
+                            subscriber.save()
+                    else:
+                        capture_message(f"Subscriber is in mautic but is not in podpri. mautic_id: {mautic_id}")
+                else:
+                    # create new subscriber if not exists on mautic
+                    subscriber = models.Subscriber.objects.create()
+                    subscriber.save()
+                    subscriber.save_to_mautic(email)
 
         if customer_id and not subscriber:
             subscriber = models.Subscriber.objects.filter(customer_id=customer_id)
