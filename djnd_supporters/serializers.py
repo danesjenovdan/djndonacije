@@ -36,7 +36,9 @@ class DonationCampaignSerializer(serializers.ModelSerializer):
             "name",
             "amounts",
             "title",
+            "title_en",
             "subtitle",
+            "subtitle_en",
             "redirect_url",
             "css_file",
         ]
