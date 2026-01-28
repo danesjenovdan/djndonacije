@@ -133,6 +133,7 @@ class Subscribe(views.APIView):
                                     send_slack_msg(msg, "#novicnik-bot")
 
                     if campaign and add_to_mailing:
+                        email_id = None
                         if (
                             mail_to_send == "edit"
                             and campaign.edit_subscriptions_email_template
@@ -144,18 +145,16 @@ class Subscribe(views.APIView):
                             elif campaign.edit_subscriptions_email_template:
                                 email_id = campaign.edit_subscriptions_email_template
                             else:
+                                # Nov dan trnutno nima welcome in edit email template
                                 capture_message(
                                     f"Campaign {campaign.name} has empty edit_subscriptions_email_template and welcome_email_tempalte"
                                 )
-                                return Response(
-                                    {"msg": "mail not sent"},
-                                    status=status.HTTP_409_CONFLICT,
-                                )
-
-                        response, response_status = mautic_api.sendEmail(
-                            email_id, mautic_id, {}
-                        )
-                        return Response({"msg": "mail sent"})
+                        if email_id:
+                            response, response_status = mautic_api.sendEmail(
+                                email_id, mautic_id, {}
+                            )
+                            return Response({"msg": "mail sent"})
+                        return Response({"msg": "mail not sent"})
                     else:
                         capture_message(f"Each segment needs to belong to campaign")
                         return Response(
