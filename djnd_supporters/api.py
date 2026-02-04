@@ -719,7 +719,9 @@ class GenericCampaignSubscription(views.APIView):
                             subscriber.token = token
                             subscriber.save()
                     else:
-                        capture_message(f"Subscriber is in mautic but is not in podpri. mautic_id: {mautic_id}")
+                        capture_message(
+                            f"Subscriber is in mautic but is not in podpri. mautic_id: {mautic_id}"
+                        )
                 else:
                     # create new subscriber if not exists on mautic
                     subscriber = models.Subscriber.objects.create()
