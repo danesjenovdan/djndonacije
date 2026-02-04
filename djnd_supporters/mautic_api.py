@@ -1,3 +1,5 @@
+from urllib.parse import quote_plus
+
 import requests
 from django.conf import settings
 from requests.auth import HTTPBasicAuth
@@ -83,7 +85,9 @@ class MauticApi(object):
 
     def getContactByEmail(self, email):
         print(email)
-        return self.mauticRequest("contacts?search=email:%s" % email, method="get")
+        return self.mauticRequest(
+            "contacts?search=email:%s" % quote_plus(email), method="get"
+        )
 
     def deleteContact(self, contact_id):
         return self.mauticRequest("contacts/%s/delete" % contact_id, method="delete")

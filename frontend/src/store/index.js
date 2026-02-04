@@ -217,17 +217,17 @@ const store = createStore({
     },
     async getQRCode(context, payload) {
       const data = await axios.get(
-        `${api}/api/donation-campaign/${payload.campaignSlug}/qrcode?amount=${payload.amount}`,
+        `${api}/api/donation-campaign/${payload.campaignSlug}/qrcode?amount=${encodeURIComponent(payload.amount)}`,
       );
       context.commit("setQRCode", data.data.upn_qr_code);
     },
     // eslint-disable-next-line no-unused-vars
     async getUserDonations(context, payload) {
-      const url = `${api}/api/subscriptions/my/?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+      const url = `${api}/api/subscriptions/my/?token=${encodeURIComponent(context.getters.getToken)}&email=${encodeURIComponent(context.getters.getEmail)}`;
       return axios.get(url);
     },
     async getUserNewsletterSubscriptions(context, payload) {
-      const url = `${api}/api/segments/my/?token=${context.getters.getToken}&email=${context.getters.getEmail}&campaign=${payload.campaign}`;
+      const url = `${api}/api/segments/my/?token=${encodeURIComponent(context.getters.getToken)}&email=${encodeURIComponent(context.getters.getEmail)}&campaign=${encodeURIComponent(payload.campaign)}`;
       return axios.get(url);
     },
     async verifyCaptcha(context, payload) {
@@ -275,7 +275,7 @@ const store = createStore({
       });
     },
     async confirmNewsletterSubscription(context, payload) {
-      const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+      const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${encodeURIComponent(context.getters.getToken)}&email=${encodeURIComponent(context.getters.getEmail)}`;
 
       try {
         const response = await axios.post(url);
@@ -302,7 +302,7 @@ const store = createStore({
       }
     },
     async cancelNewsletterSubscription(context, payload) {
-      const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+      const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${encodeURIComponent(context.getters.getToken)}&email=${encodeURIComponent(context.getters.getEmail)}`;
 
       try {
         const response = await axios.delete(url);
@@ -315,7 +315,7 @@ const store = createStore({
     },
     // eslint-disable-next-line no-unused-vars
     async deleteUserData(context, payload) {
-      const url = `${api}/api/delete-all-user-data?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+      const url = `${api}/api/delete-all-user-data?token=${encodeURIComponent(context.getters.getToken)}&email=${encodeURIComponent(context.getters.getEmail)}`;
 
       return axios.delete(url);
     },
