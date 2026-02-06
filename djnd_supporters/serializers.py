@@ -23,6 +23,10 @@ class AmountSerializer(serializers.ModelSerializer):
 
 class DonationCampaignSerializer(serializers.ModelSerializer):
     amounts = AmountSerializer(many=True)
+    active_monthly_subscriptions = serializers.SerializerMethodField()
+
+    def get_active_monthly_subscriptions(self, obj):
+        return obj.subscriptions.filter(is_active=True).count()
 
     class Meta:
         model = models.DonationCampaign
@@ -36,9 +40,12 @@ class DonationCampaignSerializer(serializers.ModelSerializer):
             "name",
             "amounts",
             "title",
+            "title_en",
             "subtitle",
+            "subtitle_en",
             "redirect_url",
             "css_file",
+            "active_monthly_subscriptions",
         ]
 
 

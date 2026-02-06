@@ -3,8 +3,10 @@
       "selectAmount": "Izberi višino",
       "donation": "donacije!",
       "monthly": "mesečne",
-      "donateOnce": "Želiš darovati enkrat?",
-      "donateMonthly": "Želiš darovati mesečno?",
+      "donateFrequency--template": "Želiš darovati <em>{frequency}</em>?",
+      "donateOnce--word": "enkrat",
+      "donateMonthly--word": "mesečno",
+      "customAmount": "Vnesi poljuben znesek!",
       "supportUs": "PODPRI NAS"
     },
     "infoView": {
@@ -40,12 +42,13 @@
         "depositSlip": "Nakazilo",
         "flik": "Flik",
         "cardNote": "Informacij o tvoji kartici ne pošiljamo na svoj strežnik in ne shranjujemo. Za varnost plačila skrbi",
-        "depositSlipNote": "Skeniraj s svojo bančno aplikacijo ali naredi screenshot in uvozi v bančno aplikacijo.",
+        "depositSlipNote": "Skeniraj s svojo bančno aplikacijo ali naredi posnetek zaslona in uvozi v bančno aplikacijo.",
         "flikNote": "Preusmerili te bomo na spletno stran Flika, kjer boš lahko izvedel_a plačilo."
     },
     "manageNewsletterView": {
         "unsubscribeAndDeleteData": "Odjavili smo te od vseh novičnikov in izbrisali tvoje podatke.",
         "unsubscribeSuccessful": "Odjava je uspešna!",
+        "subscribeSuccessful": "Prijava je uspešna!",
         "error": "Zgodila se je napaka.",
         "noSuchUser": "Uporabnik_ca s temi podatki ne obstaja.",
         "help": "Piši nam na <a href='mailto:{email}'>{email}</a> in bomo takoj razrešili težavo.",
@@ -67,10 +70,17 @@
     },
     "thankYouView": {
         "title": "HVALA ZA DONACIJO!",
-        "note": "Tvoja donacija predstavlja še en kamenček podpore v mozaiku našega delovanja. Iskreno upamo, da ti bodo naši projekti še naprej v veselje in ponos."
+        "note": "Tvoja donacija predstavlja še en kamenček podpore v mozaiku našega delovanja. Iskreno upamo, da ti bodo naši projekti še naprej v veselje in ponos.",
+        "note-generic": "Tvoja donacija predstavlja še en pomemben kamenček podpore v mozaiku našega delovanja."
     },
     "paymentErrorView": {
         "title": "NAPAKA PRI PLAČILU!",
         "note": "Zgodila se je napaka in naš strežnik je ni mogel rešiti.<br /><br />Zaračunali ti nismo ničesar, ves denar je še vedno na tvoji kartici. Predlagamo, da greš nazaj <a href=\"{startHref}\">na začetek</a> in poskusiš ponovno. Če ne bo šlo, nam piši na {'<a href=\"mailto:vsi@danesjenovdan.si\">vsi@danesjenovdan.si</a>'} in ti bomo poskusili pomagati."
+    },
+    "newsletterSignup": {
+        "title": "Prijava na novičnik",
+        "signMeUp": "Prijavi me!",
+        "thankYou": "Hvala za prijavo!",
+        "thankYouConfirm": "Za potrditev prijave klikni na povezavo, ki smo ti jo pravkar poslali na tvoj e-naslov."
     }
 }

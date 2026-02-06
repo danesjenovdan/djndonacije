@@ -79,6 +79,8 @@ class Subscribe(views.APIView):
             campaign = models.DonationCampaign.objects.filter(
                 slug=campaign_slug
             ).first()
+        else:
+            campaign = None
 
         # segment from argument has priority on segment from campaign
         if not segment and campaign:
@@ -131,25 +133,28 @@ class Subscribe(views.APIView):
                                     send_slack_msg(msg, "#novicnik-bot")
 
                     if campaign and add_to_mailing:
+                        email_id = None
                         if (
                             mail_to_send == "edit"
-                            and campaign.edit_subscriptions_email_tempalte
+                            and campaign.edit_subscriptions_email_template
                         ):
-                            email_id = campaign.edit_subscriptions_email_tempalte
+                            email_id = campaign.edit_subscriptions_email_template
                         elif mail_to_send == "welcome":
                             if campaign.welcome_email_tempalte:
                                 email_id = campaign.welcome_email_tempalte
-                            elif campaign.edit_subscriptions_email_tempalte:
-                                email_id = campaign.edit_subscriptions_email_tempalte
+                            elif campaign.edit_subscriptions_email_template:
+                                email_id = campaign.edit_subscriptions_email_template
                             else:
+                                # Nov dan trnutno nima welcome in edit email template
                                 capture_message(
-                                    f"Campaign {campaign.name} has empty edit_subscriptions_email_tempalte and welcome_email_tempalte"
+                                    f"Campaign {campaign.name} has empty edit_subscriptions_email_template and welcome_email_tempalte"
                                 )
-
-                        response, response_status = mautic_api.sendEmail(
-                            email_id, mautic_id, {}
-                        )
-                        return Response({"msg": "mail sent"})
+                        if email_id:
+                            response, response_status = mautic_api.sendEmail(
+                                email_id, mautic_id, {}
+                            )
+                            return Response({"msg": "mail sent"})
+                        return Response({"msg": "mail not sent"})
                     else:
                         capture_message(f"Each segment needs to belong to campaign")
                         return Response(
@@ -196,6 +201,25 @@ class Subscribe(views.APIView):
         return Response(
             {"error": "Missing email and/or token."}, status=status.HTTP_409_CONFLICT
         )
+
+
+class SafeSubscribe(Subscribe):
+    """
+    Add subscriber od edit subscriptions (with captcha)
+    POST:
+        see `Subscribe`
+        captcha
+    """
+
+    def post(self, request, format=None):
+        # check captcha
+        captcha_validated = validate_captcha(request.data.get("captcha", ""))
+        if not captcha_validated:
+            return Response(
+                {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
+            )
+
+        return super().post(request, format=None)
 
 
 class ManageSegments(views.APIView):
@@ -618,7 +642,7 @@ class GenericDonationCampaign(views.APIView):
                 description=donation_campaign.upn_name,
                 shopper_locale="sl",
                 customer_ip=utils.get_client_ip(request),
-                success_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/hvala",
+                success_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/hvala?transaction_id={donation.id}",
                 error_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
                 cancel_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
                 callback_url=f"{settings.BASE_URL}/api/flik-callback/",
@@ -676,19 +700,33 @@ class GenericCampaignSubscription(views.APIView):
             )
 
         if email and not customer_id:
+            # get user with this email from mautic
             response, response_status = mautic_api.getContactByEmail(email)
             if response_status == 200:
                 contacts = response["contacts"]
                 if contacts:
+                    # subscriber exists on mautic
                     mautic_id = list(contacts.keys())[0]
                     subscriber = models.Subscriber.objects.filter(
                         mautic_id=mautic_id
                     ).first()
                     if subscriber and subscriber.customer_id:
                         customer_id = subscriber.customer_id
-                    else:
+                    elif subscriber and not subscriber.token:
+                        # update token
                         token = contacts[mautic_id]["fields"]["core"]["token"]["value"]
-                        subscriber = models.Subscriber(mautic_id=mautic_id, token=token)
+                        if token:
+                            subscriber.token = token
+                            subscriber.save()
+                    else:
+                        capture_message(
+                            f"Subscriber is in mautic but is not in podpri. mautic_id: {mautic_id}"
+                        )
+                else:
+                    # create new subscriber if not exists on mautic
+                    subscriber = models.Subscriber.objects.create()
+                    subscriber.save()
+                    subscriber.save_to_mautic(email)
 
         if customer_id and not subscriber:
             subscriber = models.Subscriber.objects.filter(customer_id=customer_id)

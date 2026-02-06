@@ -39,15 +39,15 @@ const router = createRouter({
           name: "payment",
           component: () => import("../views/PaymentView.vue"),
         },
+        {
+          path: "/:campaignSlug/doniraj/hvala",
+          name: "thankYou",
+          component: () => import("../views/ThankYouView.vue"),
+          meta: {
+            title: "Hvala!",
+          },
+        },
       ],
-    },
-    {
-      path: "/:campaignSlug/doniraj/hvala",
-      name: "thankYou",
-      component: () => import("../views/ThankYouView.vue"),
-      meta: {
-        title: "Hvala!",
-      },
     },
     {
       path: "/:campaignSlug/doniraj/napaka",
@@ -64,6 +64,15 @@ const router = createRouter({
       component: () => import("../views/ManageNewsletterView.vue"),
       meta: {
         title: "Urejanje naročnine",
+      },
+    },
+    // prijava na newsletter posamezne kampanje
+    {
+      path: "/:campaignSlug/prijava",
+      name: "newsletterSignup",
+      component: () => import("../views/NewsletterSignupView.vue"),
+      meta: {
+        title: "Prijava na novičnik",
       },
     },
     // 404 (last, catch-all route)

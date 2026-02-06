@@ -80,7 +80,7 @@ class DonationCampaignAdmin(admin.ModelAdmin):
                     "welcome_email_tempalte",
                     "add_to_newsletter_confirmation_required",
                     "mautic_confirm_subscription_url",
-                    "edit_subscriptions_email_tempalte",
+                    "edit_subscriptions_email_template",
                     "mautic_manage_subscription_url",
                 ],
             },
@@ -113,7 +113,9 @@ class DonationCampaignAdmin(admin.ModelAdmin):
                 "fields": [
                     "slug",
                     "title",
+                    "title_en",
                     "subtitle",
+                    "subtitle_en",
                     "css_file",
                 ],  # "redirect_url", "has_upload_image",
             },

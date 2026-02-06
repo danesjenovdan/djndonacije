@@ -3,8 +3,10 @@
     "selectAmount": "Choose the",
     "donation": "donation amount!",
     "monthly": "monthly",
-    "donateOnce": "Do you want to make a one-time donation?",
-    "donateMonthly": "Do you want to make a monthly donation?",
+    "donateFrequency--template": "Do you want to make a <em>{frequency}</em> donation?",
+    "donateOnce--word": "one-time",
+    "donateMonthly--word": "monthly",
+    "customAmount": "Enter custom amount!",
     "supportUs": "SUPPORT US"
   },
   "infoView": {
@@ -46,6 +48,7 @@
   "manageNewsletterView": {
     "unsubscribeAndDeleteData": "You have successfully unsubscribed and we have deleted your data.",
     "unsubscribeSuccessful": "You have successfully unsubscribed.",
+    "subscribeSuccessful": "You have successfully subscribed!",
     "error": "An error occurred.",
     "noSuchUser": "The user with this information does not exist.",
     "help": "Contact us at <a href='mailto:{email}'>{email}</a>, and we will solve the problem as soon as possible.",
@@ -67,10 +70,17 @@
   },
   "thankYouView": {
     "title": "THANK YOU FOR YOUR DONATION!",
-    "note": "Your donation is another piece of support in the mosaic of our work. We sincerely hope that our projects will continue to bring you joy and pride."
+    "note": "Your donation is another piece of support in the mosaic of our work. We sincerely hope that our projects will continue to bring you joy and pride.",
+    "note-generic": "Your donation is another piece of support in the mosaic of our work."
   },
   "paymentErrorView": {
-      "title": "PAYMENT ERROR!",
-      "note": "An error occurred and our server could not resolve it.<br /><br />We haven’t charged you anything; all the money is still on your card. We suggest going back to <a href=\"{startHref}\">the start</a> and trying again. If it doesn’t work, please write to us at {'<a href=\"mailto:vsi@danesjenovdan.si\">vsi@danesjenovdan.si</a>'} and we will try to help you."
+    "title": "PAYMENT ERROR!",
+    "note": "An error occurred and our server could not resolve it.<br /><br />We haven’t charged you anything; all the money is still on your card. We suggest going back to <a href=\"{startHref}\">the start</a> and trying again. If it doesn’t work, please write to us at {'<a href=\"mailto:vsi@danesjenovdan.si\">vsi@danesjenovdan.si</a>'} and we will try to help you."
+  },
+  "newsletterSignup": {
+    "title": "Newsletter Signup",
+    "signMeUp": "Sign me up!",
+    "thankYou": "Thank you for signing up!",
+    "thankYouConfirm": "To confirm your subscription, please click the link we just sent to your email address."
   }
 }

@@ -50,6 +50,8 @@ class Subscriber(User, Timestamped):
         if not self.pk and not self.token:
             self.token = token_hex(16)
             self.username = self.token
+        elif not self.pk and not self.username:
+            self.username = self.token
         super(Subscriber, self).save(*args, **kwargs)
 
     def save_to_mautic(self, email):
@@ -209,10 +211,23 @@ class DonationCampaign(Timestamped):
         verbose_name="Naslov",
         help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
     )
+    title_en = models.CharField(
+        null=True,
+        blank=True,
+        max_length=256,
+        verbose_name="Naslov (angleščina)",
+        help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
+    )
     subtitle = models.TextField(
         null=True,
         blank=True,
         verbose_name="Podnaslov",
+        help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
+    )
+    subtitle_en = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name="Podnaslov (angleščina)",
         help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
     )
     upn_name = models.CharField(
@@ -282,7 +297,7 @@ class DonationCampaign(Timestamped):
     welcome_email_tempalte = models.IntegerField(
         null=True, blank=True, verbose_name="Mautic email ID za welcome mail"
     )
-    edit_subscriptions_email_tempalte = models.IntegerField(
+    edit_subscriptions_email_template = models.IntegerField(
         null=True, blank=True, verbose_name="Mautic email ID za urejanje naročnine"
     )
     redirect_url = models.URLField(
