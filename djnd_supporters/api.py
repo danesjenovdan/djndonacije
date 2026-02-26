@@ -718,6 +718,8 @@ class GenericCampaignSubscription(views.APIView):
                         if token:
                             subscriber.token = token
                             subscriber.save()
+                    elif subscriber:
+                        pass
                     else:
                         capture_message(
                             f"Subscriber is in mautic but is not in podpri. mautic_id: {mautic_id}"
