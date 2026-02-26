@@ -13,7 +13,9 @@ const store = createStore({
       campaignData: {
         donationCampaignId: "",
         title: "",
+        title_en: "",
         subtitle: "",
+        subtitle_en: "",
         donationPresets: [],
         has_upn: false,
         has_flik: false,
@@ -40,9 +42,15 @@ const store = createStore({
       return state.campaignData.donationCampaignId;
     },
     getTitle(state) {
+      if (state.lang === "en" && state.campaignData.title_en) {
+        return state.campaignData.title_en;
+      }
       return state.campaignData.title;
     },
     getSubtitle(state) {
+      if (state.lang === "en" && state.campaignData.subtitle_en) {
+        return state.campaignData.subtitle_en;
+      }
       return state.campaignData.subtitle;
     },
     getDonationPresets(state) {
@@ -97,15 +105,21 @@ const store = createStore({
     setTitle(state, title) {
       state.campaignData.title = title;
     },
+    setTitleEn(state, title_en) {
+      state.campaignData.title_en = title_en;
+    },
     setSubtitle(state, subtitle) {
       state.campaignData.subtitle = subtitle;
+    },
+    setSubtitleEn(state, subtitle_en) {
+      state.campaignData.subtitle_en = subtitle_en;
     },
     setDonationPresets(state, newDonationPresets) {
       // create the custom preset object
       const customPreset = {
         custom: true,
         amount: null,
-        description: "Vnesi poljuben znesek!",
+        description: "",
         selected: false,
         eventName: "custom",
         monthly: true,
@@ -182,7 +196,9 @@ const store = createStore({
 
       context.commit("setDonationCampaignId", data.data.id);
       context.commit("setTitle", data.data.title);
+      context.commit("setTitleEn", data.data.title_en);
       context.commit("setSubtitle", data.data.subtitle);
+      context.commit("setSubtitleEn", data.data.subtitle_en);
       context.commit("setDonationPresets", data.data.amounts);
       context.commit("setPaymentOptions", {
         has_upn: data.data.has_upn,
@@ -201,17 +217,17 @@ const store = createStore({
     },
     async getQRCode(context, payload) {
       const data = await axios.get(
-        `${api}/api/donation-campaign/${payload.campaignSlug}/qrcode?amount=${payload.amount}`,
+        `${api}/api/donation-campaign/${payload.campaignSlug}/qrcode?amount=${encodeURIComponent(payload.amount)}`,
       );
       context.commit("setQRCode", data.data.upn_qr_code);
     },
     // eslint-disable-next-line no-unused-vars
     async getUserDonations(context, payload) {
-      const url = `${api}/api/subscriptions/my/?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+      const url = `${api}/api/subscriptions/my/?token=${encodeURIComponent(context.getters.getToken)}&email=${encodeURIComponent(context.getters.getEmail)}`;
       return axios.get(url);
     },
     async getUserNewsletterSubscriptions(context, payload) {
-      const url = `${api}/api/segments/my/?token=${context.getters.getToken}&email=${context.getters.getEmail}&campaign=${payload.campaign}`;
+      const url = `${api}/api/segments/my/?token=${encodeURIComponent(context.getters.getToken)}&email=${encodeURIComponent(context.getters.getEmail)}&campaign=${encodeURIComponent(payload.campaign)}`;
       return axios.get(url);
     },
     async verifyCaptcha(context, payload) {
@@ -249,8 +265,17 @@ const store = createStore({
         add_to_mailing: payload.addToMailing,
       });
     },
+    async newsletterSafeSubscribe(context, payload) {
+      const url = `${api}/api/safe-subscribe/`;
+
+      return axios.post(url, {
+        captcha: payload.captcha,
+        email: payload.email,
+        segment_id: payload.segmentId,
+      });
+    },
     async confirmNewsletterSubscription(context, payload) {
-      const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+      const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${encodeURIComponent(context.getters.getToken)}&email=${encodeURIComponent(context.getters.getEmail)}`;
 
       try {
         const response = await axios.post(url);
@@ -277,7 +302,7 @@ const store = createStore({
       }
     },
     async cancelNewsletterSubscription(context, payload) {
-      const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+      const url = `${api}/api/segments/${payload.segment_id}/contact/?token=${encodeURIComponent(context.getters.getToken)}&email=${encodeURIComponent(context.getters.getEmail)}`;
 
       try {
         const response = await axios.delete(url);
@@ -290,7 +315,7 @@ const store = createStore({
     },
     // eslint-disable-next-line no-unused-vars
     async deleteUserData(context, payload) {
-      const url = `${api}/api/delete-all-user-data?token=${context.getters.getToken}&email=${context.getters.getEmail}`;
+      const url = `${api}/api/delete-all-user-data?token=${encodeURIComponent(context.getters.getToken)}&email=${encodeURIComponent(context.getters.getEmail)}`;
 
       return axios.delete(url);
     },

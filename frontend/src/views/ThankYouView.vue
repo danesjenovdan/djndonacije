@@ -1,58 +1,61 @@
 <template>
-  <div class="checkout">
-    <checkout-stage no-header>
-      <template #content>
-        <div class="row justify-content-center my-5">
-          <img class="img-fluid" src="../assets/hvala.svg" />
-        </div>
-        <div class="row justify-content-center">
-          <h2 class="thankyou__title">{{ $t("thankYouView.title") }}</h2>
-          <p v-if="!transactionId" class="text-center">
+  <checkout-stage no-header>
+    <template #content>
+      <div class="row justify-content-center my-5">
+        <img class="img-fluid" src="../assets/hvala.svg" />
+      </div>
+      <div class="row justify-content-center">
+        <h2 class="thankyou__title">{{ $t("thankYouView.title") }}</h2>
+        <p v-if="!transactionId" class="text-center thankyou__note">
+          <template v-if="campaignSlug === 'danes-je-nov-dan'">
             {{ $t("thankYouView.note") }}
+          </template>
+          <template v-else>
+            {{ $t("thankYouView.note-generic") }}
+          </template>
+        </p>
+        <div v-else class="info-content">
+          <p>
+            {{ $t("infoView.whyEmailPost") }}
           </p>
-          <div v-else class="info-content">
-            <p>
-              {{ $t("infoView.whyEmailPost") }}
-            </p>
-            <div class="form-group">
-              <input
-                id="email"
-                v-model="email"
-                type="email"
-                :placeholder="$t('infoView.email')"
-                class="form-control form-control-lg"
-              />
-            </div>
-            <div v-if="hasNewsletter" class="custom-control custom-checkbox">
-              <input
-                id="info-newsletter"
-                v-model="subscribeToNewsletter"
-                type="checkbox"
-                name="subscribeNewsletter"
-                class="custom-control-input"
-              />
-              <label class="custom-control-label" for="info-newsletter">{{
-                $t("infoView.newsletterLabel")
-              }}</label>
-            </div>
+          <div class="form-group">
+            <input
+              id="email"
+              v-model="email"
+              type="email"
+              :placeholder="$t('infoView.email')"
+              class="form-control form-control-lg"
+            />
+          </div>
+          <div v-if="hasNewsletter" class="custom-control custom-checkbox">
+            <input
+              id="info-newsletter"
+              v-model="subscribeToNewsletter"
+              type="checkbox"
+              name="subscribeNewsletter"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="info-newsletter">{{
+              $t("infoView.newsletterLabel")
+            }}</label>
           </div>
         </div>
-      </template>
-      <template v-if="transactionId" #footer>
-        <div class="confirm-button-container">
-          <confirm-button
-            key="next-info"
-            :disabled="!canContinueToNextStage"
-            :loading="infoSubmitting"
-            :text="$t('infoView.next')"
-            arrow
-            hearts
-            @click="continueToNextStage"
-          />
-        </div>
-      </template>
-    </checkout-stage>
-  </div>
+      </div>
+    </template>
+    <template v-if="transactionId" #footer>
+      <div class="confirm-button-container">
+        <confirm-button
+          key="next-info"
+          :disabled="!canContinueToNextStage"
+          :loading="infoSubmitting"
+          :text="$t('infoView.next')"
+          arrow
+          hearts
+          @click="continueToNextStage"
+        />
+      </div>
+    </template>
+  </checkout-stage>
 </template>
 
 <script>
@@ -70,6 +73,7 @@ export default {
   },
   data() {
     return {
+      campaignSlug: this.$route.params.campaignSlug,
       transactionId: this.$route.query.transaction_id || null,
       infoSubmitting: false,
     };
@@ -116,7 +120,7 @@ export default {
         this.infoSubmitting = true;
         this.$store
           .dispatch("afterPaymentAddEmail", {
-            campaignSlug: this.$route.params.campaignSlug,
+            campaignSlug: this.campaignSlug,
             transactionId: this.transactionId,
             email: this.email,
             addToMailing: this.subscribeToNewsletter,
@@ -185,9 +189,14 @@ export default {
     margin: 30px 0;
   }
 
+  .thankyou__note {
+    color: inherit;
+  }
+
   .info-content p {
     padding-left: 0;
     padding-right: 0;
+    color: inherit;
   }
 }
 </style>
