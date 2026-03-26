@@ -5,26 +5,15 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-production"
 spec:
-  ingressClassName: nginx
+  ingressClassName: traefik
   tls:
     - hosts:
-        - doniraj.lb.djnd.si
         - moj.djnd.si
         - moj.danesjenovdan.si
       secretName: podpri-frontend-tls
   rules:
-    - host: doniraj.lb.djnd.si
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: podpri-frontend
-                port:
-                  number: 80
     - host: moj.djnd.si
-      http:
+      http: &http_paths
         paths:
           - path: /
             pathType: Prefix
@@ -34,12 +23,4 @@ spec:
                 port:
                   number: 80
     - host: moj.danesjenovdan.si
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: podpri-frontend
-                port:
-                  number: 80
+      http: *http_paths
