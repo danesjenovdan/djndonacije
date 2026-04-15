@@ -1234,8 +1234,12 @@ class FlikCallback(views.APIView):
                 if subscription := flik_payment.subscription:
                     subscription.is_active = False
                     subscription.save()
-                    if email_template_id := subscription.campaign.flik_subscription_cancelled_email_template:
-                        mautic_api.sendEmail(email_template_id, subscription.subscriber.mautic_id, {})
+                    if (
+                        email_template_id := subscription.campaign.flik_subscription_cancelled_email_template
+                    ):
+                        mautic_api.sendEmail(
+                            email_template_id, subscription.subscriber.mautic_id, {}
+                        )
                 # flik_payment.is_paid = False
                 flik_payment.save()
         else:

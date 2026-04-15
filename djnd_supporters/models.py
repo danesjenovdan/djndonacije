@@ -303,7 +303,7 @@ class DonationCampaign(Timestamped):
     flik_subscription_cancelled_email_template = models.IntegerField(
         null=True,
         blank=True,
-        verbose_name="Mautic email ID za preklic flik mesečne donacije", 
+        verbose_name="Mautic email ID za preklic flik mesečne donacije",
     )
     segment = models.IntegerField(
         null=True, blank=True, verbose_name="Mautic segment ID"
