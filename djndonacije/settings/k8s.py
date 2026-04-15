@@ -309,7 +309,7 @@ SEGMENTS = {
     "glas-ljudstva": 27,
 }
 
-CAPTCHA_BASE_URL = "https://captcha.lb.djnd.si/api"
+CAPTCHA_BASE_URL = "https://vajbcha.danesjenovdan.si"
 
 FLIK_API_KEY = os.getenv("FLIK_API_KEY", "")
 FLIK_SS = os.getenv("FLIK_SS", "")

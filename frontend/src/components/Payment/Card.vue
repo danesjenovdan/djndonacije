@@ -107,6 +107,10 @@ export default {
       type: String,
       required: true,
     },
+    lang: {
+      type: String,
+      required: true,
+    },
   },
   emits: [
     "captcha-ready",
@@ -147,11 +151,11 @@ export default {
       return;
     }
 
-    if (this.$refs.captcha && !document.querySelector("#djncaptcha")) {
+    if (this.$refs.captcha && !document.querySelector("#vajbcha")) {
       const s = document.createElement("script");
       s.dataset.inputName = "captcha";
       s.dataset.locale = this.lang;
-      s.src = "https://captcha.lb.djnd.si/js/djncaptcha.js";
+      s.src = "https://vajbcha.danesjenovdan.si/js/vajbcha.js";
       this.$refs.captcha.appendChild(s);
       if (this.recurring) {
         this.$emit("captcha-ready", { submit: this.submitCaptchaRecurring });
@@ -162,7 +166,7 @@ export default {
   },
   methods: {
     submitCaptcha() {
-      const captchaApi = window.djnCAPTCHA.captcha;
+      const captchaApi = window.vajbcha.captcha;
       if (!captchaApi) {
         this.robotError = true;
         return;
@@ -187,7 +191,7 @@ export default {
         });
     },
     submitCaptchaRecurring() {
-      const captchaApi = window.djnCAPTCHA.captcha;
+      const captchaApi = window.vajbcha.captcha;
       if (!captchaApi) {
         this.robotError = true;
         return;
@@ -346,7 +350,7 @@ export default {
   margin: 0 auto;
 
   .captcha-container {
-    :deep(#djncaptcha) {
+    :deep(#vajbcha) {
       iframe {
         margin-inline: auto;
       }
