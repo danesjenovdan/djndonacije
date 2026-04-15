@@ -1,11 +1,11 @@
+from datetime import date
+
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from djnd_supporters.mautic_api import MauticApi
 from djnd_supporters import models
 from djnd_supporters.flik_utils import create_flik_request
-
-from datetime import date
+from djnd_supporters.mautic_api import MauticApi
 
 mautic_api = MauticApi()
 
