@@ -10,7 +10,10 @@
           {{ $t("payment.depositSlip") }}
         </button>
       </div>
-      <div v-if="hasFlik && !recurring" class="nav-item">
+      <div
+        v-if="(hasFlik && !recurring) || (hasFlikRecurring && recurring)"
+        class="nav-item"
+      >
         <button
           :class="['nav-link', { active: active === 'flik' }]"
           type="button"
@@ -48,11 +51,26 @@ export default {
       type: Boolean,
       default: true,
     },
+    hasFlikRecurring: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ["change"],
   data() {
+    let active = "card";
+    if (!this.recurring) {
+      if (this.hasUpn) {
+        active = "upn";
+      } else if (this.hasFlik) {
+        active = "flik";
+      }
+    } else if (this.hasFlikRecurring) {
+      active = "flik";
+    }
+
     return {
-      active: this.recurring ? "card" : "upn",
+      active,
     };
   },
   mounted() {

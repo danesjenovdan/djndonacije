@@ -43,7 +43,8 @@
         "flik": "Flik",
         "cardNote": "Informacij o tvoji kartici ne pošiljamo na svoj strežnik in ne shranjujemo. Za varnost plačila skrbi",
         "depositSlipNote": "Skeniraj s svojo bančno aplikacijo ali naredi posnetek zaslona in uvozi v bančno aplikacijo.",
-        "flikNote": "Preusmerili te bomo na spletno stran Flika, kjer boš lahko izvedel_a plačilo."
+        "flikNote": "Preusmerili te bomo na spletno stran Flika, kjer boš lahko izvedel_a plačilo.",
+        "flikRecurringNote": "Vpiši svojo telefonsko številko, da ti lahko pošljemo zahtevek za plačilo prek Flika."
     },
     "manageNewsletterView": {
         "unsubscribeAndDeleteData": "Odjavili smo te od vseh novičnikov in izbrisali tvoje podatke.",

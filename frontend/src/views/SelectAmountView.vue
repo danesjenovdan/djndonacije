@@ -15,7 +15,9 @@
           }}</strong>
           {{ $t("selectAmountView.donation") }}
         </h2>
-        <template v-if="paymentOptions.monthly">
+        <template
+          v-if="paymentOptions.cardRecurring || paymentOptions.flikRecurring"
+        >
           <!-- eslint-disable vue/no-v-html -->
           <a
             @click.prevent="setRecurringDonation(!recurringDonation)"

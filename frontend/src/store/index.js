@@ -19,6 +19,7 @@ const store = createStore({
         donationPresets: [],
         has_upn: false,
         has_flik: false,
+        has_flik_subscription: false,
         has_braintree: false,
         has_braintree_subscription: false,
         CSSFile: "",
@@ -60,8 +61,9 @@ const store = createStore({
       return {
         upn: state.campaignData.has_upn,
         flik: state.campaignData.has_flik,
-        oneTime: state.campaignData.has_braintree,
-        monthly: state.campaignData.has_braintree_subscription,
+        flikRecurring: state.campaignData.has_flik_subscription,
+        card: state.campaignData.has_braintree,
+        cardRecurring: state.campaignData.has_braintree_subscription,
       };
     },
     getCSSFile(state) {
@@ -149,6 +151,7 @@ const store = createStore({
     setPaymentOptions(state, options) {
       state.campaignData.has_upn = options.has_upn;
       state.campaignData.has_flik = options.has_flik;
+      state.campaignData.has_flik_subscription = options.has_flik_subscription;
       state.campaignData.has_braintree = options.has_braintree;
       state.campaignData.has_braintree_subscription =
         options.has_braintree_subscription;
@@ -203,6 +206,7 @@ const store = createStore({
       context.commit("setPaymentOptions", {
         has_upn: data.data.has_upn,
         has_flik: data.data.has_flik,
+        has_flik_subscription: data.data.has_flik_subscription,
         has_braintree: data.data.has_braintree,
         has_braintree_subscription: data.data.has_braintree_subscription,
       });
@@ -249,6 +253,7 @@ const store = createStore({
       return axios.post(paymentURL, {
         payment_type: payload.type === "card" ? "braintree" : payload.type,
         nonce: payload.nonce,
+        phone_number: payload.phoneNumber,
         customer_id: context.getters.getCustomerId,
         amount: context.getters.getChosenAmount,
         email: context.getters.getEmail,
