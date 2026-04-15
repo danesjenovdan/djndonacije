@@ -123,6 +123,7 @@ class Subscription(Timestamped):
     token = models.TextField(null=True, blank=True)
     amount = models.DecimalField(default=0.0, decimal_places=1, max_digits=20)
     subscription_id = models.CharField(max_length=128, null=True, blank=True)
+    type = models.CharField(max_length=50, default="braintree")
     campaign = models.ForeignKey(
         "DonationCampaign",
         related_name="subscriptions",
@@ -241,6 +242,9 @@ class DonationCampaign(Timestamped):
     has_flik = models.BooleanField(
         default=False, verbose_name="Sprejemamo flik donacije?"
     )
+    has_flik_subscription = models.BooleanField(
+        default=False, verbose_name="Sprejemamo flik mesečne donacije?"
+    )
     has_braintree = models.BooleanField(
         default=True, verbose_name="Sprejemamo braintree enkratne donacije?"
     )
@@ -290,6 +294,16 @@ class DonationCampaign(Timestamped):
         null=True,
         blank=True,
         verbose_name="Mautic email ID za uspešno obračunano braintree mesečno donacijo",
+    )
+    flik_subscription_request_email_template = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Mautic email ID za flik mesečno donacijo",
+    )
+    flik_subscription_cancelled_email_template = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Mautic email ID za preklic flik mesečne donacije", 
     )
     segment = models.IntegerField(
         null=True, blank=True, verbose_name="Mautic segment ID"
