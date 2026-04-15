@@ -48,6 +48,7 @@
               :recurring="recurringDonation"
               :email="email"
               :campaign-slug="campaignSlug"
+              :lang="lang"
               @captcha-ready="onCaptchaReady"
               @captcha-done="onCaptchaDone"
               @ready="onPaymentReady"
@@ -105,11 +106,9 @@ export default {
   data() {
     const { campaignSlug } = this.$route.params;
     const payment = this.$store.getters.getRecurringDonation ? "card" : "upn";
-    const { lang } = this.$route.params;
 
     return {
       campaignSlug,
-      lang,
       error: null,
       payment,
       checkoutLoading: true,
@@ -127,6 +126,9 @@ export default {
     },
     email() {
       return this.$store.getters.getEmail;
+    },
+    lang() {
+      return this.$store.getters.getLang;
     },
     paymentOptions() {
       return this.$store.getters.getPaymentOptions;

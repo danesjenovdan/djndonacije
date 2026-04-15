@@ -17,7 +17,8 @@ def validate_captcha(captcha_query):
 
     try:
         response = requests.post(
-            f"{settings.CAPTCHA_BASE_URL}/validateCaptcha/{captcha_id}?captchaAnswer={captcha_answer}",
+            f"{settings.CAPTCHA_BASE_URL}/api/captcha/verify",
+            json={"captcha_id": captcha_id, "answer": captcha_answer},
             timeout=10,
         )
         response.raise_for_status()
@@ -26,8 +27,8 @@ def validate_captcha(captcha_query):
         capture_exception(e)
         return False
 
-    if not isinstance(response_json, dict) or "responseCaptcha" not in response_json:
+    if not isinstance(response_json, dict) or "success" not in response_json:
         capture_message(f"Invalid response from captcha api: {response_json}")
         return False
 
-    return response_json["responseCaptcha"] == "success"
+    return response_json["success"] == True

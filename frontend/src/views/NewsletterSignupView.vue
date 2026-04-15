@@ -103,6 +103,9 @@ export default {
         this.$store.commit("setEmail", value);
       },
     },
+    lang() {
+      return this.$store.getters.getLang;
+    },
     canSubmit() {
       return this.infoValid;
     },
@@ -141,11 +144,11 @@ export default {
       this.segmentId = segmentId;
     }
 
-    if (this.$refs.captcha && !document.querySelector("#djncaptcha")) {
+    if (this.$refs.captcha && !document.querySelector("#vajbcha")) {
       const s = document.createElement("script");
       s.dataset.inputName = "captcha";
       s.dataset.locale = this.lang;
-      s.src = "https://captcha.lb.djnd.si/js/djncaptcha.js";
+      s.src = "https://vajbcha.danesjenovdan.si/js/vajbcha.js";
       this.$refs.captcha.appendChild(s);
     }
   },
@@ -162,7 +165,7 @@ export default {
       if (this.canSubmit) {
         this.infoSubmitting = true;
         this.robotError = false;
-        const captchaApi = window.djnCAPTCHA.captcha;
+        const captchaApi = window.vajbcha.captcha;
         if (!captchaApi) {
           this.infoSubmitting = false;
           this.robotError = true;
@@ -238,7 +241,7 @@ export default {
   }
 
   .captcha-container {
-    :deep(#djncaptcha) {
+    :deep(#vajbcha) {
       iframe {
         margin-inline: auto;
       }
