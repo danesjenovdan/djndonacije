@@ -21,6 +21,7 @@
             :recurring="recurringDonation"
             :has-upn="paymentOptions.upn"
             :has-flik="paymentOptions.flik"
+            :has-flik-recurring="paymentOptions.flikRecurring"
             @change="onPaymentChange"
           />
           <div v-if="checkoutLoading" class="payment-loader">
@@ -37,7 +38,9 @@
           <template v-if="payment === 'flik'">
             <flik-payment
               :amount="chosenAmount"
+              :recurring="recurringDonation"
               @ready="onFlikPaymentReady"
+              @validity-change="paymentInfoValid = $event"
               @success="paymentSuccess"
             />
           </template>
@@ -105,7 +108,17 @@ export default {
   },
   data() {
     const { campaignSlug } = this.$route.params;
-    const payment = this.$store.getters.getRecurringDonation ? "card" : "upn";
+
+    let payment = "card";
+    if (!this.$store.getters.getRecurringDonation) {
+      if (this.$store.getters.getPaymentOptions.upn) {
+        payment = "upn";
+      } else if (this.$store.getters.getPaymentOptions.flik) {
+        payment = "flik";
+      }
+    } else if (this.$store.getters.getPaymentOptions.flikRecurring) {
+      payment = "flik";
+    }
 
     return {
       campaignSlug,
@@ -188,7 +201,7 @@ export default {
     },
     onFlikPaymentReady({ pay } = {}) {
       this.checkoutLoading = false;
-      this.paymentInfoValid = true;
+      this.paymentInfoValid = !this.recurringDonation;
       this.payFunction = pay;
     },
     onPaymentChange(payment) {
@@ -196,19 +209,21 @@ export default {
       this.paymentInfoValid = false;
       this.payment = payment;
     },
-    async paymentSuccess({ nonce } = {}) {
+    async paymentSuccess({ nonce, phoneNumber } = {}) {
       this.paymentInProgress = true;
       this.nonce = nonce;
+      this.phoneNumber = phoneNumber;
 
       this.$store
         .dispatch("onPaymentSuccess", {
           type: this.payment,
           campaignSlug: this.campaignSlug,
           nonce: this.nonce,
+          phoneNumber: this.phoneNumber,
         })
         .then((response) => {
           // if flik: we need to redirct to flik for payment
-          if (this.payment === "flik") {
+          if (this.payment === "flik" && !this.recurringDonation) {
             if (response.data.redirect_url) {
               window.location.href = response.data.redirect_url;
             } else {

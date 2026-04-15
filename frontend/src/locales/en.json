@@ -43,7 +43,8 @@
     "flik": "Flik",
     "cardNote": "We do not send or store your card information on our server. Payment security is handled by",
     "depositSlipNote": "We will send you the invoice by email.",
-    "flikNote": "We will redirect you to the Flik website, where you will be able to make the payment."
+    "flikNote": "We will redirect you to the Flik website, where you will be able to make the payment.",
+    "flikRecurringNote": "Enter your phone number so we can send you a payment request via Flik."
   },
   "manageNewsletterView": {
     "unsubscribeAndDeleteData": "You have successfully unsubscribed and we have deleted your data.",

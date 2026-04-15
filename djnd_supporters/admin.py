@@ -94,6 +94,7 @@ class DonationCampaignAdmin(admin.ModelAdmin):
                     "upn_name",
                     "upn_email_template",
                     "has_flik",
+                    "has_flik_subscription",
                     "has_braintree",
                     "onetime_donation_email_template",
                     "has_braintree_subscription",
