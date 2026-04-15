@@ -6,28 +6,41 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0048_rename_edit_subscriptions_email_tempalte_donationcampaign_edit_subscriptions_email_template'),
+        (
+            "djnd_supporters",
+            "0048_rename_edit_subscriptions_email_tempalte_donationcampaign_edit_subscriptions_email_template",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='donationcampaign',
-            name='flik_subscription_cancelled_email_template',
-            field=models.IntegerField(blank=True, null=True, verbose_name='Mautic email ID za preklic flik mesečne donacije'),
+            model_name="donationcampaign",
+            name="flik_subscription_cancelled_email_template",
+            field=models.IntegerField(
+                blank=True,
+                null=True,
+                verbose_name="Mautic email ID za preklic flik mesečne donacije",
+            ),
         ),
         migrations.AddField(
-            model_name='donationcampaign',
-            name='flik_subscription_request_email_template',
-            field=models.IntegerField(blank=True, null=True, verbose_name='Mautic email ID za flik mesečno donacijo'),
+            model_name="donationcampaign",
+            name="flik_subscription_request_email_template",
+            field=models.IntegerField(
+                blank=True,
+                null=True,
+                verbose_name="Mautic email ID za flik mesečno donacijo",
+            ),
         ),
         migrations.AddField(
-            model_name='donationcampaign',
-            name='has_flik_subscription',
-            field=models.BooleanField(default=False, verbose_name='Sprejemamo flik mesečne donacije?'),
+            model_name="donationcampaign",
+            name="has_flik_subscription",
+            field=models.BooleanField(
+                default=False, verbose_name="Sprejemamo flik mesečne donacije?"
+            ),
         ),
         migrations.AddField(
-            model_name='subscription',
-            name='type',
-            field=models.CharField(default='braintree', max_length=50),
+            model_name="subscription",
+            name="type",
+            field=models.CharField(default="braintree", max_length=50),
         ),
     ]

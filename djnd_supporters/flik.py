@@ -69,13 +69,16 @@ class PaymentErrorResponse(PaymentResponse):
         self.adapter_message = kwargs.get("adapterMessage")
         self.adapter_code = kwargs.get("adapterCode")
 
+
 class FlikAuth:
     def __init__(self, api_key, shared_secret, username, password):
         self.api_key = api_key
         self.shared_secret = shared_secret
         self.username = username
         self.password = password
-        self.initial_url = f"https://gateway.bankart.si/api/v3/transaction/{api_key}/debit"
+        self.initial_url = (
+            f"https://gateway.bankart.si/api/v3/transaction/{api_key}/debit"
+        )
         self.signiture_url = f"/api/v3/transaction/{api_key}/debit"
 
 
@@ -103,7 +106,7 @@ def initialize_payment(
         "description": description,
         "customer": {"ipAddress": customer_ip},
         "language": shopper_locale,
-    }    
+    }
 
     if phone_number:
         data["extraData"] = {"alias": phone_number}
