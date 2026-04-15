@@ -14,9 +14,9 @@ from sentry_sdk import capture_exception, capture_message
 
 from djnd_supporters import authentication, flik, models, serializers, utils
 from djnd_supporters.captcha import validate_captcha
+from djnd_supporters.flik_utils import create_flik_request
 from djnd_supporters.mautic_api import MauticApi
 from djnd_supporters.views import getPDForDonation
-from djnd_supporters.flik_utils import create_flik_request
 from djndonacije import payment
 from djndonacije.qrcode import UPNQRException, generate_upnqr_svg
 from djndonacije.slack_utils import send_slack_msg

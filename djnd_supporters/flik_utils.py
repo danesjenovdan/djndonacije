@@ -1,7 +1,6 @@
-from djnd_supporters import flik
-from djnd_supporters import models
 from django.conf import settings
-from djnd_supporters import mautic_api
+
+from djnd_supporters import flik, mautic_api, models
 
 flik_auth_oob = flik.FlikAuth(
     api_key=settings.FLIK_OOB_API_KEY,
