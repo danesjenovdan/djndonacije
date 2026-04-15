@@ -16,11 +16,19 @@ from djnd_supporters import authentication, flik, models, serializers, utils
 from djnd_supporters.captcha import validate_captcha
 from djnd_supporters.mautic_api import MauticApi
 from djnd_supporters.views import getPDForDonation
+from djnd_supporters.flik_utils import create_flik_request
 from djndonacije import payment
 from djndonacije.qrcode import UPNQRException, generate_upnqr_svg
 from djndonacije.slack_utils import send_slack_msg
 
 mautic_api = MauticApi()
+
+flik_auth_e_commerce = flik.FlikAuth(
+    api_key=settings.FLIK_API_KEY,
+    shared_secret=settings.FLIK_SS,
+    username=settings.FLIK_USERNAME,
+    password=settings.FLIK_PASSWORD,
+)
 
 
 class GetOrAddSubscriber(views.APIView):
@@ -572,6 +580,7 @@ class GenericDonationCampaign(views.APIView):
         nonce = data.get("nonce", None)
         amount = data.get("amount", None)
         name = data.get("name", "")
+        phone_number = data.get("phone_number", None)
         payment_type = data.get("payment_type", "braintree")
 
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
@@ -646,11 +655,21 @@ class GenericDonationCampaign(views.APIView):
                 error_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
                 cancel_url=f"{settings.FRONTEND_URL}/{donation_campaign.slug}/doniraj/napaka",
                 callback_url=f"{settings.BASE_URL}/api/flik-callback/",
+                flik_auth=flik_auth_e_commerce,
+                phone_number=phone_number,
             )
             if flik_response.success:
                 donation.reference = flik_response.purchase_id
                 donation.save()
-                return Response({"redirect_url": flik_response.redirect_url})
+                if flik_response.return_type == "REDIRECT":
+                    return Response({"redirect_url": flik_response.redirect_url})
+                else:
+                    return Response(
+                        {
+                            "msg": "Dobil si navodila za plačilo preko Flika.",
+                            "transaction_id": donation.id,
+                        }
+                    )
             else:
                 return Response({"error": "Payment data not created"}, status=400)
 
@@ -753,6 +772,7 @@ class GenericCampaignSubscription(views.APIView):
         address = data.get("address", "")
         customer_id = data.get("customer_id", "")
         token = data.get("token", None)
+        payment_type = data.get("payment_type", "braintree")
 
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
 
@@ -823,55 +843,80 @@ class GenericCampaignSubscription(views.APIView):
                 donation_campaign.segment, mautic_id
             )
 
-        # check if campaign supports braintree payments
-        if not donation_campaign.has_braintree_subscription:
-            return Response(
-                {"msg": "This campaign does not support braintree payments."},
-                status=status.HTTP_400_BAD_REQUEST,
+        if payment_type == "braintree":
+            # check if campaign supports braintree payments
+            if not donation_campaign.has_braintree_subscription:
+                return Response(
+                    {"msg": "This campaign does not support braintree payments."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # get plan id from campaign
+            plan_id = donation_campaign.braintee_subscription_plan_id
+            if not plan_id:
+                plan_id = "djnd"
+
+            # create and save subscription if success
+            result = payment.create_subscription(
+                nonce,
+                customer_id,
+                plan_id=plan_id,
+                costum_price=amount,
+                merchant_account_id=donation_campaign.braintree_merchant_account_id,
             )
-
-        # get plan id from campaign
-        plan_id = donation_campaign.braintee_subscription_plan_id
-        if not plan_id:
-            plan_id = "djnd"
-
-        # create and save subscription if success
-        result = payment.create_subscription(
-            nonce,
-            customer_id,
-            plan_id=plan_id,
-            costum_price=amount,
-            merchant_account_id=donation_campaign.braintree_merchant_account_id,
-        )
-        if result.is_success:
-            # create donation without subscriber
-            donation = models.Subscription(
+            if result.is_success:
+                # create donation without subscriber
+                donation = models.Subscription(
+                    amount=amount,
+                    subscriber=subscriber,
+                    subscription_id=result.subscription.id,
+                    campaign=donation_campaign,
+                    token=nonce,
+                    is_active=True,
+                )
+                donation.save()
+                if donation_campaign.bt_subscription_email_template:
+                    response, response_status = mautic_api.sendEmail(
+                        donation_campaign.bt_subscription_email_template,
+                        subscriber.mautic_id,
+                        {},
+                    )
+            else:
+                try:
+                    code = result.transaction.processor_response_code
+                    text = result.transaction.processor_response_text
+                    deep_mgs = f" {code}:{text}"
+                    capture_message(deep_mgs)
+                except:
+                    deep_mgs = ""
+                return Response(
+                    {"msg": f"{result.message}{deep_mgs}"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        elif payment_type == "flik":
+            if not donation_campaign.has_flik_subscription:
+                return Response(
+                    {"msg": "This campaign does not support flik payments."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            phone_number = data.get("phone_number", None)
+            if not phone_number:
+                return Response(
+                    {"msg": "Phone number is required for flik payments."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            customer_ip = utils.get_client_ip(request)
+            # create subscription object with is_paid false, when we get callback from flik we will set it to true
+            subscription = models.Subscription(
                 amount=amount,
                 subscriber=subscriber,
-                subscription_id=result.subscription.id,
                 campaign=donation_campaign,
-                token=nonce,
+                token=f"{customer_ip}|{phone_number}",
                 is_active=True,
+                type=payment_type,
             )
-            donation.save()
-            if donation_campaign.bt_subscription_email_template:
-                response, response_status = mautic_api.sendEmail(
-                    donation_campaign.bt_subscription_email_template,
-                    subscriber.mautic_id,
-                    {},
-                )
-        else:
-            try:
-                code = result.transaction.processor_response_code
-                text = result.transaction.processor_response_text
-                deep_mgs = f" {code}:{text}"
-                capture_message(deep_mgs)
-            except:
-                deep_mgs = ""
-            return Response(
-                {"msg": f"{result.message}{deep_mgs}"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            subscription.save()
+            create_flik_request(subscription)
 
         # send slack msg
         try:
@@ -879,13 +924,10 @@ class GenericCampaignSubscription(views.APIView):
         except:
             pass
 
-        msg = (
-            (name if name else "Dinozaverka")
-            + " nam je podarila mesecno donacijo za "
-            + donation_campaign.name
-            + " v višini: "
-            + str(donation.amount)
-        )
+        msg = f"""
+Dinozaverkanam je podarila mesecno donacijo z {payment_type} za
+{donation_campaign.name} v višini: {donation.amount}
+"""
         send_slack_msg(msg, donation_campaign.slack_report_channel)
 
         return Response(
@@ -894,6 +936,7 @@ class GenericCampaignSubscription(views.APIView):
                 "subscription_id": result.subscription.id,
                 "user_token": subscriber.token,
                 "subscription_token": nonce,
+                "payment_type": payment_type,
             }
         )
 
@@ -1188,6 +1231,11 @@ class FlikCallback(views.APIView):
                 flik_result_response.result == "error"
                 and flik_payment.payment_method == "flik"
             ):
+                if subscription := flik_payment.subscription:
+                    subscription.is_active = False
+                    subscription.save()
+                    if email_template_id := subscription.campaign.flik_subscription_cancelled_email_template:
+                        mautic_api.sendEmail(email_template_id, subscription.subscriber.mautic_id, {})
                 # flik_payment.is_paid = False
                 flik_payment.save()
         else:
