@@ -6,13 +6,7 @@ from enum import Enum
 
 import arrow
 import requests
-from django.conf import settings
 from requests.auth import HTTPBasicAuth
-
-FLIK_INITIAL_URL = (
-    f"https://gateway.bankart.si/api/v3/transaction/{settings.FLIK_API_KEY}/debit"
-)
-SIGNITURE_URL = f"/api/v3/transaction/{settings.FLIK_API_KEY}/debit"
 
 
 class Status(str, Enum):
@@ -76,6 +70,18 @@ class PaymentErrorResponse(PaymentResponse):
         self.adapter_code = kwargs.get("adapterCode")
 
 
+class FlikAuth:
+    def __init__(self, api_key, shared_secret, username, password):
+        self.api_key = api_key
+        self.shared_secret = shared_secret
+        self.username = username
+        self.password = password
+        self.initial_url = (
+            f"https://gateway.bankart.si/api/v3/transaction/{api_key}/debit"
+        )
+        self.signiture_url = f"/api/v3/transaction/{api_key}/debit"
+
+
 def initialize_payment(
     transaction_id,
     amount,
@@ -86,6 +92,7 @@ def initialize_payment(
     error_url,
     cancel_url,
     callback_url,
+    flik_auth: FlikAuth,
     phone_number=None,
 ):
     data = {
@@ -115,10 +122,10 @@ def initialize_payment(
 {sha512_data}
 {headers['Content-Type']}
 {headers['Date']}
-{SIGNITURE_URL}"""
+{flik_auth.signiture_url}"""
 
     signiture = hmac.new(
-        str.encode(settings.FLIK_SS),
+        str.encode(flik_auth.shared_secret),
         sig_data.encode("utf-8"),
         digestmod=hashlib.sha512,
     ).digest()
@@ -126,10 +133,10 @@ def initialize_payment(
 
     headers["X-Signature"] = signiture
     response = requests.post(
-        FLIK_INITIAL_URL,
+        flik_auth.initial_url,
         data=json.dumps(data),
         headers=headers,
-        auth=HTTPBasicAuth(settings.FLIK_USERNAME, settings.FLIK_PASSWORD),
+        auth=HTTPBasicAuth(flik_auth.username, flik_auth.password),
     )
     if response.status_code != 200:
         return None

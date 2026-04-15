@@ -34,6 +34,7 @@ class DonationCampaignSerializer(serializers.ModelSerializer):
             "id",
             "has_upn",
             "has_flik",
+            "has_flik_subscription",
             "has_braintree",
             "has_braintree_subscription",
             "segment",
