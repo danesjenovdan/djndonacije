@@ -139,6 +139,7 @@ def initialize_payment(
         auth=HTTPBasicAuth(flik_auth.username, flik_auth.password),
     )
     if response.status_code != 200:
+        print(f"Failed to initialize payment: {response.text}")
         return None
     else:
         return InitialResponse(**response.json())
