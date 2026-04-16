@@ -96,6 +96,13 @@ class Transaction(Timestamped):
         blank=True,
     )
     transaction_id = models.CharField(max_length=128, null=True, blank=True)
+    subscription = models.ForeignKey(
+        "Subscription",
+        related_name="transactions",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return (

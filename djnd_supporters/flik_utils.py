@@ -21,6 +21,8 @@ def create_flik_request(subscription):
     )
     donation.save()
     ip, phone_number = subscription.token.split("|")
+    if phone_number[0] == "0" and len(phone_number) == 9:
+        phone_number = "00386" + phone_number[1:]
     flik_response = flik.initialize_payment(
         transaction_id=donation.id,
         amount="{:.2f}".format(subscription.amount),

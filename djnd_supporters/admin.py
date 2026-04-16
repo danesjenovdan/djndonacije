@@ -170,6 +170,7 @@ class SubscriptionAdmin(ImportExportModelAdmin):
         "created",
         "campaign",
         "subscription_id",
+        "type",
         "is_active",
     )
     list_filter = ("amount", "campaign")

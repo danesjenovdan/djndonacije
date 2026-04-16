@@ -20,13 +20,13 @@ class Command(BaseCommand):
             previous_month = today.month - 1
             if not previous_month == 0:
                 transactions = models.Transaction.objects.filter(
-                    created_at__month=previous_month,
-                    created_at__year=today.year,
+                    created__month=previous_month,
+                    created__year=today.year,
                     payment_method="flik",
                     subscription__isnull=False,
                 )
                 subscriptions = models.Subscription.objects.filter(
-                    donation_campaign__has_flik_subscription=True,
+                    type="flik",
                     is_active=True,
                 ).exclude(
                     id__in=transactions.values_list("subscription_id", flat=True),
@@ -40,15 +40,15 @@ class Command(BaseCommand):
                         )
         # get all transactions for the current month, that are paid with flik and have a subscription
         transactions = models.Transaction.objects.filter(
-            created_at__month=today.month,
-            created_at__year=today.year,
+            created__month=today.month,
+            created__year=today.year,
             payment_method="flik",
             subscription__isnull=False,
         )
         # get all active subscriptions for campaigns that have flik subscription,
         # that don't have a transaction for the current month
         subscriptions = models.Subscription.objects.filter(
-            donation_campaign__has_flik_subscription=True,
+            type="flik",
             is_active=True,
         ).exclude(
             id__in=transactions.values_list("subscription_id", flat=True),
@@ -56,7 +56,7 @@ class Command(BaseCommand):
 
         for subscription in subscriptions:
             # skip subscriptions created after the day of the month of today
-            if subscription.created_at.day > today.day:
+            if subscription.created.day > today.day:
                 continue
             try:
                 create_flik_request(subscription)
