@@ -11,7 +11,7 @@ flik_auth_oob = flik.FlikAuth(
 
 
 def create_flik_request(subscription):
-    donation_campaign = subscription.donation_campaign
+    donation_campaign = subscription.campaign
     donation = models.Transaction(
         amount=subscription.amount,
         subscriber=subscription.subscriber,
@@ -34,9 +34,7 @@ def create_flik_request(subscription):
         flik_auth=flik_auth_oob,
         phone_number=phone_number,
     )
-    if (
-        email_template_id := subscription.donation_campaign.flik_subscription_request_email_template
-    ):
+    if email_template_id := donation_campaign.flik_subscription_request_email_template:
         mautic_api.sendEmail(email_template_id, subscription.subscriber.mautic_id, {})
 
     if flik_response.success:
