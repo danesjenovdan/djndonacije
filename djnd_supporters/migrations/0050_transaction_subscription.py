@@ -7,13 +7,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('djnd_supporters', '0049_donationcampaign_flik_subscription_cancelled_email_template_and_more'),
+        (
+            "djnd_supporters",
+            "0049_donationcampaign_flik_subscription_cancelled_email_template_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='transaction',
-            name='subscription',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='transactions', to='djnd_supporters.subscription'),
+            model_name="transaction",
+            name="subscription",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="transactions",
+                to="djnd_supporters.subscription",
+            ),
         ),
     ]
