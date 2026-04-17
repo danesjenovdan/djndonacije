@@ -314,6 +314,6 @@ CAPTCHA_BASE_URL = "https://vajbcha.danesjenovdan.si"
 FLIK_API_KEY = os.getenv("FLIK_API_KEY", "")
 FLIK_SS = os.getenv("FLIK_SS", "")
 FLIK_OOB_API_KEY = os.getenv("FLIK_OOB_API_KEY", "")
-FLIK_OOB_SS = os.getenv("FLIK_SS", "")
+FLIK_OOB_SS = os.getenv("FLIK_OOB_SS", "")
 FLIK_USERNAME = os.getenv("FLIK_USERNAME", "")
 FLIK_PASSWORD = os.getenv("FLIK_PASSWORD", "")
