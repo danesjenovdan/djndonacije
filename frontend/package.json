@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
-    "axios": "^1.8.3",
+    "axios": "^1.12.0",
     "bootstrap": "^5.3.3",
     "braintree-web": "^3.116.3",
     "vue": "^3.5.13",
