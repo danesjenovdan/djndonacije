@@ -3,6 +3,7 @@
     "selectAmount": "Choose the",
     "donation": "donation amount!",
     "monthly": "monthly",
+    "oneTime": "one-time",
     "donateFrequency--template": "Do you want to make a <em>{frequency}</em> donation?",
     "donateOnce--word": "one-time",
     "donateMonthly--word": "monthly",
