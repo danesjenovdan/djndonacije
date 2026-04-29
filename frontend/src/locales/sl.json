@@ -3,6 +3,7 @@
       "selectAmount": "Izberi višino",
       "donation": "donacije!",
       "monthly": "mesečne",
+      "oneTime": "enkratne",
       "donateFrequency--template": "Želiš darovati <em>{frequency}</em>?",
       "donateOnce--word": "enkrat",
       "donateMonthly--word": "mesečno",
