@@ -13,6 +13,7 @@
           <strong v-if="recurringDonation">{{
             $t("selectAmountView.monthly")
           }}</strong>
+          <strong v-else>{{ $t("selectAmountView.oneTime") }}</strong>
           {{ $t("selectAmountView.donation") }}
         </h2>
         <template

@@ -1,6 +1,6 @@
 <template>
   <div class="checkout">
-    <RouterView />
+    <RouterView v-if="$store.getters.getDonationCampaignId" />
   </div>
 </template>
 
