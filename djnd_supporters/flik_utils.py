@@ -2,20 +2,22 @@ from django.conf import settings
 
 from djnd_supporters import flik, mautic_api, models
 
-flik_auth_oob = flik.FlikAuth(
-    api_key=settings.FLIK_OOB_API_KEY,
-    shared_secret=settings.FLIK_OOB_SS,
-    username=settings.FLIK_USERNAME,
-    password=settings.FLIK_PASSWORD,
-)
-
 
 def create_flik_request(subscription):
     donation_campaign = subscription.campaign
+    flik_api = donation_campaign.flik_api
+    flik_auth_oob = flik.FlikAuth(
+        api_key=flik_api.obb_api_key,
+        shared_secret=flik_api.obb_shared_secret,
+        username=flik_api.username,
+        password=flik_api.password,
+    )
     donation = models.Transaction(
         amount=subscription.amount,
         subscriber=subscription.subscriber,
         campaign=donation_campaign,
+        account=flik_api.account,
+        subscription=subscription,
         payment_method="flik",
         is_paid=False,
     )

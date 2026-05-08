@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: send-flik-monthly-request
+spec:
+  schedule: "0 15 * * *" # This schedule means the job will run at 15:00 (3 PM) every day. Adjust as needed.
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: send-flik-monthly-request
+            image: podpri
+            command:
+              - python
+              - manage.py
+              - flik_monthly_request
+            env:
+              - name: DJANGO_SETTINGS_MODULE
+                value: djndonacije.settings.k8s
+            envFrom:
+              - secretRef:
+                  name: podpri-credentials
+            resources:
+              requests:
+                memory: 400Mi
+                cpu: 200m
+              limits:
+                memory: 400Mi
+                cpu: 200m
+          restartPolicy: Never

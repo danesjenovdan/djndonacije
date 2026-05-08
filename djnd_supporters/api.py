@@ -23,13 +23,6 @@ from djndonacije.slack_utils import send_slack_msg
 
 mautic_api = MauticApi()
 
-flik_auth_e_commerce = flik.FlikAuth(
-    api_key=settings.FLIK_API_KEY,
-    shared_secret=settings.FLIK_SS,
-    username=settings.FLIK_USERNAME,
-    password=settings.FLIK_PASSWORD,
-)
-
 
 class GetOrAddSubscriber(views.APIView):
     def get_subscriber_id(self, email):
@@ -541,7 +534,12 @@ class GenericDonationCampaignQRCode(views.APIView):
             )
 
         try:
+            iban = donation_campaign.iban
             qr_code = generate_upnqr_svg(
+                to_name=iban.company_name,
+                to_address_1=iban.address_1,
+                to_address_2=iban.address_2,
+                iban=iban.iban,
                 purpose=(
                     donation_campaign.upn_name
                     if donation_campaign.upn_name
@@ -637,10 +635,18 @@ class GenericDonationCampaign(views.APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         elif payment_type == "flik":
+            flik_api = donation_campaign.flik_api
+            flik_auth_e_commerce = flik.FlikAuth(
+                api_key=flik_api.api_key,
+                shared_secret=flik_api.shared_secret,
+                username=flik_api.username,
+                password=flik_api.password,
+            )
             donation = models.Transaction(
                 amount=amount,
                 nonce=nonce,
                 campaign=donation_campaign,
+                account=flik_api.account,
                 payment_method=payment_type,
                 is_paid=False,
             )

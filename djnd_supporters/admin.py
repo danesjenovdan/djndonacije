@@ -3,6 +3,7 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
 from djnd_supporters.models import (
+    Account,
     DonationCampaign,
     PredefinedAmount,
     Subscriber,
@@ -143,10 +144,13 @@ class TransactionAdmin(ImportExportModelAdmin):
         "created",
         "payment_method",
         "campaign",
+        "account",
     )
     list_filter = ("amount", "campaign", "is_paid", "payment_method")
     resource_class = TransactionResource
     search_fields = ["subscriber__token", "transaction_id"]
+    autocomplete_fields = ["account", "subscription"]
+    list_select_related = ["account", "campaign", "subscriber"]
 
     def subscriberName(self, obj):
         if obj.subscriber:
@@ -176,6 +180,7 @@ class SubscriptionAdmin(ImportExportModelAdmin):
     list_filter = ("amount", "campaign")
     resource_class = SubscriptionResource
     search_fields = ["subscriber__token", "subscription_id"]
+    list_select_related = ["campaign", "subscriber"]
 
     def subscriberName(self, obj):
         if obj.subscriber:
@@ -190,7 +195,13 @@ class SubscriptionAdmin(ImportExportModelAdmin):
             return ""
 
 
+class AccountAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ["name"]
+
+
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(DonationCampaign, DonationCampaignAdmin)
 admin.site.register(Subscriber, SubscriberAdmin)
+admin.site.register(Account, AccountAdmin)
