@@ -930,12 +930,6 @@ class GenericCampaignSubscription(views.APIView):
         except:
             pass
 
-        msg = f"""
-Dinozaverkanam je podarila mesecno donacijo z {payment_type} za
-{donation_campaign.name} v višini: {donation.amount}
-"""
-        send_slack_msg(msg, donation_campaign.slack_report_channel)
-
         return Response(
             {
                 "msg": "Thanks <3",
@@ -1222,32 +1216,30 @@ class FlikCallback(views.APIView):
             reference=flik_result_response.purchase_id
         ).first()
         if flik_payment and flik_result_response.purchase_id:
+            subscription = flik_payment.subscription
             if (
                 flik_result_response.status == "success"
-                and flik_payment.payment_method == "flik"
+                and "flik" in flik_payment.payment_method
             ):
                 flik_payment.is_paid = True
                 flik_payment.save()
-                msg = f"Dinozaverka nam je podarila flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
+                if subscription:
+                    msg = f"Dinozaverka nam je podarila mesečno flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
+                else:
+                    msg = f"Dinozaverka nam je podarila flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
                 send_slack_msg(msg, flik_payment.campaign.slack_report_channel)
             elif flik_result_response.status == "refund":
                 flik_payment.is_paid = False
                 flik_payment.save()
-            elif (
-                flik_result_response.result == "error"
-                and flik_payment.payment_method == "flik"
-            ):
-                if subscription := flik_payment.subscription:
-                    subscription.is_active = False
-                    subscription.save()
-                    if (
-                        email_template_id := subscription.campaign.flik_subscription_cancelled_email_template
-                    ):
-                        mautic_api.sendEmail(
-                            email_template_id, subscription.subscriber.mautic_id, {}
-                        )
-                # flik_payment.is_paid = False
-                flik_payment.save()
+            elif flik_payment.payment_method == "flik-subscription":
+                subscription.is_active = False
+                subscription.save()
+                if (
+                    email_template_id := subscription.campaign.flik_subscription_cancelled_email_template
+                ):
+                    mautic_api.sendEmail(
+                        email_template_id, subscription.subscriber.mautic_id, {}
+                    )
         else:
             return HttpResponse("Not OK", status=400)
         return HttpResponse("OK", status=200)
