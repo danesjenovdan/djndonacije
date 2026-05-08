@@ -537,8 +537,8 @@ class GenericDonationCampaignQRCode(views.APIView):
             iban = donation_campaign.iban
             qr_code = generate_upnqr_svg(
                 to_name=iban.company_name,
-                to_address_1=iban.address_1,
-                to_address_2=iban.address_2,
+                to_address1=iban.address_1,
+                to_address2=iban.address_2,
                 iban=iban.iban,
                 purpose=(
                     donation_campaign.upn_name
