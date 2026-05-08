@@ -378,7 +378,7 @@ class FlikApi(Timestamped):
     )
     api_key = models.CharField(max_length=128, verbose_name="Flik API ključ")
     shared_secret = models.CharField(
-        max_length=32,
+        max_length=128,
         verbose_name="Flik SS",
         help_text="Secure secret za flik donacije",
     )
@@ -386,7 +386,7 @@ class FlikApi(Timestamped):
         max_length=128, verbose_name="Flik OBB API ključ", null=True, blank=True
     )
     obb_shared_secret = models.CharField(
-        max_length=32,
+        max_length=128,
         verbose_name="Flik OBB SS",
         help_text="Secure secret za flik OBB donacije",
         null=True,
