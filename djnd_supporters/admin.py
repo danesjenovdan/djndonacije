@@ -5,6 +5,8 @@ from import_export.admin import ImportExportModelAdmin
 from djnd_supporters.models import (
     Account,
     DonationCampaign,
+    FlikApi,
+    Iban,
     PredefinedAmount,
     Subscriber,
     Subscription,
@@ -200,6 +202,20 @@ class AccountAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
+class FlikApiAdmin(admin.ModelAdmin):
+    list_display = ("name", "account")
+    search_fields = ["name", "account__name"]
+    autocomplete_fields = ["account"]
+
+
+class IbanAdmin(admin.ModelAdmin):
+    list_display = ("iban", "account")
+    search_fields = ["iban", "account__name"]
+    autocomplete_fields = ["account"]
+
+
+admin.site.register(Iban, IbanAdmin)
+admin.site.register(FlikApi, FlikApiAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(DonationCampaign, DonationCampaignAdmin)
