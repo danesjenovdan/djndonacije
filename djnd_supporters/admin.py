@@ -107,6 +107,8 @@ class DonationCampaignAdmin(admin.ModelAdmin):
                     "subscription_charged_successfully",
                     "charged_unsuccessfully_email",
                     "subscription_canceled_email",
+                    "flik_subscription_request_email_template",
+                    "flik_subscription_cancelled_email_template",
                     "braintee_subscription_plan_id",
                     "web_hook_url",
                     "braintree_merchant_account_id",
