@@ -5,12 +5,12 @@ from import_export.admin import ImportExportModelAdmin
 from djnd_supporters.models import (
     Account,
     DonationCampaign,
+    FlikApi,
+    Iban,
     PredefinedAmount,
     Subscriber,
     Subscription,
     Transaction,
-    Iban,
-    FlikApi,
 )
 
 
