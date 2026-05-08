@@ -22,7 +22,7 @@ class Command(BaseCommand):
                 transactions = models.Transaction.objects.filter(
                     created__month=previous_month,
                     created__year=today.year,
-                    payment_method="flik",
+                    payment_method="flik-subscription",
                     subscription__isnull=False,
                 )
                 subscriptions = models.Subscription.objects.filter(
@@ -42,7 +42,7 @@ class Command(BaseCommand):
         transactions = models.Transaction.objects.filter(
             created__month=today.month,
             created__year=today.year,
-            payment_method="flik",
+            payment_method="flik-subscription",
             subscription__isnull=False,
         )
         # get all active subscriptions for campaigns that have flik subscription,
