@@ -96,7 +96,11 @@ class Transaction(Timestamped):
         blank=True,
     )
     account = models.ForeignKey(
-        "Account", null=True, blank=True, on_delete=models.SET_NULL, related_name="transactions"
+        "Account",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="transactions",
     )
     transaction_id = models.CharField(max_length=128, null=True, blank=True)
     subscription = models.ForeignKey(
@@ -250,7 +254,11 @@ class DonationCampaign(Timestamped):
     )
     has_upn = models.BooleanField(default=True, verbose_name="Sprejemamo UPN donacije?")
     iban = models.ForeignKey(
-        "Iban", null=True, blank=True, on_delete=models.SET_NULL, related_name="campaigns"
+        "Iban",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="campaigns",
     )
     has_flik = models.BooleanField(
         default=False, verbose_name="Sprejemamo flik donacije?"
@@ -259,7 +267,11 @@ class DonationCampaign(Timestamped):
         default=False, verbose_name="Sprejemamo flik mesečne donacije?"
     )
     flik_api = models.ForeignKey(
-        "FlikApi", null=True, blank=True, on_delete=models.SET_NULL, related_name="campaigns"
+        "FlikApi",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="campaigns",
     )
     has_braintree = models.BooleanField(
         default=True, verbose_name="Sprejemamo braintree enkratne donacije?"
@@ -346,7 +358,8 @@ class DonationCampaign(Timestamped):
 
     def __str__(self):
         return self.name
-    
+
+
 class Account(Timestamped):
     name = models.CharField(max_length=128, verbose_name="Ime računa")
 
@@ -357,7 +370,11 @@ class Account(Timestamped):
 class FlikApi(Timestamped):
     name = models.CharField(max_length=128, verbose_name="Ime/lastnik Flik API ključa")
     account = models.ForeignKey(
-        "Account", null=True, blank=True, on_delete=models.SET_NULL, related_name="flik_apis"
+        "Account",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="flik_apis",
     )
     api_key = models.CharField(max_length=128, verbose_name="Flik API ključ")
     shared_secret = models.CharField(
@@ -385,7 +402,11 @@ class FlikApi(Timestamped):
 class Iban(Timestamped):
     company_name = models.CharField(max_length=128, verbose_name="Ime podjetja")
     account = models.ForeignKey(
-        "Account", null=True, blank=True, on_delete=models.SET_NULL, related_name="ibans"
+        "Account",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="ibans",
     )
     iban = models.CharField(max_length=34, verbose_name="IBAN")
     address_1 = models.TextField(verbose_name="Ulica")
