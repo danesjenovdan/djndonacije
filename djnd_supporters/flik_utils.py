@@ -21,7 +21,7 @@ def create_flik_request(subscription):
         campaign=donation_campaign,
         account=flik_api.account,
         subscription=subscription,
-        payment_method="flik",
+        payment_method="flik-subscription",
         is_paid=False,
     )
     donation.save()
