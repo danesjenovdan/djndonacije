@@ -94,10 +94,12 @@ class DonationCampaignAdmin(admin.ModelAdmin):
                 "fields": [
                     "slack_report_channel",
                     "has_upn",
+                    "iban",
                     "upn_name",
                     "upn_email_template",
                     "has_flik",
                     "has_flik_subscription",
+                    "flik_api",
                     "has_braintree",
                     "onetime_donation_email_template",
                     "has_braintree_subscription",
