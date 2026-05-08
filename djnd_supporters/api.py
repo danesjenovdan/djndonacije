@@ -933,7 +933,11 @@ class GenericCampaignSubscription(views.APIView):
         return Response(
             {
                 "msg": "Thanks <3",
-                "subscription_id": result.subscription.id,
+                "subscription_id": (
+                    result.subscription.id
+                    if payment_type == "braintree"
+                    else subscription.id
+                ),
                 "user_token": subscriber.token,
                 "subscription_token": nonce,
                 "payment_type": payment_type,
