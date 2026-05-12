@@ -1,9 +1,11 @@
 from django.contrib import admin
+from django.contrib.admin import AdminSite
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
 from djnd_supporters.models import (
     Account,
+    BraintreeApi,
     DonationCampaign,
     FlikApi,
     Iban,
@@ -218,10 +220,60 @@ class IbanAdmin(admin.ModelAdmin):
     autocomplete_fields = ["account"]
 
 
+class BraintreeApiAdmin(admin.ModelAdmin):
+    list_display = ("name", "account")
+    search_fields = ["name", "account__name"]
+    autocomplete_fields = ["account"]
+
+
 admin.site.register(Iban, IbanAdmin)
 admin.site.register(FlikApi, FlikApiAdmin)
+admin.site.register(BraintreeApi, BraintreeApiAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(DonationCampaign, DonationCampaignAdmin)
 admin.site.register(Subscriber, SubscriberAdmin)
 admin.site.register(Account, AccountAdmin)
+
+
+_SETTINGS_MODELS = {"Account", "FlikApi", "Iban", "BraintreeApi"}
+_SETTINGS_ORDER = ["Account", "FlikApi", "Iban", "BraintreeApi"]
+
+
+class CustomAdminSite(AdminSite):
+    def get_app_list(self, request, app_label=None):
+        app_list = super().get_app_list(request, app_label)
+
+        settings_models = []
+        for app in app_list:
+            remaining = [
+                m for m in app["models"] if m["object_name"] not in _SETTINGS_MODELS
+            ]
+            moved = [m for m in app["models"] if m["object_name"] in _SETTINGS_MODELS]
+            app["models"] = remaining
+            settings_models.extend(moved)
+
+        app_list = [app for app in app_list if app["models"]]
+
+        if settings_models:
+            settings_models.sort(
+                key=lambda m: (
+                    _SETTINGS_ORDER.index(m["object_name"])
+                    if m["object_name"] in _SETTINGS_ORDER
+                    else len(_SETTINGS_ORDER)
+                )
+            )
+            app_list.append(
+                {
+                    "name": "Settings",
+                    "app_label": "settings",
+                    "app_url": "#",
+                    "has_module_perms": True,
+                    "models": settings_models,
+                }
+            )
+
+        return app_list
+
+
+admin.site.__class__ = CustomAdminSite

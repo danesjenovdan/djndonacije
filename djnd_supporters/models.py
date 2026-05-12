@@ -145,6 +145,13 @@ class Subscription(Timestamped):
         null=True,
         blank=True,
     )
+    account= models.ForeignKey(
+        "Account",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="subscriptions",
+    )
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
@@ -414,6 +421,35 @@ class Iban(Timestamped):
 
     def __str__(self):
         return self.company_name
+
+
+class BraintreeApi(Timestamped):
+    class Environment(models.TextChoices):
+        PRODUCTION = "production", "production"
+        SANDBOX = "sandbox", "sandbox"
+
+    name = models.CharField(
+        max_length=128, verbose_name="Ime/lastnik Braintree API ključa"
+    )
+    account = models.ForeignKey(
+        "Account",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="braintree_apis",
+    )
+    env = models.CharField(
+        max_length=32,
+        choices=Environment,
+        default=Environment.PRODUCTION,
+        verbose_name="Braintree environment",
+    )
+    merchant_id = models.CharField(max_length=128, verbose_name="Braintree merchant id")
+    public_key = models.CharField(max_length=128, verbose_name="Braintree public key")
+    private_key = models.CharField(max_length=128, verbose_name="Braintree private key")
+
+    def __str__(self):
+        return self.name
 
 
 class PredefinedAmount(Timestamped):

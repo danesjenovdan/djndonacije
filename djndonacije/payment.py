@@ -1,12 +1,25 @@
-from datetime import date, timedelta
-
 import braintree
-from django.conf import settings
-
-gateway = settings.GATEWAY
 
 
-def client_token(user=None):
+def _get_environment(environment_name):
+    return getattr(braintree.Environment, environment_name.capitalize())
+
+
+def _build_gateway(braintree_api):
+    if not braintree_api:
+        raise Exception("No braintree credentials found")
+
+    return braintree.BraintreeGateway(
+        braintree.Configuration(
+            environment=_get_environment(braintree_api.env),
+            merchant_id=braintree_api.merchant_id,
+            public_key=braintree_api.public_key,
+            private_key=braintree_api.private_key,
+        )
+    )
+
+
+def client_token(gateway, user=None):
     if not user:
         # create empty user
         result = gateway.customer.create({})
@@ -30,7 +43,12 @@ def client_token(user=None):
 
 
 def create_subscription(
-    nonce, customer_id, plan_id="djnd", costum_price=None, merchant_account_id=None
+    gateway,
+    nonce,
+    customer_id,
+    plan_id="djnd",
+    costum_price=None,
+    merchant_account_id=None,
 ):
     data = {
         "payment_method_nonce": nonce,
@@ -51,7 +69,7 @@ def create_subscription(
     return gateway.subscription.create(data)
 
 
-def update_subscription(donation, costum_price=None):
+def update_subscription(gateway, donation, costum_price=None):
     subscription = gateway.subscription.find(donation.subscription_id)
     print(subscription)
 
@@ -73,6 +91,7 @@ def update_subscription(donation, costum_price=None):
 
 
 def pay_bt_3d(
+    gateway,
     nonce,
     amount,
     taxExempt=False,
@@ -98,10 +117,24 @@ def pay_bt_3d(
     return result
 
 
-def get_hook(signature, payload):
+def get_hook(gateway, signature, payload):
     webhook_notification = gateway.webhook_notification.parse(signature, payload)
     return webhook_notification
 
 
-def cancel_subscription(subscription_id):
+def cancel_subscription(gateway, subscription_id):
     return gateway.subscription.cancel(subscription_id)
+
+
+def get_gateway_from_campaign(campaign):
+    if braintree_credentials := campaign.braintree_api:
+        return _build_gateway(braintree_credentials)
+    raise Exception("No braintree credentials found for campaign")
+
+
+def get_gateway_from_model(braintree_api):
+    return _build_gateway(braintree_api)
+
+
+def get_public_keys_from_signature(signature):
+    return [part.split("|", 1)[0] for part in signature.split("&") if "|" in part]

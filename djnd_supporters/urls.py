@@ -39,7 +39,7 @@ urlpatterns = [
         api.DonationCampaignStatistics.as_view(),
     ),
     re_path(
-        "donation-nonce/",
+        "donation-nonce/(?:(?P<campaign>[-\w]+)/)?$",
         api.DonationCampaignBraintreeNonce.as_view(),
     ),
     re_path("braintree-webhook/", api.BraintreeWebhookApiView.as_view()),
