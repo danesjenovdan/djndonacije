@@ -145,7 +145,7 @@ class Subscription(Timestamped):
         null=True,
         blank=True,
     )
-    account= models.ForeignKey(
+    account = models.ForeignKey(
         "Account",
         null=True,
         blank=True,
@@ -473,6 +473,7 @@ class PredefinedAmount(Timestamped):
 class CampaignQuestion(Timestamped):
     class QuestionType(models.TextChoices):
         SEGMENT_CHECKBOX = "segment_checkbox", "segment_checkbox"
+
     donation_campaign = models.ForeignKey(
         "DonationCampaign", related_name="questions", on_delete=models.CASCADE
     )
@@ -490,5 +491,8 @@ class CampaignQuestion(Timestamped):
     )
     required = models.BooleanField(default=False)
     order = models.IntegerField(default=0)
-    field_type = models.CharField(max_length=32, choices=QuestionType.choices, default=QuestionType.SEGMENT_CHECKBOX)
-    
+    field_type = models.CharField(
+        max_length=32,
+        choices=QuestionType.choices,
+        default=QuestionType.SEGMENT_CHECKBOX,
+    )
