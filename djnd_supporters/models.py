@@ -145,6 +145,13 @@ class Subscription(Timestamped):
         null=True,
         blank=True,
     )
+    account = models.ForeignKey(
+        "Account",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="subscriptions",
+    )
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
@@ -333,6 +340,11 @@ class DonationCampaign(Timestamped):
         blank=True,
         verbose_name="Mautic email ID za preklic flik mesečne donacije",
     )
+    flik_subscription_timeout_email_template = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Mautic email ID za potek flik mesečne donacije",
+    )
     segment = models.IntegerField(
         null=True, blank=True, verbose_name="Mautic segment ID"
     )
@@ -416,6 +428,35 @@ class Iban(Timestamped):
         return self.company_name
 
 
+class BraintreeApi(Timestamped):
+    class Environment(models.TextChoices):
+        PRODUCTION = "production", "production"
+        SANDBOX = "sandbox", "sandbox"
+
+    name = models.CharField(
+        max_length=128, verbose_name="Ime/lastnik Braintree API ključa"
+    )
+    account = models.ForeignKey(
+        "Account",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="braintree_apis",
+    )
+    env = models.CharField(
+        max_length=32,
+        choices=Environment,
+        default=Environment.PRODUCTION,
+        verbose_name="Braintree environment",
+    )
+    merchant_id = models.CharField(max_length=128, verbose_name="Braintree merchant id")
+    public_key = models.CharField(max_length=128, verbose_name="Braintree public key")
+    private_key = models.CharField(max_length=128, verbose_name="Braintree private key")
+
+    def __str__(self):
+        return self.name
+
+
 class PredefinedAmount(Timestamped):
     donation_campaign = models.ForeignKey(
         "DonationCampaign", related_name="amounts", on_delete=models.CASCADE
@@ -426,4 +467,32 @@ class PredefinedAmount(Timestamped):
     )
     recurring_amount = models.BooleanField(
         default=True, help_text="Enable amount for recurring donation"
+    )
+
+
+class CampaignQuestion(Timestamped):
+    class QuestionType(models.TextChoices):
+        SEGMENT_CHECKBOX = "segment_checkbox", "segment_checkbox"
+
+    donation_campaign = models.ForeignKey(
+        "DonationCampaign", related_name="questions", on_delete=models.CASCADE
+    )
+    question = models.CharField(max_length=256)
+    link = models.URLField(
+        max_length=256,
+        null=True,
+        blank=True,
+        help_text="Optional link for question, e.g. to explain why you are asking this question. Terms of use, privacy policy, etc.",
+    )
+    segment_id = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Mautic segment ID that will be applied to subscriber if they check the box for this question",
+    )
+    required = models.BooleanField(default=False)
+    order = models.IntegerField(default=0)
+    field_type = models.CharField(
+        max_length=32,
+        choices=QuestionType.choices,
+        default=QuestionType.SEGMENT_CHECKBOX,
     )

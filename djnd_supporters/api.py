@@ -501,14 +501,16 @@ class DonationCampaignInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
 
 class DonationCampaignBraintreeNonce(views.APIView):
-    def get(self, request):
+    def get(self, request, campaign="danes-je-nov-dan"):
         # check captcha
         captcha_validated = validate_captcha(request.GET.get("captcha", ""))
         if not captcha_validated:
             return Response(
                 {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
             )
-        return Response(payment.client_token(None))
+        donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
+        braintree_gateway = payment.get_gateway_from_campaign(donation_campaign)
+        return Response(payment.client_token(braintree_gateway, None))
 
 
 class GenericDonationCampaignQRCode(views.APIView):
@@ -583,6 +585,8 @@ class GenericDonationCampaign(views.APIView):
 
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
 
+        braintree_gateway = payment.get_gateway_from_campaign(donation_campaign)
+
         # if no amount deny
         if not amount:
             return Response(
@@ -598,6 +602,7 @@ class GenericDonationCampaign(views.APIView):
                 )
 
             result = payment.pay_bt_3d(
+                braintree_gateway,
                 nonce,
                 float(amount),
                 taxExempt=True,
@@ -619,6 +624,7 @@ class GenericDonationCampaign(views.APIView):
                     campaign=donation_campaign,
                     transaction_id=transaction_id,
                     payment_method=payment_method,
+                    account=donation_campaign.braintree_api.account,
                 )
                 donation.save()
 
@@ -764,7 +770,8 @@ class GenericCampaignSubscription(views.APIView):
 
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
         donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
-        donation_obj.update(payment.client_token(subscriber))
+        braintree_gateway = payment.get_gateway_from_campaign(donation_campaign)
+        donation_obj.update(payment.client_token(braintree_gateway, subscriber))
 
         return Response(donation_obj)
 
@@ -862,8 +869,10 @@ class GenericCampaignSubscription(views.APIView):
             if not plan_id:
                 plan_id = "djnd"
 
+            braintree_gateway = payment.get_gateway_from_campaign(donation_campaign)
             # create and save subscription if success
             result = payment.create_subscription(
+                braintree_gateway,
                 nonce,
                 customer_id,
                 plan_id=plan_id,
@@ -878,6 +887,8 @@ class GenericCampaignSubscription(views.APIView):
                     subscription_id=result.subscription.id,
                     campaign=donation_campaign,
                     token=nonce,
+                    account=donation_campaign.braintree_api.account,
+                    type="braintree-subscription",
                     is_active=True,
                 )
                 donation.save()
@@ -918,6 +929,7 @@ class GenericCampaignSubscription(views.APIView):
                 subscriber=subscriber,
                 campaign=donation_campaign,
                 token=f"{customer_ip}|{phone_number}",
+                account=donation_campaign.flik_api.account,
                 is_active=True,
                 type=payment_type,
             )
@@ -974,8 +986,9 @@ class CancelSubscription(views.APIView):
         subscription = get_object_or_404(
             models.Subscription, subscription_id=subscription_id
         )
+        braintree_gateway = payment.get_gateway_from_campaign(subscription.campaign)
         if subscription.subscriber == subscriber:
-            result = payment.cancel_subscription(subscription_id)
+            result = payment.cancel_subscription(braintree_gateway, subscription_id)
             print(vars(result))
             if result.is_success:
                 # subscription.subscription_id = None
@@ -993,8 +1006,29 @@ class CancelSubscription(views.APIView):
 class BraintreeWebhookApiView(views.APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
+
+        bt_signature = data["bt_signature"]
+        bt_payload = data["bt_payload"]
+
+        print(bt_signature)
+
+        braintree_api = None
+        for public_key in payment.get_public_keys_from_signature(bt_signature):
+            braintree_api = models.BraintreeApi.objects.filter(
+                public_key=public_key
+            ).first()
+            if braintree_api:
+                break
+
+        if not braintree_api:
+            capture_message(
+                f"Braintree webhook could not resolve merchant for signature: {bt_signature}"
+            )
+            return Response(status=400)
+
+        braintree_gateway = payment.get_gateway_from_model(braintree_api)
         webhook_notification = payment.get_hook(
-            str(data["bt_signature"]), data["bt_payload"]
+            braintree_gateway, str(bt_signature), bt_payload
         )
         subscription = None
 
@@ -1027,6 +1061,7 @@ class BraintreeWebhookApiView(views.APIView):
                         subscriber=subscription.subscriber,
                         campaign=subscription.campaign,
                         transaction_id=transaction_id,
+                        account=subscription.account,
                         payment_method="braintree-subscription",
                     )
                     new_transaction.save()
@@ -1090,6 +1125,7 @@ class BraintreeWebhookApiView(views.APIView):
                         transaction_id=transaction["id"],
                         payment_method="braintree-subscription",
                         is_paid=False,
+                        account=subscription.account,
                     )
 
             elif event == braintree.WebhookNotification.Kind.SubscriptionCanceled:
@@ -1238,9 +1274,18 @@ class FlikCallback(views.APIView):
             elif flik_payment.payment_method == "flik-subscription":
                 subscription.is_active = False
                 subscription.save()
-                if (
-                    email_template_id := subscription.campaign.flik_subscription_cancelled_email_template
-                ):
+                if flik_result_response.code == "2002":  # Customer Cancelled
+                    email_template_id = (
+                        subscription.campaign.flik_subscription_cancelled_email_template
+                    )
+                elif flik_result_response.code == "2012":  # Payment timed out
+                    email_template_id = (
+                        subscription.campaign.flik_subscription_timeout_email_template
+                    )
+                else:
+                    email_template_id = None
+
+                if email_template_id:
                     mautic_api.sendEmail(
                         email_template_id, subscription.subscriber.mautic_id, {}
                     )
