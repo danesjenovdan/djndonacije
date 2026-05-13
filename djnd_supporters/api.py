@@ -1010,6 +1010,8 @@ class BraintreeWebhookApiView(views.APIView):
         bt_signature = data["bt_signature"]
         bt_payload = data["bt_payload"]
 
+        print(bt_signature)
+
         braintree_api = None
         for public_key in payment.get_public_keys_from_signature(bt_signature):
             braintree_api = models.BraintreeApi.objects.filter(
@@ -1272,9 +1274,14 @@ class FlikCallback(views.APIView):
             elif flik_payment.payment_method == "flik-subscription":
                 subscription.is_active = False
                 subscription.save()
-                if (
-                    email_template_id := subscription.campaign.flik_subscription_cancelled_email_template
-                ):
+                if flik_result_response.code == "2002": # Customer Cancelled
+                    email_template_id = subscription.campaign.flik_subscription_cancelled_email_template
+                elif flik_result_response.code == "2012": # Payment timed out
+                    email_template_id = subscription.campaign.flik_subscription_timeout_email_template
+                else:
+                    email_template_id = None
+            
+                if email_template_id:
                     mautic_api.sendEmail(
                         email_template_id, subscription.subscriber.mautic_id, {}
                     )
