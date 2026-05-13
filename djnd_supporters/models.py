@@ -233,23 +233,10 @@ class DonationCampaign(Timestamped):
         verbose_name="Naslov",
         help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
     )
-    title_en = models.CharField(
-        null=True,
-        blank=True,
-        max_length=256,
-        verbose_name="Naslov (angleščina)",
-        help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
-    )
     subtitle = models.TextField(
         null=True,
         blank=True,
         verbose_name="Podnaslov",
-        help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
-    )
-    subtitle_en = models.TextField(
-        null=True,
-        blank=True,
-        verbose_name="Podnaslov (angleščina)",
         help_text="Prikaže se na https://moj.djnd.si/&lt;slug&gt;/doniraj",
     )
     upn_name = models.CharField(
@@ -374,6 +361,18 @@ class DonationCampaign(Timestamped):
     add_to_newsletter_confirmation_required = models.BooleanField(
         default=False, verbose_name="Prijava na novičnik zahteva potrditev"
     )
+    terms_of_use = models.FileField(
+        upload_to="terms_of_use",
+        null=True,
+        blank=True,
+        help_text="Pogoji doniranja - datoteka se prikaže kot povezava na strani z donacijami",
+    )
+    terms_of_use_text = models.CharField(
+        max_length=256,
+        null=True,
+        blank=True,
+        verbose_name="Pogoji doniranja - besedilo, ki se prikaže namesto povezave, npr. 'Pogoji doniranja'",
+    )
 
     def __str__(self):
         return self.name
@@ -490,6 +489,12 @@ class CampaignQuestion(Timestamped):
         null=True,
         blank=True,
         help_text="Optional link for question, e.g. to explain why you are asking this question. Terms of use, privacy policy, etc.",
+    )
+    file = models.FileField(
+        upload_to="question_files",
+        null=True,
+        blank=True,
+        help_text="Optional file for question, e.g. to explain why you are asking this question. Terms of use, privacy policy, etc.",
     )
     segment_id = models.IntegerField(
         null=True,

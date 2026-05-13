@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 
 from djnd_supporters import models
@@ -21,8 +22,27 @@ class AmountSerializer(serializers.ModelSerializer):
         exclude = ["created", "modified", "id", "donation_campaign"]
 
 
+class QuestionSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.CampaignQuestion
+        fields = ["id", "url", "question_sl", "question_en", "field_type"]
+
+    def get_url(self, obj):
+        if obj.link:
+            return obj.link
+        elif obj.file:
+            if settings.ENABLE_S3:
+                return obj.file.url
+            else:
+                return self.context.get("request").build_absolute_uri(obj.file.url)
+        return None
+
+
 class DonationCampaignSerializer(serializers.ModelSerializer):
     amounts = AmountSerializer(many=True)
+    questions = QuestionSerializer(many=True)
     active_monthly_subscriptions = serializers.SerializerMethodField()
 
     def get_active_monthly_subscriptions(self, obj):
@@ -40,6 +60,7 @@ class DonationCampaignSerializer(serializers.ModelSerializer):
             "segment",
             "name",
             "amounts",
+            "questions",
             "title",
             "title_en",
             "subtitle",
