@@ -286,6 +286,13 @@ class DonationCampaign(Timestamped):
     has_braintree_subscription = models.BooleanField(
         default=True, verbose_name="Sprejemamo braintree mesečne donacije?"
     )
+    braintree_api = models.ForeignKey(
+        "BraintreeApi",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="campaigns",
+    )
     upn_email_template = models.IntegerField(
         null=True, blank=True, verbose_name="Mautic email ID za UPN donacijo"
     )
