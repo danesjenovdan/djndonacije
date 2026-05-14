@@ -25,6 +25,9 @@ const store = createStore({
         CSSFile: "",
         redirectToThankYou: "",
         hasNewsletter: false,
+        terms_of_use: null,
+        terms_of_use_text_sl: null,
+        terms_of_use_text_en: null,
       },
       userData: {
         chosenAmount: 0,
@@ -74,6 +77,13 @@ const store = createStore({
     },
     getHasNewsletter(state) {
       return state.campaignData.hasNewsletter;
+    },
+    getTermsOfUse(state) {
+      return {
+        terms_of_use: state.campaignData.terms_of_use,
+        terms_of_use_text_sl: state.campaignData.terms_of_use_text_sl,
+        terms_of_use_text_en: state.campaignData.terms_of_use_text_en,
+      };
     },
     getQRCode(state) {
       return state.userData.QRCode;
@@ -165,6 +175,11 @@ const store = createStore({
     setHasNewsletter(state, segment) {
       state.campaignData.hasNewsletter = !!segment;
     },
+    setTermsOfUse(state, terms) {
+      state.campaignData.terms_of_use = terms.terms_of_use;
+      state.campaignData.terms_of_use_text_sl = terms.terms_of_use_text_sl;
+      state.campaignData.terms_of_use_text_en = terms.terms_of_use_text_en;
+    },
     setQRCode(state, qr) {
       state.userData.QRCode = qr;
     },
@@ -213,6 +228,11 @@ const store = createStore({
       context.commit("setHasNewsletter", data.data.segment);
       context.commit("setRedirectToThankYou", data.data.redirect_url);
       context.commit("setCSSFile", data.data.css_file);
+      context.commit("setTermsOfUse", {
+        terms_of_use: data.data.terms_of_use,
+        terms_of_use_text_sl: data.data.terms_of_use_text_sl,
+        terms_of_use_text_en: data.data.terms_of_use_text_en,
+      });
 
       // if redirect url exists
       if (data.data.redirect_url) {
