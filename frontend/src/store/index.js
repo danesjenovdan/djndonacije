@@ -24,19 +24,19 @@ const store = createStore({
         has_braintree_subscription: false,
         CSSFile: "",
         redirectToThankYou: "",
-        hasNewsletter: false,
         terms_of_use: null,
         terms_of_use_text_sl: null,
         terms_of_use_text_en: null,
+        questions: [],
       },
       userData: {
         chosenAmount: 0,
         recurringDonation: false,
         email: "",
-        subscribeToNewsletter: false,
         token: "",
         customerId: "",
         QRCode: null,
+        answers: {},
       },
       lang: "sl",
     };
@@ -75,15 +75,18 @@ const store = createStore({
     getRedirectToThankYou(state) {
       return state.campaignData.redirectToThankYou;
     },
-    getHasNewsletter(state) {
-      return state.campaignData.hasNewsletter;
-    },
     getTermsOfUse(state) {
       return {
         terms_of_use: state.campaignData.terms_of_use,
         terms_of_use_text_sl: state.campaignData.terms_of_use_text_sl,
         terms_of_use_text_en: state.campaignData.terms_of_use_text_en,
       };
+    },
+    getQuestions(state) {
+      return state.campaignData.questions;
+    },
+    getAnswers(state) {
+      return state.userData.answers;
     },
     getQRCode(state) {
       return state.userData.QRCode;
@@ -96,9 +99,6 @@ const store = createStore({
     },
     getEmail(state) {
       return state.userData.email;
-    },
-    getSubscribeToNewsletter(state) {
-      return state.userData.subscribeToNewsletter;
     },
     getToken(state) {
       return state.userData.token;
@@ -172,13 +172,16 @@ const store = createStore({
     setRedirectToThankYou(state, redirect) {
       state.campaignData.redirectToThankYou = redirect;
     },
-    setHasNewsletter(state, segment) {
-      state.campaignData.hasNewsletter = !!segment;
-    },
     setTermsOfUse(state, terms) {
       state.campaignData.terms_of_use = terms.terms_of_use;
       state.campaignData.terms_of_use_text_sl = terms.terms_of_use_text_sl;
       state.campaignData.terms_of_use_text_en = terms.terms_of_use_text_en;
+    },
+    setQuestions(state, questions) {
+      state.campaignData.questions = questions;
+    },
+    setAnswer(state, { questionId, answer }) {
+      state.userData.answers[questionId] = answer;
     },
     setQRCode(state, qr) {
       state.userData.QRCode = qr;
@@ -192,9 +195,6 @@ const store = createStore({
     },
     setEmail(state, email) {
       state.userData.email = email;
-    },
-    setSubscribeToNewsletter(state, subscribeToNewsletter) {
-      state.userData.subscribeToNewsletter = subscribeToNewsletter;
     },
     setToken(state, token) {
       state.userData.token = token;
@@ -225,7 +225,6 @@ const store = createStore({
         has_braintree: data.data.has_braintree,
         has_braintree_subscription: data.data.has_braintree_subscription,
       });
-      context.commit("setHasNewsletter", data.data.segment);
       context.commit("setRedirectToThankYou", data.data.redirect_url);
       context.commit("setCSSFile", data.data.css_file);
       context.commit("setTermsOfUse", {
@@ -233,6 +232,7 @@ const store = createStore({
         terms_of_use_text_sl: data.data.terms_of_use_text_sl,
         terms_of_use_text_en: data.data.terms_of_use_text_en,
       });
+      context.commit("setQuestions", data.data.questions || []);
 
       // if redirect url exists
       if (data.data.redirect_url) {
@@ -270,6 +270,12 @@ const store = createStore({
         ? `${api}/api/generic-donation/subscription/${payload.campaignSlug}/`
         : `${api}/api/generic-donation/${payload.campaignSlug}/`;
 
+      const answers = Object.entries(context.getters.getAnswers).map(
+        ([questionId, answer]) => ({
+          id: questionId,
+          result: answer,
+        }),
+      );
       return axios.post(paymentURL, {
         payment_type: payload.type === "card" ? "braintree" : payload.type,
         nonce: payload.nonce,
@@ -277,17 +283,23 @@ const store = createStore({
         customer_id: context.getters.getCustomerId,
         amount: context.getters.getChosenAmount,
         email: context.getters.getEmail,
-        mailing: context.getters.getSubscribeToNewsletter,
+        answers,
       });
     },
     async afterPaymentAddEmail(context, payload) {
       const url = `${api}/api/subscribe/`;
 
+      const answers = Object.entries(context.getters.getAnswers).map(
+        ([questionId, answer]) => ({
+          id: questionId,
+          result: answer,
+        }),
+      );
       axios.post(url, {
         campaign_id: payload.campaignSlug,
         transaction_id: payload.transactionId,
         email: payload.email,
-        add_to_mailing: payload.addToMailing,
+        answers,
       });
     },
     async newsletterSafeSubscribe(context, payload) {
