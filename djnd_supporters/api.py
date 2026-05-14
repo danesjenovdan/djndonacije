@@ -1008,11 +1008,10 @@ class CancelSubscription(views.APIView):
 class BraintreeWebhookApiView(views.APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
-
+        print("Braintree webhook received:")
+        print(data)
         bt_signature = data["bt_signature"]
         bt_payload = data["bt_payload"]
-
-        print(bt_signature)
 
         braintree_api = None
         for public_key in payment.get_public_keys_from_signature(bt_signature):
@@ -1022,6 +1021,7 @@ class BraintreeWebhookApiView(views.APIView):
             if braintree_api:
                 break
 
+        print(braintree_api)
         if not braintree_api:
             capture_message(
                 f"Braintree webhook could not resolve merchant for signature: {bt_signature}"
@@ -1131,6 +1131,7 @@ class BraintreeWebhookApiView(views.APIView):
                     )
 
             elif event == braintree.WebhookNotification.Kind.SubscriptionCanceled:
+                print("Braintree cancel subscription webhook")
                 subscription_id = webhook_notification.subject["subscription"]["id"]
                 subscription = models.Subscription.objects.filter(
                     subscription_id=subscription_id
