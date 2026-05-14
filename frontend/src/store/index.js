@@ -235,7 +235,7 @@ const store = createStore({
       return axios.get(url);
     },
     async verifyCaptcha(context, payload) {
-      let url = `${api}/api/donation-nonce/`;
+      let url = `${api}/api/donation-nonce/${payload.campaignSlug}`;
       url += `?captcha=${encodeURIComponent(payload.captcha)}`;
       return axios.get(url);
     },
