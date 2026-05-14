@@ -536,6 +536,8 @@ class GenericDonationCampaignQRCode(views.APIView):
             )
 
         try:
+            if not donation_campaign.iban:
+                return Response({"upn_qr_code": "invalid-iban"})
             iban = donation_campaign.iban
             qr_code = generate_upnqr_svg(
                 to_name=iban.company_name,
