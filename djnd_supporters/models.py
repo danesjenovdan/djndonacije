@@ -496,10 +496,23 @@ class CampaignQuestion(Timestamped):
         blank=True,
         help_text="Optional file for question, e.g. to explain why you are asking this question. Terms of use, privacy policy, etc.",
     )
+    url_text = models.CharField(
+        max_length=256,
+        null=True,
+        blank=True,
+        verbose_name="Besedilo povezave",
+        help_text="Besedilo, ki se prikaže namesto URL-ja, npr. 'Terms of use'",
+    )
     segment_id = models.IntegerField(
         null=True,
         blank=True,
         help_text="Mautic segment ID that will be applied to subscriber if they check the box for this question",
+    )
+    welcome_email_tempalte = models.IntegerField(
+        null=True, blank=True, verbose_name="Mautic email ID za welcome mail"
+    )
+    add_to_newsletter_confirmation_required = models.BooleanField(
+        default=False, verbose_name="Prijava na novičnik zahteva potrditev"
     )
     required = models.BooleanField(default=False)
     order = models.IntegerField(default=0)

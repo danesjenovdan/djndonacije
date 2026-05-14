@@ -27,7 +27,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.CampaignQuestion
-        fields = ["id", "url", "question_sl", "question_en", "field_type"]
+        fields = ["id", "url", "question_sl", "question_en", "url_text_sl", "url_text_en", "field_type"]
 
     def get_url(self, obj):
         if obj.link:
@@ -68,6 +68,9 @@ class DonationCampaignSerializer(serializers.ModelSerializer):
             "redirect_url",
             "css_file",
             "active_monthly_subscriptions",
+            "terms_of_use",
+            "terms_of_use_text_sl",
+            "terms_of_use_text_en",
         ]
 
 

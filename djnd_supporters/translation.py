@@ -3,7 +3,7 @@ from .models import CampaignQuestion, DonationCampaign
 
 
 class CampaignQuestionTranslationOptions(TranslationOptions):
-    fields = ("question",)
+    fields = ("question", "url_text")
 
 
 class DonationCampaignTranslationOptions(TranslationOptions):
