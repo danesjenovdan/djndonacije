@@ -202,7 +202,7 @@ def save_answers(answers, mautic_id):
                     mautic_api.sendEmail(
                         question_obj.welcome_email_tempalte,
                         mautic_id,
-                        {}
+                        {},
                     )
                 else:
                     # add contact
