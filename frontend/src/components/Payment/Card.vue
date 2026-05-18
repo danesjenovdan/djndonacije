@@ -175,6 +175,7 @@ export default {
       this.$store
         .dispatch("verifyCaptcha", {
           captcha: captchaApi.value(),
+          campaignSlug: this.campaignSlug,
         })
         .then((checkoutResponse) => {
           captchaApi.remove();

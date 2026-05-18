@@ -13,6 +13,7 @@ from djnd_supporters.models import (
     Subscriber,
     Subscription,
     Transaction,
+    CampaignQuestion,
 )
 
 
@@ -63,8 +64,13 @@ class AmountInlineAdmin(admin.TabularInline):
     extra = 0
 
 
+class CampaignQuestionInlineAdmin(admin.TabularInline):
+    model = CampaignQuestion
+    extra = 0
+
+
 class DonationCampaignAdmin(admin.ModelAdmin):
-    inlines = [AmountInlineAdmin]
+    inlines = [CampaignQuestionInlineAdmin, AmountInlineAdmin]
     readonly_fields = [
         "mautic_manage_subscription_url",
         "mautic_confirm_subscription_url",
@@ -124,12 +130,15 @@ class DonationCampaignAdmin(admin.ModelAdmin):
             {
                 "fields": [
                     "slug",
-                    "title",
+                    "title_sl",
                     "title_en",
-                    "subtitle",
+                    "subtitle_sl",
                     "subtitle_en",
                     "css_file",
-                ],  # "redirect_url", "has_upload_image",
+                    "terms_of_use_text_sl",
+                    "terms_of_use_text_en",
+                    "terms_of_use",
+                ],
             },
         ),
     ]
@@ -156,7 +165,7 @@ class TransactionAdmin(ImportExportModelAdmin):
         "campaign",
         "account",
     )
-    list_filter = ("amount", "campaign", "is_paid", "payment_method")
+    list_filter = ("account", "campaign", "amount", "is_paid", "payment_method")
     resource_class = TransactionResource
     search_fields = ["subscriber__token", "transaction_id"]
     autocomplete_fields = ["account", "subscription"]
@@ -187,7 +196,7 @@ class SubscriptionAdmin(ImportExportModelAdmin):
         "type",
         "is_active",
     )
-    list_filter = ("amount", "campaign")
+    list_filter = ("account", "amount", "campaign")
     resource_class = SubscriptionResource
     search_fields = ["subscriber__token", "subscription_id"]
     list_select_related = ["campaign", "subscriber"]

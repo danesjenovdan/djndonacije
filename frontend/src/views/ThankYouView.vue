@@ -27,17 +27,20 @@
               class="form-control form-control-lg"
             />
           </div>
-          <div v-if="hasNewsletter" class="custom-control custom-checkbox">
+          <div v-for="q in newsletterQuestions" class="custom-control custom-checkbox">
             <input
-              id="info-newsletter"
-              v-model="subscribeToNewsletter"
+              :id="`question-${q.id}`"
+              v-model="newsletterAnswers[q.id]"
               type="checkbox"
-              name="subscribeNewsletter"
+              :name="`question-${q.id}`"
               class="custom-control-input"
             />
-            <label class="custom-control-label" for="info-newsletter">{{
-              $t("infoView.newsletterLabel")
-            }}</label>
+            <label class="custom-control-label" :for="`question-${q.id}`">
+              <span>
+                {{ lang === 'en' ? q.question_en : q.question_sl }}
+                <a v-if="q.url" :href="q.url">{{ lang === 'en' ? q.url_text_en : q.url_text_sl }}</a>
+              </span>
+            </label>
           </div>
         </div>
       </div>
@@ -76,6 +79,7 @@ export default {
       campaignSlug: this.$route.params.campaignSlug,
       transactionId: this.$route.query.transaction_id || null,
       infoSubmitting: false,
+      newsletterAnswers: {},
     };
   },
   computed: {
@@ -87,16 +91,11 @@ export default {
         this.$store.commit("setEmail", value);
       },
     },
-    subscribeToNewsletter: {
-      get() {
-        return this.$store.getters.getSubscribeToNewsletter;
-      },
-      set(value) {
-        this.$store.commit("setSubscribeToNewsletter", value);
-      },
+    questions() {
+      return this.$store.getters.getQuestions;
     },
-    hasNewsletter() {
-      return this.$store.getters.getHasNewsletter;
+    newsletterQuestions() {
+      return this.questions.filter((q) => q.field_type === "segment_checkbox");
     },
     canContinueToNextStage() {
       return this.infoValid;
@@ -117,13 +116,21 @@ export default {
   methods: {
     async continueToNextStage() {
       if (this.canContinueToNextStage) {
+        // set answers for newsletter questions
+        this.newsletterQuestions.forEach((q) => {
+          this.$store.commit(
+            "setAnswer",
+            { questionId: q.id, answer: this.newsletterAnswers[q.id] || false }
+          );
+        });
+
+        // submit
         this.infoSubmitting = true;
         this.$store
           .dispatch("afterPaymentAddEmail", {
             campaignSlug: this.campaignSlug,
             transactionId: this.transactionId,
             email: this.email,
-            addToMailing: this.subscribeToNewsletter,
           })
           .then(() => {
             this.transactionId = null;

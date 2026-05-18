@@ -1,5 +1,6 @@
 Django==5.2.7
 django-admin-sortable2==2.2.8
+django-modeltranslation==0.20.3
 djangorestframework==3.16.1
 django-filter==25.1
 drf-writable-nested==0.7.2

@@ -5,6 +5,7 @@ from django.conf import settings
 
 from djnd_supporters import models
 from djnd_supporters.mautic_api import MauticApi
+from djndonacije.slack_utils import send_slack_msg
 
 mautic_api = MauticApi()
 
@@ -177,3 +178,38 @@ def get_client_ip(request):
     else:
         ip = request.META.get("REMOTE_ADDR")
     return ip
+
+
+def save_answers(answers, mautic_id):
+    for answer in answers:
+        question_obj = models.CampaignQuestion.objects.filter(id=answer["id"]).first()
+        if not question_obj:
+            continue
+        if (
+            question_obj.field_type
+            == models.CampaignQuestion.QuestionType.SEGMENT_CHECKBOX
+        ):
+            if answer["result"]:
+                if question_obj.welcome_email_tempalte:
+                    if not question_obj.add_to_newsletter_confirmation_required:
+                        # add contact
+                        mautic_api.addContactToASegment(
+                            question_obj.segment_id, mautic_id
+                        )
+                        # send slack message
+                        msg = f"Nova naročnina na novičnik [ {question_obj.donation_campaign.name} ] ({mautic_id})"
+                        send_slack_msg(msg, "#novicnik-bot")
+                    mautic_api.sendEmail(
+                        question_obj.welcome_email_tempalte,
+                        mautic_id,
+                    )
+                else:
+                    # add contact
+                    mautic_api.addContactToASegment(question_obj.segment_id, mautic_id)
+                    # send slack message
+                    msg = f"""
+Nova naročnina na novičnik [ {question_obj.donation_campaign.name} {question_obj.id}] ({mautic_id})
+Segment checkbox nima nastavljenega welcome email template-a, zato ni bilo poslano dobrodošlo sporočilo,
+ampak vseeno je bil kontakt dodan v segment.
+                    """
+                    send_slack_msg(msg, "#novicnik-bot")
