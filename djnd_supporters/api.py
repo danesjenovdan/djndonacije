@@ -74,7 +74,7 @@ class Subscribe(views.APIView):
         segment = data.get("segment_id", None)
         campaign_slug = data.get("campaign_id", None)
         transaction_id = data.get("transaction_id", None)
-        add_to_mailing = data.get("add_to_mailing", True)
+        answers = data.get("answers", [])
 
         if campaign_slug:
             campaign = models.DonationCampaign.objects.filter(
@@ -113,54 +113,6 @@ class Subscribe(views.APIView):
                         subscriber.save()
                         response, response_status = subscriber.save_to_mautic(email)
                         mautic_id = subscriber.mautic_id
-                    self.send_donation_confirmation(mautic_id, campaign, transaction_id)
-                    mail_to_send = None
-                    if segment and add_to_mailing:
-                        # user is not on a segment then welcome mail
-                        response, response_status = mautic_api.getSegmentsOfContact(
-                            mautic_id
-                        )
-                        if response_status == 200:
-                            segments = response["lists"]
-                            if segments and segment in segments.keys():
-                                mail_to_send = "edit"
-                            else:
-                                mail_to_send = "welcome"
-                                if not campaign.add_to_newsletter_confirmation_required:
-                                    # add contact
-                                    mautic_api.addContactToASegment(segment, mautic_id)
-                                    # send slack message
-                                    msg = f"Nova naročnina na novičnik [ {campaign.name} ] ({mautic_id})"
-                                    send_slack_msg(msg, "#novicnik-bot")
-
-                    if campaign and add_to_mailing:
-                        email_id = None
-                        if (
-                            mail_to_send == "edit"
-                            and campaign.edit_subscriptions_email_template
-                        ):
-                            email_id = campaign.edit_subscriptions_email_template
-                        elif mail_to_send == "welcome":
-                            if campaign.welcome_email_tempalte:
-                                email_id = campaign.welcome_email_tempalte
-                            elif campaign.edit_subscriptions_email_template:
-                                email_id = campaign.edit_subscriptions_email_template
-                            else:
-                                # Nov dan trnutno nima welcome in edit email template
-                                capture_message(
-                                    f"Campaign {campaign.name} has empty edit_subscriptions_email_template and welcome_email_tempalte"
-                                )
-                        if email_id:
-                            response, response_status = mautic_api.sendEmail(
-                                email_id, mautic_id, {}
-                            )
-                            return Response({"msg": "mail sent"})
-                        return Response({"msg": "mail not sent"})
-                    else:
-                        capture_message(f"Each segment needs to belong to campaign")
-                        return Response(
-                            {"msg": "mail not sent"}, status=status.HTTP_409_CONFLICT
-                        )
 
                 else:
                     # user does not exist on mautic, create new
@@ -170,35 +122,15 @@ class Subscribe(views.APIView):
                     if response_status != 200:
                         return Response({"msg": response}, status=response_status)
 
-                    self.send_donation_confirmation(
-                        subscriber.mautic_id, campaign, transaction_id
-                    )
-                    if add_to_mailing:
-                        if segment:
-                            if not campaign.add_to_newsletter_confirmation_required:
-                                mautic_api.addContactToASegment(
-                                    segment, subscriber.mautic_id
-                                )
-                                # send slack message
-                                msg = f"Nova naročnina na novičnik [ {campaign.name} ] ({subscriber.mautic_id})"
-                                send_slack_msg(msg, "#novicnik-bot")
+                    mautic_id = subscriber.mautic_id
 
-                        if campaign and campaign.welcome_email_tempalte:
-                            response, response_status = mautic_api.sendEmail(
-                                campaign.welcome_email_tempalte,
-                                subscriber.mautic_id,
-                                {},
-                            )
-                            return Response({"msg": "mail sent"})
-                        else:
-                            # TODO think about this case
-                            pass
-                            return Response(
-                                {"msg": "mail not sent"},
-                                status=status.HTTP_409_CONFLICT,
-                            )
+                self.send_donation_confirmation(mautic_id, campaign, transaction_id)
+                utils.save_answers(answers, mautic_id)
+                return Response({"msg": "Subscribed successfully."})
+
             else:
                 return Response({"msg": response}, status=response_status)
+
         return Response(
             {"error": "Missing email and/or token."}, status=status.HTTP_409_CONFLICT
         )
@@ -783,7 +715,7 @@ class GenericCampaignSubscription(views.APIView):
         amount = data.get("amount", None)
         email = data.get("email", None)
         name = data.get("name", "")
-        add_to_mailing = data.get("mailing", False)
+        answers = data.get("answers", [])
         address = data.get("address", "")
         customer_id = data.get("customer_id", "")
         token = data.get("token", None)
@@ -852,11 +784,8 @@ class GenericCampaignSubscription(views.APIView):
                 return Response({"msg": response}, status=response_status)
             mautic_id = subscriber.mautic_id
 
-        # add to mailing if they agreed
-        if add_to_mailing and donation_campaign.segment:
-            response, response_status = mautic_api.addContactToASegment(
-                donation_campaign.segment, mautic_id
-            )
+        # save questions and answers. For example add to newsletter
+        utils.save_answers(answers, mautic_id)
 
         if payment_type == "braintree":
             # check if campaign supports braintree payments

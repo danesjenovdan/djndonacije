@@ -85,6 +85,7 @@ DATABASES = {
 # Application definition
 
 INSTALLED_APPS = [
+    "modeltranslation",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -138,6 +139,7 @@ WSGI_APPLICATION = "djndonacije.wsgi.application"
 
 LANGUAGES = [
     ("sl", "Slovenski"),
+    ("en", "English"),
 ]
 
 LOCALE_PATHS = (os.path.join(BASE_DIR, "../locales"),)
