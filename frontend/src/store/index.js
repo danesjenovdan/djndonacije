@@ -305,10 +305,17 @@ const store = createStore({
     async newsletterSafeSubscribe(context, payload) {
       const url = `${api}/api/safe-subscribe/`;
 
+      const answers = Object.entries(context.getters.getAnswers).map(
+        ([questionId, answer]) => ({
+          id: questionId,
+          result: answer,
+        }),
+      );
       return axios.post(url, {
         captcha: payload.captcha,
         email: payload.email,
         segment_id: payload.segmentId,
+        answers,
       });
     },
     async confirmNewsletterSubscription(context, payload) {

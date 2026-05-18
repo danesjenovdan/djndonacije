@@ -1,6 +1,6 @@
 <template>
   <div class="checkout">
-    <checkout-stage no-header>
+    <checkout-stage show-terms no-header>
       <template #content>
         <template v-if="!signupDone">
           <div class="row justify-content-center">
@@ -15,27 +15,30 @@
                   class="form-control form-control-lg"
                 />
               </div>
-              <div class="custom-control custom-checkbox">
+              <div v-for="q in newsletterQuestions" class="custom-control custom-checkbox">
                 <input
-                  id="info-newsletter"
-                  v-model="consentCheckbox"
+                  :id="`question-${q.id}`"
+                  v-model="newsletterAnswers[q.id]"
                   type="checkbox"
-                  name="subscribeNewsletter"
+                  :name="`question-${q.id}`"
                   class="custom-control-input"
                 />
-                <label class="custom-control-label" for="info-newsletter">{{
-                  $t("infoView.newsletterLabel")
-                }}</label>
+                <label class="custom-control-label" :for="`question-${q.id}`">
+                  <span>
+                    {{ lang === 'en' ? q.question_en : q.question_sl }}
+                    <a v-if="q.url" :href="q.url">{{ lang === 'en' ? q.url_text_en : q.url_text_sl }}</a>
+                  </span>
+                </label>
               </div>
-              <p>
-                {{ $t("infoView.bots") }}
-              </p>
               <div class="captcha-container">
                 <div v-if="robotError" class="alert alert-danger py-2 my-2">
                   {{ $t("infoView.wrongAnswer") }}
                 </div>
                 <div ref="captcha"></div>
               </div>
+              <p class="bots-text">
+                {{ $t("infoView.bots") }}
+              </p>
             </div>
           </div>
         </template>
@@ -85,10 +88,10 @@ export default {
     return {
       campaignSlug,
       segmentId: null,
-      consentCheckbox: false,
       robotError: false,
       infoSubmitting: false,
       signupDone: false,
+      newsletterAnswers: {},
     };
   },
   computed: {
@@ -103,6 +106,12 @@ export default {
         this.$store.commit("setEmail", value);
       },
     },
+    questions() {
+      return this.$store.getters.getQuestions;
+    },
+    newsletterQuestions() {
+      return this.questions.filter((q) => q.field_type === "segment_checkbox");
+    },
     lang() {
       return this.$store.getters.getLang;
     },
@@ -110,7 +119,8 @@ export default {
       return this.infoValid;
     },
     infoValid() {
-      if (!this.consentCheckbox) {
+      const trueAnswers = this.newsletterQuestions.filter((q) => this.newsletterAnswers[q.id]);
+      if (!trueAnswers.length) {
         return false;
       }
       if (!this.email || !EMAIL_REGEX.test(this.email)) {
@@ -138,7 +148,6 @@ export default {
     const { email, segment_id: segmentId } = this.$route.query;
     if (email) {
       this.email = email;
-      this.consentCheckbox = true;
     }
     if (segmentId) {
       this.segmentId = segmentId;
@@ -163,6 +172,15 @@ export default {
     },
     async onSubmit() {
       if (this.canSubmit) {
+        // set answers for newsletter questions
+        this.newsletterQuestions.forEach((q) => {
+          this.$store.commit(
+            "setAnswer",
+            { questionId: q.id, answer: this.newsletterAnswers[q.id] || false }
+          );
+        });
+
+        // submit
         this.infoSubmitting = true;
         this.robotError = false;
         const captchaApi = window.vajbcha.captcha;
@@ -238,6 +256,14 @@ export default {
     padding-left: 0;
     padding-right: 0;
     text-align: center;
+  }
+
+  .bots-text {
+    max-width: 360px;
+    margin: 0 auto;
+    padding-top: 1rem;
+    font-size: 1rem;
+    font-weight: 300;
   }
 
   .captcha-container {
