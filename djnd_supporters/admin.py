@@ -64,7 +64,7 @@ class AmountInlineAdmin(admin.TabularInline):
     extra = 0
 
 
-class CampaignQuestionInlineAdmin(admin.TabularInline):
+class CampaignQuestionInlineAdmin(admin.StackedInline):
     model = CampaignQuestion
     extra = 0
 
