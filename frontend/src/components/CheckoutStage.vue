@@ -31,8 +31,8 @@
       </div>
     </div>
     <div v-if="showTerms" class="checkout-stage__terms">
-      <a href="https://danesjenovdan.si/pogoji" target="_blank">
-        {{ $t("checkoutStage.terms") }}
+      <a :href="termsUrl" target="_blank">
+        {{ termsText }}
       </a>
     </div>
     <div v-if="showDjndFooter" class="checkout-stage__footer_djnd">
@@ -79,6 +79,21 @@ export default {
   computed: {
     lang() {
       return this.$store.getters.getLang;
+    },
+    terms() {
+      return this.$store.getters.getTermsOfUse;
+    },
+    termsUrl() {
+      const fallback = "https://danesjenovdan.si/pogoji";
+      return this.terms.terms_of_use || fallback;
+    },
+    termsText() {
+      const fallback = this.$t("checkoutStage.terms");
+      if (this.lang === "en") {
+        return this.terms.terms_of_use_text_en || fallback;
+      } else {
+        return this.terms.terms_of_use_text_sl || fallback;
+      }
     },
   },
   mounted() {

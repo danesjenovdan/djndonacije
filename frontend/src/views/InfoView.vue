@@ -20,17 +20,20 @@
               class="form-control form-control-lg"
             />
           </div>
-          <div v-if="hasNewsletter" class="custom-control custom-checkbox">
+          <div v-for="q in newsletterQuestions" class="custom-control custom-checkbox">
             <input
-              id="info-newsletter"
-              v-model="subscribeToNewsletter"
+              :id="`question-${q.id}`"
+              v-model="newsletterAnswers[q.id]"
               type="checkbox"
-              name="subscribeNewsletter"
+              :name="`question-${q.id}`"
               class="custom-control-input"
             />
-            <label class="custom-control-label" for="info-newsletter">{{
-              $t("infoView.newsletterLabel")
-            }}</label>
+            <label class="custom-control-label" :for="`question-${q.id}`">
+              <span>
+                {{ lang === 'en' ? q.question_en : q.question_sl }}
+                <a v-if="q.url" :href="q.url">{{ lang === 'en' ? q.url_text_en : q.url_text_sl }}</a>
+              </span>
+            </label>
           </div>
         </div>
       </template>
@@ -74,6 +77,7 @@ export default {
       campaignSlug: this.$route.params.campaignSlug,
       loading: false,
       infoSubmitting: false,
+      newsletterAnswers: {},
     };
   },
   computed: {
@@ -85,22 +89,17 @@ export default {
         this.$store.commit("setEmail", value);
       },
     },
-    subscribeToNewsletter: {
-      get() {
-        return this.$store.getters.getSubscribeToNewsletter;
-      },
-      set(value) {
-        this.$store.commit("setSubscribeToNewsletter", value);
-      },
-    },
     chosenAmount() {
       return this.$store.getters.getChosenAmount;
     },
     recurringDonation() {
       return this.$store.getters.getRecurringDonation;
     },
-    hasNewsletter() {
-      return this.$store.getters.getHasNewsletter;
+    questions() {
+      return this.$store.getters.getQuestions;
+    },
+    newsletterQuestions() {
+      return this.questions.filter((q) => q.field_type === "segment_checkbox");
     },
     canContinueToNextStage() {
       return this.infoValid && !this.loading;
@@ -148,6 +147,15 @@ export default {
   methods: {
     async continueToNextStage() {
       if (this.canContinueToNextStage) {
+        // set answers for newsletter questions
+        this.newsletterQuestions.forEach((q) => {
+          this.$store.commit(
+            "setAnswer",
+            { questionId: q.id, answer: this.newsletterAnswers[q.id] || false }
+          );
+        });
+
+        // continue to next stage
         this.$router.push({ name: "payment" });
       }
     },
