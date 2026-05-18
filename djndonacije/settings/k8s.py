@@ -139,7 +139,7 @@ WSGI_APPLICATION = "djndonacije.wsgi.application"
 
 LANGUAGES = [
     ("sl", "Slovenski"),
-    ('en', 'English'),
+    ("en", "English"),
 ]
 
 LOCALE_PATHS = (os.path.join(BASE_DIR, "../locales"),)
