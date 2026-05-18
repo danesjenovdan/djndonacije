@@ -6,6 +6,7 @@ from import_export.admin import ImportExportModelAdmin
 from djnd_supporters.models import (
     Account,
     BraintreeApi,
+    CampaignQuestion,
     DonationCampaign,
     FlikApi,
     Iban,
@@ -13,7 +14,6 @@ from djnd_supporters.models import (
     Subscriber,
     Subscription,
     Transaction,
-    CampaignQuestion,
 )
 
 
