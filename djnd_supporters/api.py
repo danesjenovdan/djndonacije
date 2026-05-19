@@ -703,7 +703,8 @@ class GenericCampaignSubscription(views.APIView):
 
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
         donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
-        donation_obj.update(payment.client_token(donation_campaign, subscriber))
+        if donation_campaign.has_braintree_subscription:
+            donation_obj.update(payment.client_token(donation_campaign, subscriber))
 
         return Response(donation_obj)
 
@@ -793,18 +794,13 @@ class GenericCampaignSubscription(views.APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            # get plan id from campaign
-            plan_id = donation_campaign.braintee_subscription_plan_id
-            if not plan_id:
-                plan_id = "djnd"
-
             braintree_gateway = payment.get_gateway_from_campaign(donation_campaign)
             # create and save subscription if success
             result = payment.create_subscription(
                 braintree_gateway,
                 nonce,
-                customer_id,
-                plan_id=plan_id,
+                subscriber,
+                donation_campaign,
                 costum_price=amount,
                 merchant_account_id=donation_campaign.braintree_merchant_account_id,
             )

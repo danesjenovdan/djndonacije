@@ -54,13 +54,52 @@ def client_token(donation_campaign, user=None):
 def create_subscription(
     gateway,
     nonce,
-    customer_id,
-    plan_id="djnd",
+    subscriber,
+    donation_campaign,
     costum_price=None,
     merchant_account_id=None,
 ):
+    # get plan id from campaign
+    plan_id = donation_campaign.braintee_subscription_plan_id
+    if not plan_id:
+        plan_id = "djnd"
+
+    customer = subscriber.braintree_customers.filter(
+        braintree_api=donation_campaign.braintree_api
+    ).first()
+    if customer:
+        customer_id = customer.customer_id
+    else:
+        # create empty user
+        result = gateway.customer.create({})
+        if result.is_success:
+            customer = BraintreeCustomer.objects.create(
+                subscriber=subscriber,
+                braintree_api=donation_campaign.braintree_api,
+                customer_id=result.customer.id,
+            )
+            customer_id = customer.customer_id
+        else:
+            print("Failed to create Braintree customer:", result.errors)
+            return result
+    # First, vault the payment method from nonce (required for subscriptions in Braintree)
+    payment_method_result = gateway.payment_method.create(
+        {
+            "customer_id": customer_id,
+            "payment_method_nonce": nonce,
+            "options": {
+                "make_default": True,
+            },
+        }
+    )
+
+    if not payment_method_result.is_success:
+        print("Failed to vault payment method:", payment_method_result.errors)
+        return payment_method_result
+
+    # Use the vaulted payment method token for subscription
     data = {
-        "payment_method_nonce": nonce,
+        "payment_method_token": payment_method_result.payment_method.token,
         "plan_id": plan_id,
     }
     if merchant_account_id:
