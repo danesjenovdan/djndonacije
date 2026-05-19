@@ -1,5 +1,7 @@
 import braintree
 
+from djnd_supporters.models import BraintreeCustomer
+
 
 def _get_environment(environment_name):
     return getattr(braintree.Environment, environment_name.capitalize())
@@ -19,7 +21,8 @@ def _build_gateway(braintree_api):
     )
 
 
-def client_token(gateway, user=None):
+def client_token(donation_campaign, user=None):
+    gateway = get_gateway_from_campaign(donation_campaign)
     if not user:
         # create empty user
         result = gateway.customer.create({})
@@ -27,15 +30,21 @@ def client_token(gateway, user=None):
             "token": gateway.client_token.generate({"customer_id": result.customer.id}),
             "customer_id": result.customer.id,
         }
-    if user.customer_id:
-        customer_id = user.customer_id
+    if user:
+        bt_customer = user.braintree_customers.filter(
+            braintree_api=donation_campaign.braintree_api
+        ).first()
+        customer_id = bt_customer.customer_id if bt_customer else None
     else:
         # create empty user
         result = gateway.customer.create({})
         if result.is_success:
-            user.customer_id = result.customer.id
-            user.save()
-            customer_id = result.customer.id
+            bt_customer = BraintreeCustomer.objects.create(
+                user=user,
+                braintree_api=donation_campaign.braintree_api,
+                customer_id=result.customer.id,
+            )
+            customer_id = bt_customer.customer_id
     return {
         "token": gateway.client_token.generate({"customer_id": customer_id}),
         "customer_id": customer_id,
