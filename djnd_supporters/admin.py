@@ -66,6 +66,7 @@ class AmountInlineAdmin(admin.TabularInline):
 
 class CampaignQuestionInlineAdmin(admin.StackedInline):
     model = CampaignQuestion
+    exclude = ("question", "url_text")
     extra = 0
 
 
@@ -87,11 +88,11 @@ class DonationCampaignAdmin(admin.ModelAdmin):
             "Novičnik",
             {
                 "fields": [
-                    "segment",
-                    "welcome_email_tempalte",
-                    "add_to_newsletter_confirmation_required",
+                    # "segment",
+                    # "welcome_email_tempalte",
+                    # "add_to_newsletter_confirmation_required",
                     "mautic_confirm_subscription_url",
-                    "edit_subscriptions_email_template",
+                    # "edit_subscriptions_email_template",
                     "mautic_manage_subscription_url",
                 ],
             },
@@ -195,6 +196,7 @@ class SubscriptionAdmin(ImportExportModelAdmin):
         "subscription_id",
         "type",
         "is_active",
+        "account",
     )
     list_filter = ("account", "amount", "campaign")
     resource_class = SubscriptionResource
