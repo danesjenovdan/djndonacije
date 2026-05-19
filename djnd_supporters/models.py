@@ -463,6 +463,22 @@ class BraintreeApi(Timestamped):
         return self.name
 
 
+class BraintreeCustomer(Timestamped):
+    subscriber = models.ForeignKey(
+        "Subscriber",
+        on_delete=models.CASCADE,
+        related_name="braintree_customers",
+    )
+    braintree_api = models.ForeignKey(
+        "BraintreeApi",
+        on_delete=models.CASCADE,
+    )
+    customer_id = models.CharField(max_length=128, verbose_name="Braintree customer id")
+
+    def __str__(self):
+        return f"{self.subscriber.name} - {self.customer_id}"
+
+
 class PredefinedAmount(Timestamped):
     donation_campaign = models.ForeignKey(
         "DonationCampaign", related_name="amounts", on_delete=models.CASCADE

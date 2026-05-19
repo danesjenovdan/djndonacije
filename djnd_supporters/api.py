@@ -441,8 +441,7 @@ class DonationCampaignBraintreeNonce(views.APIView):
                 {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
             )
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
-        braintree_gateway = payment.get_gateway_from_campaign(donation_campaign)
-        return Response(payment.client_token(braintree_gateway, None))
+        return Response(payment.client_token(donation_campaign, None))
 
 
 class GenericDonationCampaignQRCode(views.APIView):
@@ -704,8 +703,7 @@ class GenericCampaignSubscription(views.APIView):
 
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
         donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
-        braintree_gateway = payment.get_gateway_from_campaign(donation_campaign)
-        donation_obj.update(payment.client_token(braintree_gateway, subscriber))
+        donation_obj.update(payment.client_token(donation_campaign, subscriber))
 
         return Response(donation_obj)
 
