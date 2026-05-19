@@ -11,7 +11,7 @@ django-wkhtmltopdf==3.4.0
 qrcodegen==1.8.0
 Pillow
 slackclient==2.9.4
-braintree==4.38.0
+braintree==4.43.0
 requests
 coreapi
 django-import-export==4.3.10
