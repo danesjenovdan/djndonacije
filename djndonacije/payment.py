@@ -137,6 +137,7 @@ def cancel_subscription(gateway, subscription_id):
 
 def get_gateway_from_campaign(campaign):
     if braintree_credentials := campaign.braintree_api:
+        print("Gateway", braintree_credentials)
         return _build_gateway(braintree_credentials)
     raise Exception("No braintree credentials found for campaign")
 
