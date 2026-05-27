@@ -100,7 +100,7 @@ spec:
             - name: DJANGO_STATIC_ROOT
               value: '/storage/static'
             - name: DJANGO_STATIC_URL_BASE
-              value: "https://files.podpri.lb.djnd.si/static/"
+              value: "https://files.podpri.djnd.si/static/"
           resources:
             requests:
               memory: 400Mi
