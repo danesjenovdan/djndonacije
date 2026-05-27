@@ -22,3 +22,28 @@ spec:
                 name: mautic-5
                 port:
                   number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mautic-redirect
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    nginx.ingress.kubernetes.io/permanent-redirect: https://mautic.djnd.si/
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - mautic.lb.djnd.si
+      secretName: mautic-redirect-tls
+  rules:
+    - host: mautic.lb.djnd.si
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mautic-5
+                port:
+                  number: 80
