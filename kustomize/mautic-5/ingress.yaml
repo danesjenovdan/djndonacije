@@ -29,7 +29,8 @@ metadata:
   name: mautic-redirect
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-production"
-    # nginx.ingress.kubernetes.io/permanent-redirect: https://mautic.djnd.si/
+    nginx.ingress.kubernetes.io/server-snippet: |
+      return 301 https://mautic.djnd.si/$request_uri;
 spec:
   ingressClassName: nginx
   tls:
