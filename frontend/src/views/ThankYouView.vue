@@ -38,7 +38,7 @@
             <label class="custom-control-label" :for="`question-${q.id}`">
               <span>
                 {{ lang === 'en' ? q.question_en : q.question_sl }}
-                <a v-if="q.url" :href="q.url">{{ lang === 'en' ? q.url_text_en : q.url_text_sl }}</a>
+                <a v-if="q.url" :href="q.url" target="_blank">{{ lang === 'en' ? q.url_text_en : q.url_text_sl }}</a>
               </span>
             </label>
           </div>
