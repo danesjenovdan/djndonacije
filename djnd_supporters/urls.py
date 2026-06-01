@@ -43,7 +43,11 @@ urlpatterns = [
         api.DonationCampaignBraintreeNonce.as_view(),
     ),
     re_path("braintree-webhook/", api.BraintreeWebhookApiView.as_view()),
-    re_path("transaction-export/", views.braintree_export, name="transaction-export"),
+    path(
+        "transaction-export/<int:braintree_api_id>/",
+        views.braintree_export,
+        name="transaction-export",
+    ),
     re_path("flik-callback/", api.FlikCallback.as_view(), name="flik-callback"),
     path("test-upn/", views.TestUPNView.as_view()),
 ]

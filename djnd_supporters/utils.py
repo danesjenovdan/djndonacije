@@ -5,6 +5,7 @@ from django.conf import settings
 
 from djnd_supporters import models
 from djnd_supporters.mautic_api import MauticApi
+from djndonacije import payment
 from djndonacije.slack_utils import send_slack_msg
 
 mautic_api = MauticApi()
@@ -71,11 +72,11 @@ def import_emails(emails, segment):
                 mautic_api.addContactToASegment(segment, subscriber.mautic_id)
 
 
-def export_bt():
+def export_bt(braintree_api):
     to_month = datetime.today()
     from_month = datetime.today() - timedelta(days=28)
     data = []
-    gateway = settings.GATEWAY
+    gateway = payment.get_gateway_from_model(braintree_api)
     search_results = gateway.transaction.search(
         braintree.TransactionSearch.disbursement_date.between(
             datetime(day=1, month=from_month.month, year=from_month.year),
@@ -102,8 +103,8 @@ def export_bt():
             "payment_instrument_type": result.payment_instrument_type,
         }
         for status in result.status_history:
-            temp[f"{status.status}_date"]: status.timestamp.isoformat()
-            temp[f"{status.status}_amount"]: status.amount
+            temp[f"{status.status}_date"] = status.timestamp.isoformat()
+            temp[f"{status.status}_amount"] = status.amount
         data.append(temp)
 
     return data
@@ -140,8 +141,8 @@ def export_old_bt():
                 "payment_instrument_type": result.payment_instrument_type,
             }
             for status in result.status_history:
-                temp[f"{status.status}_date"]: status.timestamp.isoformat()
-                temp[f"{status.status}_amount"]: status.amount
+                temp[f"{status.status}_date"] = status.timestamp.isoformat()
+                temp[f"{status.status}_amount"] = status.amount
             data.append(temp)
         else:
             rd = models.RecurringDonation.objects.filter(
@@ -164,8 +165,8 @@ def export_old_bt():
                     "payment_instrument_type": result.payment_instrument_type,
                 }
                 for status in result.status_history:
-                    temp[f"{status.status}_date"]: status.timestamp.isoformat()
-                    temp[f"{status.status}_amount"]: status.amount
+                    temp[f"{status.status}_date"] = status.timestamp.isoformat()
+                    temp[f"{status.status}_amount"] = status.amount
                 data.append(temp)
 
     return data

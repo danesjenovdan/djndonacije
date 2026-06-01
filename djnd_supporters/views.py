@@ -94,8 +94,9 @@ def getPDForDonation(request, pk):
 
 
 @login_required
-def braintree_export(request):
-    last_month_bt_transactions = utils.export_bt()
+def braintree_export(request, braintree_api_id):
+    braintree_api = get_object_or_404(models.BraintreeApi, pk=braintree_api_id)
+    last_month_bt_transactions = utils.export_bt(braintree_api)
     response = HttpResponse(
         content_type="text/csv",
         headers={"Content-Disposition": 'attachment; filename="bt_export.csv"'},
