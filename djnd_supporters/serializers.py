@@ -87,4 +87,4 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Subscription
-        fields = ["id", "subscription_id", "campaign", "amount", "created"]
+        fields = ["id", "subscription_id", "campaign", "amount", "type", "created"]
