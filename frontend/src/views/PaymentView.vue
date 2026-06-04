@@ -73,7 +73,7 @@
             key="next-payment"
             :disabled="!canContinueToNextStage"
             :loading="paymentInProgress"
-            :text="$t('paymentView.donate')"
+            :text="confirmButtonText"
             arrow
             hearts
             @click="continueToNextStage"
@@ -128,6 +128,7 @@ export default {
       paymentInfoValid: false,
       paymentInProgress: false,
       payFunction: undefined,
+      confirmButtonText: this.$t("paymentView.donate"),
     };
   },
   computed: {
@@ -183,31 +184,37 @@ export default {
       this.checkoutLoading = false;
       this.paymentInfoValid = true;
       this.payFunction = submit;
+      this.confirmButtonText = this.$t("infoView.next");
     },
     onCaptchaDone() {
       this.checkoutLoading = true;
       this.paymentInfoValid = false;
       this.payFunction = undefined;
+      this.confirmButtonText = this.$t("paymentView.donate");
     },
     onPaymentReady({ pay } = {}) {
       this.checkoutLoading = false;
       this.paymentInfoValid = false;
       this.payFunction = pay;
+      this.confirmButtonText = this.$t("paymentView.donate");
     },
     onUPNPaymentReady({ pay } = {}) {
       this.checkoutLoading = false;
       this.paymentInfoValid = true;
       this.payFunction = pay;
+      this.confirmButtonText = this.$t("paymentView.donate");
     },
     onFlikPaymentReady({ pay } = {}) {
       this.checkoutLoading = false;
       this.paymentInfoValid = !this.recurringDonation;
       this.payFunction = pay;
+      this.confirmButtonText = this.$t("paymentView.donate");
     },
     onPaymentChange(payment) {
       this.checkoutLoading = true;
       this.paymentInfoValid = false;
       this.payment = payment;
+      this.confirmButtonText = this.$t("paymentView.donate");
     },
     async paymentSuccess({ nonce, phoneNumber } = {}) {
       this.paymentInProgress = true;
