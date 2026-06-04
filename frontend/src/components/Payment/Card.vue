@@ -185,10 +185,17 @@ export default {
             checkoutResponse.data.customer_id,
           );
         })
-        .catch(() => {
-          captchaApi.reload();
-          this.$emit("captcha-ready", { submit: this.submitCaptcha });
-          this.robotError = true;
+        .catch((error) => {
+          const code = error.status || 500;
+          const msg = error?.response?.data?.status || "";
+          if (code === 403 && msg.toLowerCase().includes("captcha")) {
+            captchaApi.reload();
+            this.$emit("captcha-ready", { submit: this.submitCaptcha });
+            this.robotError = true;
+          } else {
+            this.error = error;
+            this.$emit("error", { error });
+          }
         });
     },
     submitCaptchaRecurring() {
@@ -212,10 +219,19 @@ export default {
             checkoutResponse.data.customer_id,
           );
         })
-        .catch(() => {
-          captchaApi.reload();
-          this.$emit("captcha-ready", { submit: this.submitCaptchaRecurring });
-          this.robotError = true;
+        .catch((error) => {
+          const code = error.status || 500;
+          const msg = error?.response?.data?.status || "";
+          if (code === 403 && msg.toLowerCase().includes("captcha")) {
+            captchaApi.reload();
+            this.$emit("captcha-ready", {
+              submit: this.submitCaptchaRecurring,
+            });
+            this.robotError = true;
+          } else {
+            this.error = error;
+            this.$emit("error", { error });
+          }
         });
     },
     async initBraintree() {
