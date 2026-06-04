@@ -1200,11 +1200,11 @@ class FlikCallback(views.APIView):
             elif flik_payment.payment_method == "flik-subscription":
                 subscription.is_active = False
                 subscription.save()
-                if flik_result_response.code == "2002":  # Customer Cancelled
+                if int(flik_result_response.code) == 2002:  # Customer Cancelled
                     email_template_id = (
                         subscription.campaign.flik_subscription_cancelled_email_template
                     )
-                elif flik_result_response.code == "2012":  # Payment timed out
+                elif int(flik_result_response.code) == 2012:  # Payment timed out
                     email_template_id = (
                         subscription.campaign.flik_subscription_timeout_email_template
                     )
