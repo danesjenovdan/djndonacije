@@ -265,6 +265,20 @@ const store = createStore({
       url += `&email=${encodeURIComponent(payload.email)}`;
       return axios.get(url);
     },
+    async sendDonationsEditLink(context, payload) {
+      const url = `${api}/api/send-edit-email/subscriptions/`;
+      return axios.post(url, {
+        email: payload.email,
+        captcha: payload.captcha,
+      });
+    },
+    async sendNewslettersEditLink(context, payload) {
+      const url = `${api}/api/send-edit-email/newsletters/`;
+      return axios.post(url, {
+        email: payload.email,
+        captcha: payload.captcha,
+      });
+    },
     async onPaymentSuccess(context, payload) {
       const paymentURL = context.getters.getRecurringDonation
         ? `${api}/api/generic-donation/subscription/${payload.campaignSlug}/`

@@ -18,6 +18,15 @@ const router = createRouter({
         title: "Urejanje donacij",
       },
     },
+    // urejanje novičnikov
+    {
+      path: "/urejanje-narocnin",
+      name: "manageNewsletters",
+      component: () => import("../views/ManageNewslettersView.vue"),
+      meta: {
+        title: "Urejanje naročnin",
+      },
+    },
     // donacije posamezne kampanje
     {
       path: "/:campaignSlug/doniraj",
