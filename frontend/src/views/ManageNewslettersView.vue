@@ -2,18 +2,14 @@
   <div class="checkout">
     <div v-if="success" class="alert alert-success text-center">
       <p class="my-3">
-        {{
-          $t("manageDonationsView.cancelDonation", {
-            don: last_cancelled_campaign,
-          })
-        }}
+        {{ $t("manageNewsletterView.unsubscribeSuccessful") }}
       </p>
     </div>
     <div v-if="error" class="fixed-top alert alert-danger text-center">
       <!-- eslint-disable vue/no-v-html -->
       <p
         class="my-3"
-        v-html="$t('manageDonationsView.cancelDonationError')"
+        v-html="$t('manageNewsletterView.cancelSubscriptionError')"
       ></p>
       <!-- eslint-enable vue/no-v-html -->
     </div>
@@ -22,14 +18,14 @@
         <div class="row">
           <div class="col-md-10 offset-md-1">
             <h1 class="text-center">
-              {{ $t("manageDonationsView.cancelMyDonation") }}
+              {{ $t("manageNewsletterView.unsubscribeNewsletters") }}
             </h1>
           </div>
         </div>
         <div class="row my-4 email-form">
           <div class="col-md-6 offset-md-3">
             <p class="m-0 text-center">
-              {{ $t("manageDonationsView.enterEmail") }}
+              {{ $t("manageNewsletterView.enterEmail") }}
             </p>
             <div class="form-group">
               <input
@@ -73,46 +69,33 @@
       <template #content v-else>
         <div class="row">
           <div class="col-md-10 offset-md-1">
-            <h1>{{ $t("manageDonationsView.cancelMyDonation") }}</h1>
+            <h1>{{ $t("manageNewsletterView.unsubscribeNewsletters") }}</h1>
           </div>
         </div>
         <div
-          v-for="donationCampaign in campaign_subscriptions"
-          :key="donationCampaign.id"
+          v-for="newsletter in campaign_subscriptions"
+          :key="newsletter.id"
           class="row my-4"
         >
           <div class="col-md-5 offset-md-1">
             <div class="donation-name">
-              {{ donationCampaign.campaign.name }}
-            </div>
-            <div class="donation-amount">
-              {{
-                $t("infoView.monthlyDonationWithAmount", {
-                  amount: Number.parseFloat(donationCampaign.amount),
-                })
-              }}
+              {{ newsletter.name }}
             </div>
             <div class="donation-created-date">
               {{
                 $t("manageDonationsView.donationCreatedOn", {
-                  date: formatDate(donationCampaign.created),
+                  date: formatDate(newsletter.dateAdded),
                 })
               }}
-              <span>({{ formatType(donationCampaign.type) }})</span>
             </div>
           </div>
           <div class="col-md-5">
             <more-button
               :disabled="loading"
-              :text="$t('manageDonationsView.confirmCancellation')"
+              :text="$t('manageNewsletterView.confirmUnsubscribe')"
               class="my-2"
               color="secondary"
-              @click="
-                cancelDonation(
-                  donationCampaign.campaign.name,
-                  donationCampaign.subscription_id,
-                )
-              "
+              @click="cancelSubscription(newsletter.name, newsletter.id)"
             />
           </div>
         </div>
@@ -122,7 +105,7 @@
         >
           <div class="col-md-8">
             <p class="m-0 text-center">
-              {{ $t("manageDonationsView.noActiveDonation") }}
+              {{ $t("manageNewsletterView.noActiveSubscription") }}
             </p>
           </div>
         </div>
@@ -174,10 +157,10 @@ export default {
 
     // get subscriptions list
     this.$store
-      .dispatch("getUserDonations")
+      .dispatch("getUserNewsletterSubscriptions", {})
       .then((response) => {
         if (response.status === 200) {
-          this.campaign_subscriptions = response.data;
+          this.campaign_subscriptions = response.data.segments;
         } else {
           // catch error
           // eslint-disable-next-line no-console
@@ -198,17 +181,17 @@ export default {
       });
   },
   methods: {
-    async cancelDonation(campaignName, subscriptionId) {
+    async cancelSubscription(campaignName, subscriptionId) {
       this.loading = true;
 
       this.$store
-        .dispatch("cancelDonationSubscription", {
-          subscription_id: subscriptionId,
+        .dispatch("cancelNewsletterSubscription", {
+          segment_id: subscriptionId,
         })
         .then((response) => {
           if (response.status === 200) {
             this.campaign_subscriptions = this.campaign_subscriptions.filter(
-              (campaign) => campaign.subscription_id != subscriptionId,
+              (campaign) => campaign.id != subscriptionId,
             );
             this.success = true;
             this.last_cancelled_campaign = campaignName;
@@ -270,7 +253,7 @@ export default {
       }
 
       this.$store
-        .dispatch("sendDonationsEditLink", {
+        .dispatch("sendNewslettersEditLink", {
           email: this.linkEmail,
           captcha: captchaApi.value(),
         })
@@ -282,7 +265,8 @@ export default {
         })
         .catch((error) => {
           const code = error.status || 500;
-          const msg = error?.response?.data?.status || "";
+          const msg =
+            error?.response?.data?.status || error?.response?.data?.msg || "";
           if (code === 403 && msg.toLowerCase().includes("captcha")) {
             captchaApi.reload();
             this.loading = false;
