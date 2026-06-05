@@ -18,6 +18,7 @@ urlpatterns = [
     path("donations-stats/", api.DonationsStats.as_view()),
     path("send-agrument-mail/", api.AgrumentMailApiView.as_view()),
     path("send-email/", api.SendEmailApiView.as_view()),
+    path("send-edit-email/<edit_type>/", api.SendEditEmail.as_view()),
     path("create-and-send-custom-email/", api.CreateAndSendMailApiView.as_view()),
     path("subscriptions/my/", api.UserSubscriptions.as_view()),
     path("delete-all-user-data/", api.DeleteAllUserData.as_view()),

@@ -1124,6 +1124,61 @@ class SendEmailApiView(GetOrAddSubscriber):
         return Response({"msg": "mail sent"})
 
 
+class SendEditEmail(views.APIView):
+    """
+    POST json data:
+     - email
+     - captcha
+    """
+
+    def get_subscriber_id(self, email):
+        response, response_status = mautic_api.getContactByEmail(email)
+        if response_status != 200:
+            return None
+        if "contacts" not in response:
+            return None
+        contacts = response["contacts"]
+        if not contacts or type(contacts) != dict:
+            return None
+        keys = list(contacts.keys())
+        if len(keys) == 0:
+            return None
+        return keys[0]
+
+    def post(self, request, edit_type):
+        email_template_ids = {
+            "newsletters": 976,
+            "subscriptions": 977,
+        }
+        email_template_id = email_template_ids.get(edit_type, None)
+        if not email_template_id:
+            return Response(
+                {"msg": "Invalid edit type"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # check captcha
+        captcha_validated = validate_captcha(request.data.get("captcha", ""))
+        if not captcha_validated:
+            return Response(
+                {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
+            )
+
+        email = request.data.get("email", None)
+        if not email or type(email) != str or "@" not in email:
+            return Response(
+                {"msg": "Invalid email"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        mautic_id = self.get_subscriber_id(email)
+        if not mautic_id:
+            return Response(
+                {"msg": "Unknown email"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        mautic_api.sendEmail(email_template_id, mautic_id, {})
+        return Response({"msg": "mail sent"})
+
+
 class CreateAndSendMailApiView(views.APIView):
     def post(self, request):
         data = request.data
