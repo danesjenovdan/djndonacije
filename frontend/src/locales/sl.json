@@ -66,9 +66,13 @@
     "manageDonationsView": {
         "cancelDonation": "Mesečna donacija za {don} je uspešno prekinjena.",
         "cancelDonationError": "Zgodila se je napaka. Tvoja mesečna donacija je še vedno aktivna.<br />Piši nam na <a href='mailto:vsi@danesjenovdan.si'>vsi@danesjenovdan.si</a> in bomo takoj razrešili težavo.",
-        "cancelMyDonation": "Odjavi me od donacij:",
+        "cancelMyDonation": "Odjavi me od donacij",
         "confirmCancellation": "Da, potrjujem preklic.",
-        "noActiveDonation": "Trenutno nimaš aktivne nobene mesečne donacije."
+        "noActiveDonation": "Trenutno nimaš aktivne nobene mesečne donacije.",
+        "donationCreatedOn": "Ustvarjena: {date}",
+        "enterEmail": "Vnesi e-naslov s katerim si se prijavil_a na mesečne donacije, da ti lahko pošljemo povezavo za urejanje.",
+        "sendLink": "Pošlji povezavo!",
+        "emailSent": "Povezava je poslana!"
     },
     "thankYouView": {
         "title": "HVALA ZA DONACIJO!",

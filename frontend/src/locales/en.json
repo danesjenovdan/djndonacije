@@ -66,9 +66,13 @@
   "manageDonationsView": {
     "cancelDonation": "The monthly donation for {don} has been successfully canceled.",
     "cancelDonationError": "An error occurred. Your monthly donation is still active.<br />Write to us at <a href=\"mailto{'@'}danesjenovdan.si\">vsi{'@'}danesjenovdan.si</a> and we will resolve the issue immediately.",
-    "cancelMyDonation": "Unsubscribe me from donations:",
+    "cancelMyDonation": "Unsubscribe me from donations",
     "confirmCancellation": "Yes, I confirm the cancellation.",
-    "noActiveDonation": "You currently don't have any active monthly donations."
+    "noActiveDonation": "You currently don't have any active monthly donations.",
+    "donationCreatedOn": "Created: {date}",
+    "enterEmail": "Enter the email address you used to sign up for monthly donations so we can send you a link to manage them.",
+    "sendLink": "Send link!",
+    "emailSent": "The link has been sent!"
   },
   "thankYouView": {
     "title": "THANK YOU FOR YOUR DONATION!",

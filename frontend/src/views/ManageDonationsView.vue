@@ -9,7 +9,7 @@
         }}
       </p>
     </div>
-    <div v-if="error" class="alert alert-danger text-center">
+    <div v-if="error" class="fixed-top alert alert-danger text-center">
       <!-- eslint-disable vue/no-v-html -->
       <p
         class="my-3"
@@ -18,19 +18,90 @@
       <!-- eslint-enable vue/no-v-html -->
     </div>
     <checkout-stage no-header show-djnd-footer>
-      <template #content>
+      <template #content v-if="showInputForm">
+        <div class="row">
+          <div class="col-md-10 offset-md-1">
+            <h1 class="text-center">
+              {{ $t("manageDonationsView.cancelMyDonation") }}
+            </h1>
+          </div>
+        </div>
+        <div class="row my-4 email-form">
+          <div class="col-md-6 offset-md-3">
+            <p class="m-0 text-center">
+              {{ $t("manageDonationsView.enterEmail") }}
+            </p>
+            <div class="form-group">
+              <input
+                v-model="linkEmail"
+                type="email"
+                class="form-control my-3"
+                :placeholder="$t('infoView.email')"
+                :disabled="loading || linkSent"
+              />
+            </div>
+            <div class="form-group">
+              <div class="captcha-container">
+                <div v-if="robotError" class="alert alert-danger py-2 my-2">
+                  {{ $t("infoView.wrongAnswer") }}
+                </div>
+                <div ref="captcha"></div>
+              </div>
+              <p v-if="!linkSent" class="bots-text">
+                {{ $t("infoView.bots") }}
+              </p>
+            </div>
+            <div v-if="linkSent" class="link-sent-message">
+              <p class="my-3">
+                {{ $t("manageDonationsView.emailSent") }}
+              </p>
+            </div>
+            <div v-if="!linkSent" class="form-group text-center">
+              <more-button
+                :disabled="loading || invalidEmail(linkEmail) || linkSent"
+                :text="$t('manageDonationsView.sendLink')"
+                color="primary"
+                @click="sendCancellationLink"
+              />
+            </div>
+          </div>
+        </div>
+        <div v-if="loading" class="payment-loader">
+          <div class="lds-dual-ring" />
+        </div>
+      </template>
+      <template #content v-else>
+        <div class="row">
+          <div class="col-md-10 offset-md-1">
+            <h1>{{ $t("manageDonationsView.cancelMyDonation") }}</h1>
+          </div>
+        </div>
         <div
           v-for="donationCampaign in campaign_subscriptions"
           :key="donationCampaign.id"
-          class="row justify-content-center my-4"
+          class="row my-4"
         >
-          <div class="col-md-4">
-            <p class="m-0">
-              {{ $t("manageDonationsView.cancelMyDonation") }}
-              <strong>{{ donationCampaign.campaign.name }}</strong>
-            </p>
+          <div class="col-md-5 offset-md-1">
+            <div class="donation-name">
+              {{ donationCampaign.campaign.name }}
+            </div>
+            <div class="donation-amount">
+              {{
+                $t("infoView.monthlyDonationWithAmount", {
+                  amount: Number.parseFloat(donationCampaign.amount),
+                })
+              }}
+            </div>
+            <div class="donation-created-date">
+              {{
+                $t("manageDonationsView.donationCreatedOn", {
+                  date: formatDate(donationCampaign.created),
+                })
+              }}
+              <span>({{ formatType(donationCampaign.type) }})</span>
+            </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-5">
             <more-button
               :disabled="loading"
               :text="$t('manageDonationsView.confirmCancellation')"
@@ -74,6 +145,9 @@ export default {
   },
   data() {
     return {
+      showInputForm: false,
+      linkEmail: "",
+      linkSent: false,
       campaign_subscriptions: [],
       loading: true,
       last_cancelled_campaign: null,
@@ -85,7 +159,11 @@ export default {
   async mounted() {
     const { email, token } = this.$route.query;
     if (!email || !token) {
-      this.$router.push("/404");
+      this.showInputForm = true;
+      this.loading = false;
+      this.$nextTick(() => {
+        this.loadCaptcha();
+      });
       return;
     }
 
@@ -152,6 +230,72 @@ export default {
           this.loading = false;
         });
     },
+    loadCaptcha() {
+      if (this.$refs.captcha && !document.querySelector("#vajbcha")) {
+        const s = document.createElement("script");
+        s.dataset.inputName = "captcha";
+        s.dataset.locale = this.lang;
+        s.src = "https://vajbcha.danesjenovdan.si/js/vajbcha.js";
+        this.$refs.captcha.appendChild(s);
+      }
+    },
+    formatDate(dateString) {
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      return new Date(dateString).toLocaleDateString("sl-SI", options);
+    },
+    formatType(type) {
+      if (type.includes("braintree")) {
+        return this.$t("payment.card");
+      }
+      if (type.includes("flik")) {
+        return this.$t("payment.flik");
+      }
+      return type;
+    },
+    invalidEmail(email) {
+      if (!email) return true;
+      if (!email.includes("@")) return true;
+      return false;
+    },
+    sendCancellationLink() {
+      this.loading = true;
+      this.robotError = false;
+
+      const captchaApi = window.vajbcha.captcha;
+      if (!captchaApi) {
+        this.loading = false;
+        this.robotError = true;
+        return;
+      }
+
+      this.$store
+        .dispatch("sendDonationsEditLink", {
+          email: this.linkEmail,
+          captcha: captchaApi.value(),
+        })
+        .then((response) => {
+          captchaApi.remove();
+          this.loading = false;
+          this.robotError = false;
+          this.linkSent = true;
+        })
+        .catch((error) => {
+          const code = error.status || 500;
+          const msg = error?.response?.data?.status || "";
+          if (code === 403 && msg.toLowerCase().includes("captcha")) {
+            captchaApi.reload();
+            this.loading = false;
+            this.robotError = true;
+            this.linkSent = false;
+          } else {
+            // catch error
+            this.success = false;
+            this.error = true;
+            // eslint-disable-next-line no-console
+            console.log("Error", error);
+          }
+        });
+    },
   },
 };
 </script>
@@ -160,20 +304,66 @@ export default {
 @import "@/assets/main.scss";
 
 .checkout-stage {
-  p {
-    font-size: 20px;
-    color: #333333;
-    font-weight: 200;
-    width: 100%;
-    max-width: 872px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    padding-left: 30px;
-    padding-right: 30px;
+  h1 {
+    font-size: 2rem;
+  }
 
-    @include media-breakpoint-up(md) {
-      font-size: 30px;
-      padding: 0;
+  .donation-name {
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+
+  .donation-amount,
+  .donation-created-date {
+    font-size: 1rem;
+    font-weight: 300;
+  }
+
+  .email-form {
+    p {
+      font-size: 1.2rem;
+      font-weight: 300;
+    }
+
+    input {
+      max-width: 350px;
+      margin-inline: auto;
+      font-size: 1.2rem;
+
+      &:disabled {
+        background-color: #e9ecef;
+        cursor: default;
+      }
+    }
+
+    .bots-text {
+      max-width: 360px;
+      margin: 0 auto;
+      padding-top: 1rem;
+      font-size: 1rem;
+      font-weight: 300;
+      text-align: center;
+    }
+
+    .captcha-container {
+      .alert {
+        max-width: 360px;
+        margin-inline: auto;
+      }
+
+      :deep(#vajbcha) {
+        iframe {
+          margin-inline: auto;
+        }
+      }
+    }
+
+    .link-sent-message {
+      p {
+        font-size: 1.2rem;
+        font-weight: 500;
+        text-align: center;
+      }
     }
   }
 }
