@@ -6,6 +6,14 @@ from djnd_supporters.mautic_api import MauticApi
 mautic_api = MauticApi()
 
 
+def normalize_phone_number(phone_number):
+    phone_number = phone_number.replace(" ", "")
+    if phone_number[0] == "0" and len(phone_number) == 9:
+        phone_number = "00386" + phone_number[1:]
+    elif phone_number.startswith("+"):
+        phone_number = phone_number.replace("+", "00")
+    return phone_number
+
 def create_flik_request(subscription):
     donation_campaign = subscription.campaign
     flik_api = donation_campaign.flik_api
@@ -26,8 +34,7 @@ def create_flik_request(subscription):
     )
     donation.save()
     ip, phone_number = subscription.token.split("|")
-    if phone_number[0] == "0" and len(phone_number) == 9:
-        phone_number = "00386" + phone_number[1:]
+    phone_number = normalize_phone_number(phone_number)
     flik_response = flik.initialize_payment(
         transaction_id=donation.id,
         amount="{:.2f}".format(subscription.amount),
