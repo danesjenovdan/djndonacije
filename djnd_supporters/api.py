@@ -14,7 +14,7 @@ from sentry_sdk import capture_exception, capture_message
 
 from djnd_supporters import authentication, flik, models, serializers, utils
 from djnd_supporters.captcha import validate_captcha
-from djnd_supporters.flik_utils import create_flik_request
+from djnd_supporters.flik_utils import create_flik_request, normalize_phone_number
 from djnd_supporters.mautic_api import MauticApi
 from djnd_supporters.views import getPDForDonation
 from djndonacije import payment
@@ -590,6 +590,8 @@ class GenericDonationCampaign(views.APIView):
                 is_paid=False,
             )
             donation.save()
+            if phone_number:
+                phone_number = normalize_phone_number(phone_number)
             flik_response = flik.initialize_payment(
                 transaction_id=donation.id,
                 amount="{:.2f}".format(amount),

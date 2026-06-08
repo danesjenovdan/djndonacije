@@ -42,6 +42,7 @@ class TransactionInline(admin.TabularInline):
     # fields = ['created', 'email_content']
     model = Transaction
     extra = 0
+    autocomplete_fields = ["campaign", "account", "subscription"]
 
 
 class SubscriptionInline(admin.TabularInline):
@@ -50,6 +51,7 @@ class SubscriptionInline(admin.TabularInline):
     # search_fields = ['subscriber__token']
     model = Subscription
     extra = 0
+    autocomplete_fields = ["campaign", "account"]
 
 
 class SubscriberAdmin(ImportExportModelAdmin):
