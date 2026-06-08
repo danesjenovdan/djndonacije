@@ -110,6 +110,7 @@ class Transaction(Timestamped):
         null=True,
         blank=True,
     )
+    referrer = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return (
@@ -153,6 +154,7 @@ class Subscription(Timestamped):
         related_name="subscriptions",
     )
     is_active = models.BooleanField(default=False)
+    referrer = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return (
