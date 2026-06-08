@@ -52,11 +52,12 @@ def create_flik_request(subscription):
     if flik_response.success:
         donation.reference = flik_response.purchase_id
         donation.save()
-
-    if email_template_id := donation_campaign.flik_subscription_request_email_template:
-        mautic_api.sendEmail(email_template_id, subscription.subscriber.mautic_id, {})
-
-    if flik_response.success:
+        if (
+            email_template_id := donation_campaign.flik_subscription_request_email_template
+        ):
+            mautic_api.sendEmail(
+                email_template_id, subscription.subscriber.mautic_id, {}
+            )
         return True
     else:
         raise Exception("Failed to initialize flik payment")
