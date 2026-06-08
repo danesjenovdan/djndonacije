@@ -906,6 +906,7 @@ class CancelSubscription(views.APIView):
         token = data.get("token", None)
         customer_id = data.get("customer_id", None)
         subscription_id = data.get("subscription_id", None)
+        subscription_model_id = data.get("id", None)
 
         if token:
             subscriber = get_object_or_404(models.Subscriber, token=token)
@@ -916,13 +917,26 @@ class CancelSubscription(views.APIView):
                 {"msg": "You need to post customer_id or token of user."}, status=409
             )
 
-        subscription = get_object_or_404(
-            models.Subscription, subscription_id=subscription_id
-        )
-        braintree_gateway = payment.get_gateway_from_campaign(subscription.campaign)
-        if subscription.subscriber == subscriber:
-            result = payment.cancel_subscription(braintree_gateway, subscription_id)
-            print(vars(result))
+        if subscription_model_id:
+            subscription = get_object_or_404(
+                models.Subscription, pk=subscription_model_id
+            )
+        else:
+            subscription = get_object_or_404(
+                models.Subscription, subscription_id=subscription_id
+            )
+
+        if subscription.subscriber != subscriber:
+            return Response(
+                {"msg": "You dont have permissions for cancel subscription"}, status=403
+            )
+
+        if "braintree" in subscription.type:
+            braintree_gateway = payment.get_gateway_from_campaign(subscription.campaign)
+            result = payment.cancel_subscription(
+                braintree_gateway, subscription.subscription_id
+            )
+            # print(vars(result))
             if result.is_success:
                 # subscription.subscription_id = None
                 subscription.is_active = False
@@ -930,10 +944,12 @@ class CancelSubscription(views.APIView):
                 return Response({"msg": "subscription canceled"})
             else:
                 return Response({"msg": result.message})
+        elif "flik" in subscription.type:
+            subscription.is_active = False
+            subscription.save()
+            return Response({"msg": "subscription canceled"})
         else:
-            return Response(
-                {"msg": "You dont have permissions for cancel subscription"}, status=403
-            )
+            return Response({"msg": "Unknown subscription type"}, status=400)
 
 
 class BraintreeWebhookApiView(views.APIView):
