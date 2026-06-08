@@ -110,7 +110,7 @@
               @click="
                 cancelDonation(
                   donationCampaign.campaign.name,
-                  donationCampaign.subscription_id,
+                  donationCampaign.id,
                 )
               "
             />
@@ -198,17 +198,17 @@ export default {
       });
   },
   methods: {
-    async cancelDonation(campaignName, subscriptionId) {
+    async cancelDonation(campaignName, id) {
       this.loading = true;
 
       this.$store
         .dispatch("cancelDonationSubscription", {
-          subscription_id: subscriptionId,
+          id: id,
         })
         .then((response) => {
           if (response.status === 200) {
             this.campaign_subscriptions = this.campaign_subscriptions.filter(
-              (campaign) => campaign.subscription_id != subscriptionId,
+              (campaign) => campaign.id != id,
             );
             this.success = true;
             this.last_cancelled_campaign = campaignName;

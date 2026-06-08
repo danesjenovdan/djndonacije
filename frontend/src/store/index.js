@@ -350,7 +350,7 @@ const store = createStore({
       try {
         const response = await axios.post(url, {
           token: encodeURIComponent(context.getters.getToken),
-          subscription_id: encodeURIComponent(payload.subscription_id),
+          id: encodeURIComponent(payload.id),
         });
         return response;
       } catch (err) {
