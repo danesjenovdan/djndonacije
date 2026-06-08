@@ -39,6 +39,7 @@ const store = createStore({
         answers: {},
       },
       lang: "sl",
+      referrerInfo: "",
     };
   },
   getters: {
@@ -108,6 +109,9 @@ const store = createStore({
     },
     getLang(state) {
       return state.lang;
+    },
+    getReferrerInfo(state) {
+      return state.referrerInfo;
     },
   },
   mutations: {
@@ -205,6 +209,9 @@ const store = createStore({
     setLang(state, newLang) {
       state.lang = newLang;
     },
+    setReferrerInfo(state, referrerInfo) {
+      state.referrerInfo = referrerInfo;
+    },
   },
   actions: {
     async getCampaignData(context, payload) {
@@ -297,6 +304,7 @@ const store = createStore({
         customer_id: context.getters.getCustomerId,
         amount: context.getters.getChosenAmount,
         email: context.getters.getEmail,
+        referrer: context.getters.getReferrerInfo,
         answers,
       });
     },
@@ -313,6 +321,7 @@ const store = createStore({
         campaign_id: payload.campaignSlug,
         transaction_id: payload.transactionId,
         email: payload.email,
+        referrer: context.getters.getReferrerInfo,
         answers,
       });
     },

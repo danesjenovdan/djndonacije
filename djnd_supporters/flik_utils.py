@@ -32,6 +32,7 @@ def create_flik_request(subscription):
         subscription=subscription,
         payment_method="flik-subscription",
         is_paid=False,
+        referrer=subscription.referrer,
     )
     donation.save()
     ip, phone_number = subscription.token.split("|")

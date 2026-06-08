@@ -515,6 +515,7 @@ class GenericDonationCampaign(views.APIView):
         name = data.get("name", "")
         phone_number = data.get("phone_number", None)
         payment_type = data.get("payment_type", "braintree")
+        referrer = data.get("referrer", "")
 
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
 
@@ -558,6 +559,7 @@ class GenericDonationCampaign(views.APIView):
                     transaction_id=transaction_id,
                     payment_method=payment_method,
                     account=donation_campaign.braintree_api.account,
+                    referrer=referrer,
                 )
                 donation.save()
 
@@ -588,6 +590,7 @@ class GenericDonationCampaign(views.APIView):
                 account=flik_api.account,
                 payment_method=payment_type,
                 is_paid=False,
+                referrer=referrer,
             )
             donation.save()
             if phone_number:
@@ -721,6 +724,7 @@ class GenericCampaignSubscription(views.APIView):
         customer_id = data.get("customer_id", "")
         token = data.get("token", None)
         payment_type = data.get("payment_type", "braintree")
+        referrer = data.get("referrer", "")
 
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
 
@@ -770,7 +774,7 @@ class GenericCampaignSubscription(views.APIView):
                     customer_id=customer_id
                 )
                 subscriber.name = name
-                subscriber.name = address
+                subscriber.address = address
             else:
                 subscriber = models.Subscriber.objects.create(
                     name=name, address=address
@@ -817,6 +821,7 @@ class GenericCampaignSubscription(views.APIView):
                     account=donation_campaign.braintree_api.account,
                     type="braintree-subscription",
                     is_active=True,
+                    referrer=referrer,
                 )
                 donation.save()
                 if donation_campaign.bt_subscription_email_template:
@@ -859,6 +864,7 @@ class GenericCampaignSubscription(views.APIView):
                 account=donation_campaign.flik_api.account,
                 is_active=True,
                 type=payment_type,
+                referrer=referrer,
             )
             subscription.save()
             try:
@@ -1014,6 +1020,7 @@ class BraintreeWebhookApiView(views.APIView):
                         payment_method="braintree-subscription",
                         subscription=subscription,
                         is_paid=True,
+                        referrer=subscription.referrer,
                     )
                     new_transaction.save()
                     if subscription.campaign.subscription_charged_successfully:
@@ -1077,6 +1084,7 @@ class BraintreeWebhookApiView(views.APIView):
                         payment_method="braintree-subscription",
                         is_paid=False,
                         account=subscription.account,
+                        referrer=subscription.referrer,
                     )
 
             elif event == braintree.WebhookNotification.Kind.SubscriptionCanceled:
