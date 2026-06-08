@@ -14,6 +14,7 @@ def normalize_phone_number(phone_number):
         phone_number = phone_number.replace("+", "00")
     return phone_number
 
+
 def create_flik_request(subscription):
     donation_campaign = subscription.campaign
     flik_api = donation_campaign.flik_api
