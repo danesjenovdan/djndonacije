@@ -861,7 +861,13 @@ class GenericCampaignSubscription(views.APIView):
                 type=payment_type,
             )
             subscription.save()
-            create_flik_request(subscription)
+            try:
+                create_flik_request(subscription)
+            except Exception as e:
+                subscription.is_active = False
+                subscription.save()
+                capture_exception(e)
+                return Response({"msg": "Payment data not created"}, status=400)
 
         # send slack msg
         try:
