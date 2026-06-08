@@ -1012,6 +1012,8 @@ class BraintreeWebhookApiView(views.APIView):
                         transaction_id=transaction_id,
                         account=subscription.account,
                         payment_method="braintree-subscription",
+                        subscription=subscription,
+                        is_paid=True,
                     )
                     new_transaction.save()
                     if subscription.campaign.subscription_charged_successfully:
