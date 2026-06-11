@@ -40,11 +40,6 @@ class QuestionSerializer(serializers.ModelSerializer):
     def get_url(self, obj):
         if obj.link:
             return obj.link
-        elif obj.file:
-            if settings.ENABLE_S3:
-                return obj.file.url
-            else:
-                return self.context.get("request").build_absolute_uri(obj.file.url)
         return None
 
 
