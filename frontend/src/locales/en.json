@@ -32,7 +32,8 @@
     "expiryDate": "Expiry date",
     "amountToPay": "Payment amount",
     "donate": "DONATE",
-    "back": "Back"
+    "back": "Back",
+    "donatedUpn": "I donated"
   },
   "checkoutStage": {
     "terms": "Terms of service",

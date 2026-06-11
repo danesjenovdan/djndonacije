@@ -68,7 +68,7 @@
         </div>
       </template>
       <template #footer>
-        <div v-if="payment !== 'upn'" class="confirm-button-container">
+        <div class="confirm-button-container">
           <confirm-button
             key="next-payment"
             :disabled="!canContinueToNextStage"
@@ -202,7 +202,7 @@ export default {
       this.checkoutLoading = false;
       this.paymentInfoValid = true;
       this.payFunction = pay;
-      this.confirmButtonText = this.$t("paymentView.donate");
+      this.confirmButtonText = this.$t("paymentView.donatedUpn");
     },
     onFlikPaymentReady({ pay } = {}) {
       this.checkoutLoading = false;
@@ -220,6 +220,15 @@ export default {
       this.paymentInProgress = true;
       this.nonce = nonce;
       this.phoneNumber = phoneNumber;
+
+      if (this.payment === "upn") {
+        const options = { name: "thankYou", query: { upn: true } };
+        if (this.lang) {
+          options.params = { lang: this.lang };
+        }
+        this.$router.push(options);
+        return;
+      }
 
       this.$store
         .dispatch("onPaymentSuccess", {

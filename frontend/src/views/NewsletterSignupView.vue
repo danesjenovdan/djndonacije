@@ -15,7 +15,10 @@
                   class="form-control form-control-lg"
                 />
               </div>
-              <div v-for="q in newsletterQuestions" class="custom-control custom-checkbox">
+              <div
+                v-for="q in newsletterQuestions"
+                class="custom-control custom-checkbox"
+              >
                 <input
                   :id="`question-${q.id}`"
                   v-model="newsletterAnswers[q.id]"
@@ -24,10 +27,30 @@
                   class="custom-control-input"
                 />
                 <label class="custom-control-label" :for="`question-${q.id}`">
-                  <span>
-                    {{ lang === 'en' ? q.question_en : q.question_sl }}
-                    <a v-if="q.url" :href="q.url" target="_blank">{{ lang === 'en' ? q.url_text_en : q.url_text_sl }}</a>
-                  </span>
+                  <template v-if="lang === 'en'">
+                    <span
+                      v-if="q.question_en?.startsWith('html:')"
+                      v-html="q.question_en.slice(5)"
+                    ></span>
+                    <span v-else>
+                      {{ q.question_en }}
+                      <a v-if="q.url" :href="q.url" target="_blank">{{
+                        q.url_text_en
+                      }}</a>
+                    </span>
+                  </template>
+                  <template v-else>
+                    <span
+                      v-if="q.question_sl?.startsWith('html:')"
+                      v-html="q.question_sl.slice(5)"
+                    ></span>
+                    <span v-else>
+                      {{ q.question_sl }}
+                      <a v-if="q.url" :href="q.url" target="_blank">{{
+                        q.url_text_sl
+                      }}</a>
+                    </span>
+                  </template>
                 </label>
               </div>
               <div class="captcha-container">
@@ -119,7 +142,9 @@ export default {
       return this.infoValid;
     },
     infoValid() {
-      const trueAnswers = this.newsletterQuestions.filter((q) => this.newsletterAnswers[q.id]);
+      const trueAnswers = this.newsletterQuestions.filter(
+        (q) => this.newsletterAnswers[q.id],
+      );
       if (!trueAnswers.length) {
         return false;
       }
@@ -174,10 +199,10 @@ export default {
       if (this.canSubmit) {
         // set answers for newsletter questions
         this.newsletterQuestions.forEach((q) => {
-          this.$store.commit(
-            "setAnswer",
-            { questionId: q.id, answer: this.newsletterAnswers[q.id] || false }
-          );
+          this.$store.commit("setAnswer", {
+            questionId: q.id,
+            answer: this.newsletterAnswers[q.id] || false,
+          });
         });
 
         // submit
