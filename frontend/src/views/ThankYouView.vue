@@ -6,7 +6,7 @@
       </div>
       <div class="row justify-content-center">
         <h2 class="thankyou__title">{{ $t("thankYouView.title") }}</h2>
-        <p v-if="!transactionId" class="text-center thankyou__note">
+        <p v-if="!transactionId && !wasUpn" class="text-center thankyou__note">
           <template v-if="campaignSlug === 'danes-je-nov-dan'">
             {{ $t("thankYouView.note") }}
           </template>
@@ -45,7 +45,7 @@
         </div>
       </div>
     </template>
-    <template v-if="transactionId" #footer>
+    <template v-if="transactionId || wasUpn" #footer>
       <div class="confirm-button-container">
         <confirm-button
           key="next-info"
@@ -78,6 +78,7 @@ export default {
     return {
       campaignSlug: this.$route.params.campaignSlug,
       transactionId: this.$route.query.transaction_id || null,
+      wasUpn: this.$route.query.upn === "true",
       infoSubmitting: false,
       newsletterAnswers: {},
     };
@@ -134,6 +135,7 @@ export default {
           })
           .then(() => {
             this.transactionId = null;
+            this.wasUpn = false;
             this.infoSubmitting = false;
           })
           .catch((error) => {

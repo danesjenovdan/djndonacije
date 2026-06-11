@@ -32,7 +32,8 @@
         "expiryDate": "Rok veljavnosti",
         "amountToPay": "Znesek za plačilo",
         "donate": "DONIRAJ",
-        "back": "Nazaj"
+        "back": "Nazaj",
+        "donatedUpn": "Sem doniral_a"
     },
     "checkoutStage": {
         "terms": "Pogoji poslovanja",
