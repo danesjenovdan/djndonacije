@@ -501,18 +501,19 @@ class CampaignQuestion(Timestamped):
     donation_campaign = models.ForeignKey(
         "DonationCampaign", related_name="questions", on_delete=models.CASCADE
     )
-    question = models.CharField(max_length=256)
+    question = models.TextField(
+        verbose_name="Vprašanje",
+        help_text=(
+            "Besedilo vprašanja. Če se začne z 'html:' potem se bo interpretiralo kot html, "
+            "npr. za dodajanje linkov, odebelitev, ipd. V htmlju se link definiran spodaj ne "
+            "upošteva - dodaj linke direktno v html."
+        ),
+    )
     link = models.URLField(
         max_length=256,
         null=True,
         blank=True,
         help_text="Optional link for question, e.g. to explain why you are asking this question. Terms of use, privacy policy, etc.",
-    )
-    file = models.FileField(
-        upload_to="question_files",
-        null=True,
-        blank=True,
-        help_text="Optional file for question, e.g. to explain why you are asking this question. Terms of use, privacy policy, etc.",
     )
     url_text = models.CharField(
         max_length=256,
