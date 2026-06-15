@@ -15,7 +15,10 @@
           </template>
         </p>
         <div v-else class="info-content">
-          <p>
+          <p v-if="wasUpn">
+            {{ $t("infoView.whyEmailPostUpn") }}
+          </p>
+          <p v-else>
             {{ $t("infoView.whyEmailPost") }}
           </p>
           <div class="form-group">
