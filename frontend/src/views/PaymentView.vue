@@ -68,8 +68,7 @@
         </div>
       </template>
       <template #footer>
-        <!-- TODO: pokaži gumb tu za upn tudi -->
-        <div v-if="payment !== 'upn'" class="confirm-button-container">
+        <div class="confirm-button-container">
           <confirm-button
             key="next-payment"
             :disabled="!canContinueToNextStage"

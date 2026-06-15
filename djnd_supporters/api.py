@@ -1125,7 +1125,7 @@ class BraintreeWebhookApiView(views.APIView):
 
         if subscription:
             send_slack_msg(
-                f':bell:  Event "{event}" was triggered on braintree. {subscription_id}',
+                f':bell:  Event "{event}" was triggered on braintree. {subscription.campaign.name} -> {subscription.amount} {subscription.subscription_id}',
                 subscription.campaign.slack_report_channel,
             )
 
