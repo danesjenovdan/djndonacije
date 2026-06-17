@@ -1,5 +1,6 @@
-from django.conf import settings
 from datetime import datetime
+
+from django.conf import settings
 
 from djnd_supporters import flik, models
 from djnd_supporters.mautic_api import MauticApi
