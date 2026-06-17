@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.conf import settings
 
 from djnd_supporters import flik, models
@@ -33,6 +35,7 @@ def create_flik_request(subscription):
         payment_method="flik-subscription",
         is_paid=False,
         referrer=subscription.referrer,
+        transaction_timestamp=datetime.now(),
     )
     donation.save()
     ip, phone_number = subscription.token.split("|")

@@ -22,5 +22,6 @@ sentry-sdk
 boto3==1.40.44
 django-storages==1.14.6
 arrow
+python-dateutil==2.9.0.post0
 black==26.1.0
 isort==7.0.0

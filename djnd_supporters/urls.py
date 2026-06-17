@@ -51,4 +51,19 @@ urlpatterns = [
     ),
     re_path("flik-callback/", api.FlikCallback.as_view(), name="flik-callback"),
     path("test-upn/", views.TestUPNView.as_view()),
+    path(
+        "upload-bank-transaction/",
+        views.import_bank_transactions,
+        name="upload-bank-transaction",
+    ),
+    path(
+        "transaction-export-monthly/",
+        views.export_monthly_report_form,
+        name="transaction-export-monthly-form",
+    ),
+    path(
+        "transaction-export-monthly/<int:year>/<int:month>/",
+        views.export_monthly_report,
+        name="transaction-export-monthly",
+    ),
 ]

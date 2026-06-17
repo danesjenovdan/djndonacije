@@ -1,0 +1,44 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Mesecni export transakcij{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label='djnd_supporters' %}">djnd_supporters</a>
+  &rsaquo; <a href="{% url 'admin:djnd_supporters_transaction_changelist' %}">Transactions</a>
+  &rsaquo; Mesecni export
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <form method="post">
+    {% csrf_token %}
+    <fieldset class="module aligned">
+      <h2>Izberi mesec in leto</h2>
+      <div class="form-row">
+        <label class="required" for="id_month">Mesec:</label>
+        <select id="id_month" name="month" required>
+          {% for m in months %}
+            <option value="{{ m }}"{% if m == selected_month %} selected{% endif %}>{{ m }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="required" for="id_year">Leto:</label>
+        <select id="id_year" name="year" required>
+          {% for y in years %}
+            <option value="{{ y }}"{% if y == selected_year %} selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </fieldset>
+    <div class="submit-row">
+      <input type="submit" value="Izvozi CSV">
+      <a href="{% url 'admin:djnd_supporters_transaction_changelist' %}" class="button cancel-link">Preklici</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

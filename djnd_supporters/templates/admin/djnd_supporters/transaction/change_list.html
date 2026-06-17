@@ -1,0 +1,16 @@
+{% extends "admin/change_list.html" %}
+{% load admin_urls i18n %}
+
+{% block object-tools-items %}
+  <li>
+    <a href="{% url 'supporters:transaction-export-monthly-form' %}" class="addlink">
+      Mesečni export
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'supporters:upload-bank-transaction' %}" class="addlink">
+      Naloži bančne transakcije
+    </a>
+  </li>
+  {{ block.super }}
+{% endblock %}
