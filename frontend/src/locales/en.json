@@ -60,23 +60,23 @@
     "unsubscribeObcasnik": "Unsubscribe from Občasnik.",
     "unsubscribeObcasnikNote": "By selecting this option, we will unsubscribe you from our newsletter Občasnik. If you are receiving any other newsletter managed by Danes je nov dan, you can still expect to receive it in your inbox.",
     "unsubscribeNewsletter": "Unsubscribe from",
-    "unsubscribeNewsletters": "Unsubscribe from newsletters",
+    "unsubscribeNewsletters": "Unsubscribe from newsletters managed by Danes je nov dan",
     "confirmUnsubscribe": "Yes, unsubscribe.",
     "unsubscribeFromAll": "Unsubscribe me from <strong>all newsletters</strong> sent out by Danes je nov dan (Today is a new day) and <strong>delete my data</strong>.",
     "yourNewsletters": "Newsletters you are subscribed to",
     "deleteAllData": "By selecting this option, all your data will be deleted from our database, and you will no longer receive any communication from us. We will keep your email address only if you donate to Today is a New Day or any of the associated organizations for which we collect contributions.",
     "confirmDeleteData": "Yes, delete my data.",
     "noActiveSubscription": "You currently don't have any active newsletter subscriptions.",
-    "enterEmail": "Enter the email address you used to sign up for newsletters so we can send you a link to manage them."
+    "enterEmail": "Enter the email address you use to receive newsletters so we can send you a link to the page where you can manage your subscriptions."
   },
   "manageDonationsView": {
     "cancelDonation": "The monthly donation for {don} has been successfully canceled.",
     "cancelDonationError": "An error occurred. Your monthly donation is still active.<br />Write to us at <a href=\"mailto{'@'}danesjenovdan.si\">vsi{'@'}danesjenovdan.si</a> and we will resolve the issue immediately.",
-    "cancelMyDonation": "Unsubscribe me from donations",
+    "cancelMyDonation": "Unsubscribe me from donations managed by Danes je nov dan",
     "confirmCancellation": "Yes, I confirm the cancellation.",
     "noActiveDonation": "You currently don't have any active monthly donations.",
     "donationCreatedOn": "Created: {date}",
-    "enterEmail": "Enter the email address you used to sign up for monthly donations so we can send you a link to manage them.",
+    "enterEmail": "Enter the email address you use for monthly donations so we can send you a link to the page where you can manage them.",
     "sendLink": "Send link!",
     "emailSent": "The link has been sent!"
   },
