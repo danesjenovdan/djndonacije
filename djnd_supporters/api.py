@@ -560,6 +560,7 @@ class GenericDonationCampaign(views.APIView):
                     payment_method=payment_method,
                     account=donation_campaign.braintree_api.account,
                     referrer=referrer,
+                    transaction_timestamp=datetime.now(),
                 )
                 donation.save()
 
@@ -591,6 +592,7 @@ class GenericDonationCampaign(views.APIView):
                 payment_method=payment_type,
                 is_paid=False,
                 referrer=referrer,
+                transaction_timestamp=datetime.now(),
             )
             donation.save()
             if phone_number:
@@ -1011,6 +1013,15 @@ class BraintreeWebhookApiView(views.APIView):
                         transaction_id=transaction_id
                     ).exists():
                         continue
+                    try:
+                        transaction_timestamp = datetime.strptime(
+                            transaction["createdAt"], "%Y-%m-%dT%H:%M:%SZ"
+                        )
+                    except Exception as e:
+                        print(e)
+                        print(transaction.keys())
+                        transaction_timestamp = datetime.now()
+
                     new_transaction = models.Transaction(
                         amount=transaction["amount"],
                         subscriber=subscription.subscriber,
@@ -1021,6 +1032,7 @@ class BraintreeWebhookApiView(views.APIView):
                         subscription=subscription,
                         is_paid=True,
                         referrer=subscription.referrer,
+                        transaction_timestamp=transaction_timestamp,
                     )
                     new_transaction.save()
                     if subscription.campaign.subscription_charged_successfully:
@@ -1076,6 +1088,14 @@ class BraintreeWebhookApiView(views.APIView):
                 for transaction in webhook_notification.subject["subscription"][
                     "transactions"
                 ][:1]:
+                    try:
+                        transaction_timestamp = datetime.strptime(
+                            transaction["createdAt"], "%Y-%m-%dT%H:%M:%SZ"
+                        )
+                    except Exception as e:
+                        print(e)
+                        print(transaction.keys())
+                        transaction_timestamp = datetime.now()
                     new_transaction = models.Transaction(
                         amount=transaction["amount"],
                         subscriber=subscription.subscriber,
@@ -1085,6 +1105,7 @@ class BraintreeWebhookApiView(views.APIView):
                         is_paid=False,
                         account=subscription.account,
                         referrer=subscription.referrer,
+                        transaction_timestamp=transaction_timestamp,
                     )
 
             elif event == braintree.WebhookNotification.Kind.SubscriptionCanceled:

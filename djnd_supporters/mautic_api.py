@@ -174,8 +174,16 @@ class MauticApi(object):
         print(email_id, data)
         return self.mauticRequest("emails/%s/send" % (email_id), data=data)
 
+    def getSegment(self, segment_id):
+        return self.mauticRequest("segments/%s" % segment_id, method="get")
+
     def getSegments(self):
         return self.mauticRequest("segments", method="get")
+
+    def patchSegment(self, segment_id, data):
+        return self.mauticRequest(
+            f"segments/{segment_id}/edit", method="patch", data=data
+        )
 
     def setSegments(self, data):
         return self.mauticRequest("segments/new", data)

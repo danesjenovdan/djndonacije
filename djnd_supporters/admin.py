@@ -159,13 +159,14 @@ class DonationCampaignAdmin(admin.ModelAdmin):
 
 
 class TransactionAdmin(ImportExportModelAdmin):
-    readonly_fields = ("subscriber", "campaign", "transaction_id", "amount", "address")
+    change_list_template = "admin/djnd_supporters/transaction/change_list.html"
+    readonly_fields = ("subscriber", "transaction_id", "amount", "address")
     list_display = (
         "amount",
         "subscriberName",
         "address",
         "is_paid",
-        "created",
+        "transaction_timestamp",
         "payment_method",
         "campaign",
         "account",
@@ -173,7 +174,7 @@ class TransactionAdmin(ImportExportModelAdmin):
     list_filter = ("account", "campaign", "amount", "is_paid", "payment_method")
     resource_class = TransactionResource
     search_fields = ["subscriber__token", "transaction_id"]
-    autocomplete_fields = ["account", "subscription"]
+    autocomplete_fields = ["account", "subscription", "campaign"]
     list_select_related = ["account", "campaign", "subscriber"]
 
     def subscriberName(self, obj):

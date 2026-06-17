@@ -1,0 +1,41 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Nalozi bancne transakcije{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label='djnd_supporters' %}">djnd_supporters</a>
+  &rsaquo; <a href="{% url 'admin:djnd_supporters_transaction_changelist' %}">Transactions</a>
+  &rsaquo; Nalozi bancne transakcije
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <form method="post" enctype="multipart/form-data" action="{% url 'supporters:upload-bank-transaction' %}">
+    {% csrf_token %}
+    <fieldset class="module aligned">
+      <h2>Nalozi bancne transakcije</h2>
+      <div class="form-row">
+        <label class="required" for="id_account_id">Racun:</label>
+        <select id="id_account_id" name="account_id" required>
+          <option value="">Izberi racun</option>
+          {% for account in accounts %}
+            <option value="{{ account.id }}">{{ account.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="required" for="id_file">CSV datoteka:</label>
+        <input id="id_file" type="file" name="file" accept=".csv,text/csv" required>
+      </div>
+    </fieldset>
+    <div class="submit-row">
+      <input type="submit" value="Nalozi">
+      <a href="{% url 'admin:djnd_supporters_transaction_changelist' %}" class="button cancel-link">Preklici</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
