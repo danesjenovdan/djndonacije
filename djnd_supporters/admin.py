@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
+from django_admin_inline_paginator_plus.admin import TabularInlinePaginated
 
 from djnd_supporters.models import (
     Account,
@@ -43,6 +44,14 @@ class TransactionInline(admin.TabularInline):
     model = Transaction
     extra = 0
     autocomplete_fields = ["campaign", "account", "subscription"]
+
+
+class TransactionPaginatedInline(TabularInlinePaginated):
+    readonly_fields = ["created", "subscriber"]
+    model = Transaction
+    autocomplete_fields = ["campaign", "account", "subscription"]
+    ordering = ("-created",)
+    per_page = 5
 
 
 class SubscriptionInline(admin.TabularInline):
@@ -207,6 +216,7 @@ class SubscriptionAdmin(ImportExportModelAdmin):
     resource_class = SubscriptionResource
     search_fields = ["subscriber__token", "subscription_id"]
     list_select_related = ["campaign", "subscriber"]
+    inlines = [TransactionPaginatedInline]
 
     def subscriberName(self, obj):
         if obj.subscriber:
