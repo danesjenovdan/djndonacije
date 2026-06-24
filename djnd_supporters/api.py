@@ -1202,8 +1202,8 @@ class SendEditEmail(views.APIView):
 
     def post(self, request, edit_type):
         email_template_ids = {
-            "newsletters": 976,
-            "subscriptions": 977,
+            "newsletters": 991,
+            "subscriptions": 992,
         }
         email_template_id = email_template_ids.get(edit_type, None)
         if not email_template_id:
