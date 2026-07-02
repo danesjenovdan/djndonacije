@@ -15,7 +15,6 @@ spec:
               - python
               - manage.py
               - remove_mautic_contacts_without_segments
-              - --dry-run
             env:
               - name: DJANGO_SETTINGS_MODULE
                 value: djndonacije.settings.k8s
