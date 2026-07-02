@@ -24,7 +24,7 @@ class Command(BaseCommand):
         segment_id = int(41)
         data, status = mautic_api.getContacts(segment_alias="brez-segmenta")
 
-        for contact in list(data["contacts"].values())[:100]:
+        for contact in list(data["contacts"].values()):
             contact_id = contact["id"]
             user_segments, status = mautic_api.getSegmentsOfContact(
                 contact_id=contact_id
