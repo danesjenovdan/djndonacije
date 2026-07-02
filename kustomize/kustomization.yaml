@@ -10,6 +10,7 @@ resources:
   - podpri/ingress.yaml
   - podpri/pair-mauitc-contact-cronjob.yaml
   - podpri/send-flik-monthly-request.yaml
+  - podpri/delete-mautic-contacts-without-segment.yaml
   - frontend/deployment.yaml
   - frontend/ingress.yaml
   - frontend/service.yaml
