@@ -2,9 +2,9 @@ from django.contrib import admin
 from django.contrib.admin import AdminSite
 from django.urls import reverse
 from django.utils.html import format_html
+from django_admin_inline_paginator_plus.admin import TabularInlinePaginated
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
-from django_admin_inline_paginator_plus.admin import TabularInlinePaginated
 
 from djnd_supporters.models import (
     Account,
