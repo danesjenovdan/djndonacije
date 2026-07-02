@@ -100,6 +100,7 @@ INSTALLED_APPS = [
     "wkhtmltopdf",
     "tinymce",
     "import_export",
+    "django_admin_inline_paginator_plus",
     # apps
     "djnd_supporters",
     "shop",
