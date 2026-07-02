@@ -9,6 +9,7 @@ mautic_api = MauticApi()
 
 class Command(BaseCommand):
     help = "Remove Mautic contacts without segments"
+
     def add_arguments(self, parser):
         # add dry run argument
         parser.add_argument(
@@ -30,9 +31,7 @@ class Command(BaseCommand):
             )
             subscriber = Subscriber.objects.filter(mautic_id=contact_id).first()
             if subscriber and subscriber.subscriptions.filter(is_active=True).exists():
-                print(
-                    f"Subscriber {contact_id} has active subscriptions, skipping."
-                )
+                print(f"Subscriber {contact_id} has active subscriptions, skipping.")
                 continue
             if (
                 len(user_segments["lists"]) == 1
@@ -43,11 +42,7 @@ class Command(BaseCommand):
                     mautic_api.deleteContact(contact_id)
                 else:
                     print(f"Dry run: would delete contact {contact_id}...")
-                print(
-                    f"https://mautic.djnd.si/s/contacts/view/{contact_id}"
-                )
-                
+                print(f"https://mautic.djnd.si/s/contacts/view/{contact_id}")
+
             else:
-                print(
-                    f"Subscriber {contact_id} has segments, skipping."
-                )
+                print(f"Subscriber {contact_id} has segments, skipping.")
