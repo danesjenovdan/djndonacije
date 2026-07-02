@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: delete-mautic-contacts-without-segment
+spec:
+  schedule: "0 15 * * 6" # This schedule means the job will run at 15:00 (3 PM) every Saturday.
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: delete-mautic-contacts-without-segment
+            image: podpri
+            command:
+              - python
+              - manage.py
+              - remove_mautic_contacts_without_segments
+              - --dry-run
+            env:
+              - name: DJANGO_SETTINGS_MODULE
+                value: djndonacije.settings.k8s
+            envFrom:
+              - secretRef:
+                  name: podpri-credentials
+            resources:
+              requests:
+                memory: 400Mi
+                cpu: 200m
+              limits:
+                memory: 1000Mi
+                cpu: 200m
+          restartPolicy: Never
