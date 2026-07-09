@@ -15,6 +15,8 @@ def validate_captcha(captcha_query):
     if not captcha_id.isalnum() or not captcha_answer.isalnum():
         return False
 
+    print(f"Validating captcha: {captcha_id}, {captcha_answer}")
+
     try:
         response = requests.post(
             f"{settings.CAPTCHA_BASE_URL}/api/captcha/verify",
@@ -30,5 +32,7 @@ def validate_captcha(captcha_query):
     if not isinstance(response_json, dict) or "success" not in response_json:
         capture_message(f"Invalid response from captcha api: {response_json}")
         return False
+
+    print(f"Captcha validation response: {response_json}")
 
     return response_json["success"] == True
