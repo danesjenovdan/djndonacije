@@ -535,6 +535,11 @@ class GenericDonationCampaign(views.APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+            if not nonce:
+                return Response(
+                    {"msg": "Missing nonce."}, status=status.HTTP_400_BAD_REQUEST
+                )
+
             result = payment.pay_bt_3d(
                 braintree_gateway,
                 nonce,
@@ -800,6 +805,11 @@ class GenericCampaignSubscription(views.APIView):
                 return Response(
                     {"msg": "This campaign does not support braintree payments."},
                     status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            if not nonce:
+                return Response(
+                    {"msg": "Missing nonce."}, status=status.HTTP_400_BAD_REQUEST
                 )
 
             braintree_gateway = payment.get_gateway_from_campaign(donation_campaign)
