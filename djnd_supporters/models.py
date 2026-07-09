@@ -542,3 +542,13 @@ class CampaignQuestion(Timestamped):
         choices=QuestionType.choices,
         default=QuestionType.SEGMENT_CHECKBOX,
     )
+
+
+def _generate_uid():
+    return token_hex(16)
+
+
+class OneTimeUID(Timestamped):
+    uid = models.CharField(max_length=32, unique=True, default=_generate_uid)
+    customer_id = models.CharField(max_length=128, null=True, blank=True)
+    used = models.BooleanField(default=False)

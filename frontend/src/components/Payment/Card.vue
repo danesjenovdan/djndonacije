@@ -184,6 +184,7 @@ export default {
             "setCustomerId",
             checkoutResponse.data.customer_id,
           );
+          this.$store.commit("setUID", checkoutResponse.data.uid);
         })
         .catch((error) => {
           const code = error.status || 500;
@@ -218,6 +219,7 @@ export default {
             "setCustomerId",
             checkoutResponse.data.customer_id,
           );
+          this.$store.commit("setUID", checkoutResponse.data.uid);
         })
         .catch((error) => {
           const code = error.status || 500;
