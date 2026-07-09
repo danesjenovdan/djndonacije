@@ -441,7 +441,12 @@ class DonationCampaignBraintreeNonce(views.APIView):
                 {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
             )
         donation_campaign = get_object_or_404(models.DonationCampaign, slug=campaign)
-        return Response(payment.client_token(donation_campaign, None))
+        response_obj = payment.client_token(donation_campaign, None)
+        one_time_uid = models.OneTimeUID.objects.create(
+            customer_id=response_obj["customer_id"]
+        )
+        response_obj["uid"] = one_time_uid.uid
+        return Response(response_obj)
 
 
 class GenericDonationCampaignQRCode(views.APIView):
@@ -511,9 +516,11 @@ class GenericDonationCampaign(views.APIView):
     def post(self, request, campaign=""):
         data = request.data
         nonce = data.get("nonce", None)
+        uid = data.get("uid", None)
         amount = data.get("amount", None)
         name = data.get("name", "")
         phone_number = data.get("phone_number", None)
+        customer_id = data.get("customer_id", "")
         payment_type = data.get("payment_type", "braintree")
         referrer = data.get("referrer", "")
 
@@ -528,6 +535,30 @@ class GenericDonationCampaign(views.APIView):
             )
 
         if payment_type == "braintree":
+            if not customer_id:
+                return Response(
+                    {"msg": "Missing customer_id."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not uid:
+                return Response(
+                    {"msg": "Invalid uid."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # verify one-time UID
+            try:
+                one_time_uid = models.OneTimeUID.objects.get(
+                    uid=uid, customer_id=customer_id, used=False
+                )
+            except models.OneTimeUID.DoesNotExist:
+                return Response(
+                    {"msg": "Invalid uid."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            one_time_uid.used = True
+            one_time_uid.save()
+
             # check if campaign supports braintree payments
             if not donation_campaign.has_braintree:
                 return Response(
@@ -717,19 +748,23 @@ class GenericCampaignSubscription(views.APIView):
         donation_obj = serializers.DonationCampaignSerializer(donation_campaign).data
         if donation_campaign.has_braintree_subscription:
             donation_obj.update(payment.client_token(donation_campaign, subscriber))
+            one_time_uid = models.OneTimeUID.objects.create(
+                customer_id=donation_obj["customer_id"]
+            )
+            donation_obj["uid"] = one_time_uid.uid
 
         return Response(donation_obj)
 
     def post(self, request, campaign=""):
         data = request.data
         nonce = data.get("nonce", None)
+        uid = data.get("uid", None)
         amount = data.get("amount", None)
         email = data.get("email", None)
         name = data.get("name", "")
         answers = data.get("answers", [])
         address = data.get("address", "")
         customer_id = data.get("customer_id", "")
-        token = data.get("token", None)
         payment_type = data.get("payment_type", "braintree")
         referrer = data.get("referrer", "")
 
@@ -800,6 +835,30 @@ class GenericCampaignSubscription(views.APIView):
         utils.save_answers(answers, mautic_id)
 
         if payment_type == "braintree":
+            if not customer_id:
+                return Response(
+                    {"msg": "Missing customer_id."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not uid:
+                return Response(
+                    {"msg": "Invalid uid."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # verify one-time UID
+            try:
+                one_time_uid = models.OneTimeUID.objects.get(
+                    uid=uid, customer_id=customer_id, used=False
+                )
+            except models.OneTimeUID.DoesNotExist:
+                return Response(
+                    {"msg": "Invalid uid."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            one_time_uid.used = True
+            one_time_uid.save()
+
             # check if campaign supports braintree payments
             if not donation_campaign.has_braintree_subscription:
                 return Response(

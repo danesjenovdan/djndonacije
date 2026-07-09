@@ -26,25 +26,34 @@ def client_token(donation_campaign, user=None):
     if not user:
         # create empty user
         result = gateway.customer.create({})
-        return {
-            "token": gateway.client_token.generate({"customer_id": result.customer.id}),
-            "customer_id": result.customer.id,
-        }
+        if result.is_success:
+            return {
+                "token": gateway.client_token.generate(
+                    {"customer_id": result.customer.id}
+                ),
+                "customer_id": result.customer.id,
+            }
+        else:
+            print("Failed to create Braintree customer:", result.errors)
+            return {"error": "Failed to create Braintree customer"}
     if user:
         bt_customer = user.braintree_customers.filter(
             braintree_api=donation_campaign.braintree_api
         ).first()
         customer_id = bt_customer.customer_id if bt_customer else None
-    else:
-        # create empty user
-        result = gateway.customer.create({})
-        if result.is_success:
-            bt_customer = BraintreeCustomer.objects.create(
-                user=user,
-                braintree_api=donation_campaign.braintree_api,
-                customer_id=result.customer.id,
-            )
-            customer_id = bt_customer.customer_id
+        if not customer_id:
+            # create empty user
+            result = gateway.customer.create({})
+            if result.is_success:
+                customer = BraintreeCustomer.objects.create(
+                    subscriber=user,
+                    braintree_api=donation_campaign.braintree_api,
+                    customer_id=result.customer.id,
+                )
+                customer_id = customer.customer_id
+            else:
+                print("Failed to create Braintree customer:", result.errors)
+                return {"error": "Failed to create Braintree customer"}
     return {
         "token": gateway.client_token.generate({"customer_id": customer_id}),
         "customer_id": customer_id,
