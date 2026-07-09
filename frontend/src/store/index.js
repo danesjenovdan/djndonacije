@@ -35,6 +35,7 @@ const store = createStore({
         email: "",
         token: "",
         customerId: "",
+        uid: "",
         QRCode: null,
         answers: {},
       },
@@ -106,6 +107,9 @@ const store = createStore({
     },
     getCustomerId(state) {
       return state.userData.customerId;
+    },
+    getUID(state) {
+      return state.userData.uid;
     },
     getLang(state) {
       return state.lang;
@@ -206,6 +210,9 @@ const store = createStore({
     setCustomerId(state, customerId) {
       state.userData.customerId = customerId;
     },
+    setUID(state, uid) {
+      state.userData.uid = uid;
+    },
     setLang(state, newLang) {
       state.lang = newLang;
     },
@@ -262,7 +269,7 @@ const store = createStore({
       return axios.get(url);
     },
     async verifyCaptcha(context, payload) {
-      let url = `${api}/api/donation-nonce/${payload.campaignSlug}`;
+      let url = `${api}/api/donation-nonce/${payload.campaignSlug}/`;
       url += `?captcha=${encodeURIComponent(payload.captcha)}`;
       return axios.get(url);
     },
@@ -300,6 +307,7 @@ const store = createStore({
       return axios.post(paymentURL, {
         payment_type: payload.type === "card" ? "braintree" : payload.type,
         nonce: payload.nonce,
+        uid: context.getters.getUID,
         phone_number: payload.phoneNumber,
         customer_id: context.getters.getCustomerId,
         amount: context.getters.getChosenAmount,
