@@ -1136,6 +1136,41 @@ class BraintreeWebhookApiView(views.APIView):
                             "kind": "subscription_canceled",
                         },
                     )
+            elif event == braintree.WebhookNotification.Kind.Disbursement:
+                print("Braintree disbursement webhook")
+                print(webhook_notification.subject)
+                disbursement = webhook_notification.subject.get("disbursement", {})
+                disbursement_date = (
+                    disbursement.get("disbursementDate")
+                    or disbursement.get("disbursement_date")
+                )
+
+                disbursement_timestamp = None
+                if isinstance(disbursement_date, datetime):
+                    disbursement_timestamp = disbursement_date
+                elif isinstance(disbursement_date, str):
+                    for dt_format in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d"):
+                        try:
+                            parsed = datetime.strptime(disbursement_date, dt_format)
+                            if dt_format == "%Y-%m-%d":
+                                parsed = datetime.combine(parsed.date(), datetime.min.time())
+                            disbursement_timestamp = parsed
+                            break
+                        except ValueError:
+                            continue
+
+                transaction_ids = disbursement.get("transactionIds") or disbursement.get(
+                    "transaction_ids", []
+                )
+                for transaction in transaction_ids:
+                    transaction_obj = models.Transaction.objects.filter(
+                        transaction_id=transaction
+                    ).first()
+                    if transaction_obj:
+                        transaction_obj.disbursement_timestamp = (
+                            disbursement_timestamp or datetime.now()
+                        )
+                        transaction_obj.save()
 
         except Exception as e:
             print(e)
@@ -1298,6 +1333,8 @@ class FlikCallback(views.APIView):
                 and "flik" in flik_payment.payment_method
             ):
                 flik_payment.is_paid = True
+                flik_payment.transaction_timestamp = datetime.now()
+                flik_payment.disbursement_timestamp = datetime.now()
                 flik_payment.save()
                 if subscription:
                     msg = f"Dinozaverka nam je podarila mesečno flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
