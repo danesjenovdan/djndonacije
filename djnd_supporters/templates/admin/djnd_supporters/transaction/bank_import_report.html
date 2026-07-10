@@ -50,6 +50,7 @@
           <tr>
             <th>ID transakcije</th>
             <th>Referenca</th>
+            <th>Referenca placnika</th>
             <th>Prejemnik / Placecnik</th>
             <th>Opis prejemnika</th>
             <th>Znesek</th>
@@ -62,6 +63,7 @@
             <tr>
               <td>{{ row.transaction_id }}</td>
               <td>{{ row.reference }}</td>
+              <td>{{ row.payer_reference }}</td>
               <td>{{ row.recipient_name }}</td>
               <td>{{ row.recipient_description }}</td>
               <td>{{ row.amount }}</td>
@@ -86,6 +88,7 @@
             <tr>
               <th>ID transakcije</th>
               <th>Referenca</th>
+              <th>Referenca placnika</th>
               <th>Prejemnik / Placecnik</th>
               <th>Opis prejemnika</th>
               <th>Znesek (surovo)</th>
@@ -99,6 +102,7 @@
               <tr>
                 <td>{{ row.transaction_id }}</td>
                 <td>{{ row.reference }}</td>
+                <td>{{ row.payer_reference }}</td>
                 <td>{{ row.recipient_name }}</td>
                 <td>{{ row.recipient_description }}</td>
                 <td>{{ row.amount }}</td>

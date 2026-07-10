@@ -152,10 +152,16 @@ def _build_import_row(row, reason, detail=""):
         "Prejemnik/Plačnik",
         "Prejemnik/Plaènik",
     )
+    payer_reference = _get_row_value(
+        row,
+        "Referenca plačnika",
+        "Referenca plaènika",
+    )
     recipient_description = _get_row_value(row, "Opis prejemnika")
     return {
         "transaction_id": (row.get("ID transakcije") or "").strip(),
         "reference": (row.get("Referenca prejemnika") or "").strip(),
+        "payer_reference": (payer_reference or "").strip(),
         "amount": (row.get("Dobro") or "").strip(),
         "date": (row.get("Datum valute") or "").strip(),
         "recipient_name": (recipient_name or "").strip(),
@@ -208,6 +214,9 @@ def _process_bank_transaction_rows(rows, account):
             or ""
         ).strip()
         recipient_description = (_get_row_value(row, "Opis prejemnika") or "").strip()
+        payer_reference = (
+            _get_row_value(row, "Referenca plačnika", "Referenca plaènika") or ""
+        ).strip()
 
         if not transaction_id or not reference:
             report["skipped"]["missing_required_fields"].append(
@@ -301,6 +310,7 @@ def _process_bank_transaction_rows(rows, account):
                 {
                     "transaction_id": transaction.nonce,
                     "reference": transaction.reference,
+                    "payer_reference": payer_reference,
                     "amount": transaction.amount,
                     "date": transaction.transaction_timestamp,
                     "campaign": campaign.name,
