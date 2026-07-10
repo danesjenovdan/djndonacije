@@ -22,7 +22,10 @@
           {{ $t("payment.flik") }}
         </button>
       </div>
-      <div class="nav-item">
+      <div
+        v-if="(hasCard && !recurring) || (hasCardRecurring && recurring)"
+        class="nav-item"
+      >
         <button
           :class="['nav-link', { active: active === 'card' }]"
           type="button"
@@ -46,6 +49,14 @@ export default {
     hasUpn: {
       type: Boolean,
       default: true,
+    },
+    hasCard: {
+      type: Boolean,
+      default: true,
+    },
+    hasCardRecurring: {
+      type: Boolean,
+      default: false,
     },
     hasFlik: {
       type: Boolean,
