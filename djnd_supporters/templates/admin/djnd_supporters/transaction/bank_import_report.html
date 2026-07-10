@@ -1,0 +1,123 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Report uvoza bancnih transakcij{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label='djnd_supporters' %}">djnd_supporters</a>
+  &rsaquo; <a href="{% url 'admin:djnd_supporters_transaction_changelist' %}">Transactions</a>
+  &rsaquo; Report uvoza
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <fieldset class="module aligned">
+    <h2>Povzetek uvoza</h2>
+    <div class="form-row">
+      <label>Datoteka:</label>
+      <div>{{ source_filename }}</div>
+    </div>
+    <div class="form-row">
+      <label>Racun:</label>
+      <div>{{ account.name }}</div>
+    </div>
+    <div class="form-row">
+      <label>Skupaj vrstic:</label>
+      <div>{{ total_rows }}</div>
+    </div>
+    <div class="form-row">
+      <label>Dodane donacije:</label>
+      <div>{{ added_count }}</div>
+    </div>
+    <div class="form-row">
+      <label>Duplikati:</label>
+      <div>{{ duplicate_count }}</div>
+    </div>
+    <div class="form-row">
+      <label>Ni bilo dodano:</label>
+      <div>{{ skipped_count }}</div>
+    </div>
+  </fieldset>
+
+  <fieldset class="module aligned">
+    <h2>Dodane donacije</h2>
+    {% if added_rows %}
+      <table>
+        <thead>
+          <tr>
+            <th>ID transakcije</th>
+            <th>Referenca</th>
+            <th>Prejemnik / Placecnik</th>
+            <th>Opis prejemnika</th>
+            <th>Znesek</th>
+            <th>Datum valute</th>
+            <th>Kampanja</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in added_rows %}
+            <tr>
+              <td>{{ row.transaction_id }}</td>
+              <td>{{ row.reference }}</td>
+              <td>{{ row.recipient_name }}</td>
+              <td>{{ row.recipient_description }}</td>
+              <td>{{ row.amount }}</td>
+              <td>{{ row.date|date:"d.m.Y" }}</td>
+              <td>{{ row.campaign }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>V tem uvozu ni bilo dodanih donacij.</p>
+    {% endif %}
+  </fieldset>
+
+  <fieldset class="module aligned">
+    <h2>Ni bilo dodano</h2>
+    {% if skipped_sections %}
+      {% for section in skipped_sections %}
+        <h3>{{ section.label }} ({{ section.count }})</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID transakcije</th>
+              <th>Referenca</th>
+              <th>Prejemnik / Placecnik</th>
+              <th>Opis prejemnika</th>
+              <th>Znesek (surovo)</th>
+              <th>Datum (surovo)</th>
+              <th>Razlog</th>
+              <th>Podrobnost</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in section.rows %}
+              <tr>
+                <td>{{ row.transaction_id }}</td>
+                <td>{{ row.reference }}</td>
+                <td>{{ row.recipient_name }}</td>
+                <td>{{ row.recipient_description }}</td>
+                <td>{{ row.amount }}</td>
+                <td>{{ row.date }}</td>
+                <td>{{ row.reason }}</td>
+                <td>{{ row.detail }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endfor %}
+    {% else %}
+      <p>Vse vrstice so bile uspesno dodane.</p>
+    {% endif %}
+  </fieldset>
+
+  <div class="submit-row">
+    <a href="{% url 'supporters:upload-bank-transaction' %}" class="button">Nalozi novo datoteko</a>
+    <a href="{% url 'admin:djnd_supporters_transaction_changelist' %}" class="button cancel-link">Nazaj na transakcije</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,4 +1,5 @@
 import csv
+from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
 
@@ -124,59 +125,303 @@ def _decode_bank_transaction_csv(uploaded_file):
     return raw_data.decode("utf-8").splitlines()
 
 
+def _extract_campaign_id_from_reference(reference):
+    normalized_reference = "".join((reference or "").split())
+    reference_prefix = "SI00110000"
+    if not normalized_reference.startswith(reference_prefix):
+        return None
+    campaign_id = normalized_reference[len(reference_prefix) :]
+    if not campaign_id.isdigit():
+        return None
+    return int(campaign_id)
+
+
+def _get_row_value(row, *keys):
+    for key in keys:
+        value = row.get(key)
+        if value is not None:
+            return value
+    return ""
+
+
+def _build_import_row(row, reason, detail=""):
+    recipient_name = _get_row_value(
+        row,
+        "Prejemnik / Plačnik",
+        "Prejemnik / Plaènik",
+        "Prejemnik/Plačnik",
+        "Prejemnik/Plaènik",
+    )
+    recipient_description = _get_row_value(row, "Opis prejemnika")
+    return {
+        "transaction_id": (row.get("ID transakcije") or "").strip(),
+        "reference": (row.get("Referenca prejemnika") or "").strip(),
+        "amount": (row.get("Dobro") or "").strip(),
+        "date": (row.get("Datum valute") or "").strip(),
+        "recipient_name": (recipient_name or "").strip(),
+        "recipient_description": (recipient_description or "").strip(),
+        "reason": reason,
+        "detail": detail,
+    }
+
+
+def _process_bank_transaction_rows(rows, account):
+    report = {
+        "total_rows": 0,
+        "added_count": 0,
+        "duplicate_count": 0,
+        "added_rows": [],
+        "skipped": defaultdict(list),
+    }
+
+    for row in rows:
+        if not any(row.values()):
+            continue
+
+        debit_amount = (_get_row_value(row, "Breme") or "").strip()
+        if debit_amount:
+            normalized_debit = (
+                debit_amount.replace(" ", "").replace(".", "").replace(",", ".")
+            )
+            try:
+                if Decimal(normalized_debit) > 0:
+                    # Rows with debit amounts are explicitly ignored and not shown in report.
+                    continue
+            except (ArithmeticError, ValueError):
+                # If Breme has a non-numeric value, treat row as debit metadata and ignore it.
+                continue
+
+        report["total_rows"] += 1
+
+        transaction_id = (row.get("ID transakcije") or "").strip()
+        reference = (row.get("Referenca prejemnika") or "").strip()
+        amount_raw = (row.get("Dobro") or "").strip()
+        date_raw = (row.get("Datum valute") or "").strip()
+        recipient_name = (
+            _get_row_value(
+                row,
+                "Prejemnik / Plačnik",
+                "Prejemnik / Plaènik",
+                "Prejemnik/Plačnik",
+                "Prejemnik/Plaènik",
+            )
+            or ""
+        ).strip()
+        recipient_description = (_get_row_value(row, "Opis prejemnika") or "").strip()
+
+        if not transaction_id or not reference:
+            report["skipped"]["missing_required_fields"].append(
+                _build_import_row(row, "Manjkajo obvezna polja")
+            )
+            continue
+
+        normalized_reference = "".join(reference.split())
+        if not normalized_reference.startswith("SI00110000"):
+            report["skipped"]["non_donation_reference"].append(
+                _build_import_row(
+                    row,
+                    "Nedonacijska referenca",
+                    "Referenca ne izgleda kot donacijska (SI00110000...).",
+                )
+            )
+            continue
+
+        campaign_id = _extract_campaign_id_from_reference(reference)
+        if campaign_id is None:
+            report["skipped"]["invalid_reference_format"].append(
+                _build_import_row(
+                    row,
+                    "Nepravilen format reference",
+                    "Iz reference ni bilo mogoce razbrati ID kampanje.",
+                )
+            )
+            continue
+
+        campaign = models.DonationCampaign.objects.filter(id=campaign_id).first()
+        if campaign is None:
+            report["skipped"]["campaign_not_found"].append(
+                _build_import_row(
+                    row,
+                    "Kampanja ne obstaja",
+                    f"Kampanja z ID {campaign_id} ne obstaja.",
+                )
+            )
+            continue
+
+        if not amount_raw:
+            report["skipped"]["invalid_amount"].append(
+                _build_import_row(row, "Neveljaven znesek", "Polje Dobro je prazno.")
+            )
+            continue
+
+        try:
+            normalized_amount = (
+                amount_raw.replace(" ", "").replace(".", "").replace(",", ".")
+            )
+            amount = Decimal(normalized_amount)
+            if amount <= 0:
+                raise ValueError("Znesek mora biti vecji od 0.")
+        except (ArithmeticError, ValueError) as exc:
+            report["skipped"]["invalid_amount"].append(
+                _build_import_row(row, "Neveljaven znesek", str(exc))
+            )
+            continue
+
+        try:
+            transaction_timestamp = datetime.strptime(date_raw, "%d.%m.%Y")
+        except (TypeError, ValueError) as exc:
+            report["skipped"]["invalid_date"].append(
+                _build_import_row(row, "Neveljaven datum", str(exc))
+            )
+            continue
+
+        try:
+            transaction, created = models.Transaction.objects.get_or_create(
+                nonce=transaction_id,
+                defaults={
+                    "amount": amount,
+                    "reference": reference,
+                    "subscriber": None,
+                    "campaign": campaign,
+                    "transaction_timestamp": transaction_timestamp,
+                    "disbursement_timestamp": transaction_timestamp,
+                    "payment_method": "UPN",
+                    "account": account,
+                },
+            )
+        except Exception as exc:
+            report["skipped"]["other_error"].append(
+                _build_import_row(row, "Napaka pri shranjevanju", str(exc))
+            )
+            continue
+
+        if created:
+            report["added_count"] += 1
+            report["added_rows"].append(
+                {
+                    "transaction_id": transaction.nonce,
+                    "reference": transaction.reference,
+                    "amount": transaction.amount,
+                    "date": transaction.transaction_timestamp,
+                    "campaign": campaign.name,
+                    "recipient_name": recipient_name,
+                    "recipient_description": recipient_description,
+                }
+            )
+        else:
+            report["duplicate_count"] += 1
+            report["skipped"]["duplicate_nonce"].append(
+                _build_import_row(
+                    row,
+                    "Duplikat transakcije",
+                    "Transakcija s tem ID je ze bila uvozena.",
+                )
+            )
+
+    return report
+
+
 @login_required
 def import_bank_transactions(request):
+    accounts = models.Account.objects.all()
+
     if request.method == "GET":
         return render(
             request,
             "admin/djnd_supporters/transaction/upload_bank_transactions.html",
             {
-                "accounts": models.Account.objects.all(),
+                "accounts": accounts,
             },
         )
 
     if request.method == "POST":
         file = request.FILES.get("file")
-        if file:
-            csv_file = _decode_bank_transaction_csv(file)
-            start_index = 0
-            # skip header lines until we find the one that starts with "Valuta;Datum valute"
-            for i, line in enumerate(csv_file):
-                if line.startswith("Valuta;Datum valute"):
-                    start_index = i
-                    break
-            csv_file = csv_file[start_index:]
-            reader = csv.DictReader(csv_file, delimiter=";")
-            account = models.Account.objects.get(id=request.POST.get("account_id"))
-            for row in reader:
-                if row["Referenca prejemnika"].startswith("SI00110000"):
-                    # this is probably a donation, save as a transaction
-                    reference = row["Referenca prejemnika"]
-                    reference.split("0")
-                    campaign_id = reference.split("0")[-1]
-                    dc = models.DonationCampaign.objects.filter(id=campaign_id).first()
-                    # add transaction if dont exists. nonce is unique for each transaction
-                    if not dc and row["Dobro"] and row["ID transakcije"]:
-                        continue
-                    transaction, created = models.Transaction.objects.get_or_create(
-                        nonce=row["ID transakcije"],
-                        defaults={
-                            "amount": Decimal(row["Dobro"].replace(",", ".")),
-                            "reference": reference,
-                            "subscriber": None,
-                            "campaign": dc,
-                            "transaction_timestamp": datetime.strptime(
-                                row["Datum valute"], "%d.%m.%Y"
-                            ),
-                            "payment_method": "UPN",
-                            "account": account,
-                        },
-                    )
-                    transaction.save()
-            return redirect("admin:djnd_supporters_transaction_changelist")
-
-        else:
+        if not file:
             return HttpResponse("No file uploaded.", status=400)
+
+        account_id = request.POST.get("account_id")
+        try:
+            account = models.Account.objects.get(id=account_id)
+        except (TypeError, ValueError, models.Account.DoesNotExist):
+            return render(
+                request,
+                "admin/djnd_supporters/transaction/upload_bank_transactions.html",
+                {
+                    "accounts": accounts,
+                    "error_message": "Izbran racun ne obstaja.",
+                },
+            )
+
+        csv_file = _decode_bank_transaction_csv(file)
+        start_index = None
+        # Skip metadata rows until expected CSV header appears.
+        for i, line in enumerate(csv_file):
+            if line.startswith("Valuta;Datum valute"):
+                start_index = i
+                break
+
+        if start_index is None:
+            return render(
+                request,
+                "admin/djnd_supporters/transaction/upload_bank_transactions.html",
+                {
+                    "accounts": accounts,
+                    "error_message": "CSV ne vsebuje pricakovane glave (Valuta;Datum valute...).",
+                },
+            )
+
+        reader = csv.DictReader(csv_file[start_index:], delimiter=";")
+        report = _process_bank_transaction_rows(reader, account)
+
+        reason_order = [
+            "campaign_not_found",
+            "invalid_reference_format",
+            "duplicate_nonce",
+            "invalid_amount",
+            "invalid_date",
+            "missing_required_fields",
+            "non_donation_reference",
+            "other_error",
+        ]
+
+        reason_labels = {
+            "campaign_not_found": "Kampanja ne obstaja",
+            "invalid_reference_format": "Nepravilen format reference",
+            "duplicate_nonce": "Duplikati",
+            "invalid_amount": "Neveljaven znesek",
+            "invalid_date": "Neveljaven datum",
+            "missing_required_fields": "Manjkajoca obvezna polja",
+            "non_donation_reference": "Nedonacijske reference",
+            "other_error": "Druge napake",
+        }
+
+        skipped_sections = []
+        for reason in reason_order:
+            rows = report["skipped"].get(reason, [])
+            if rows:
+                skipped_sections.append(
+                    {
+                        "key": reason,
+                        "label": reason_labels[reason],
+                        "count": len(rows),
+                        "rows": rows,
+                    }
+                )
+
+        return render(
+            request,
+            "admin/djnd_supporters/transaction/bank_import_report.html",
+            {
+                "account": account,
+                "source_filename": file.name,
+                "total_rows": report["total_rows"],
+                "added_count": report["added_count"],
+                "duplicate_count": report["duplicate_count"],
+                "skipped_count": sum(len(rows) for rows in report["skipped"].values()),
+                "added_rows": report["added_rows"],
+                "skipped_sections": skipped_sections,
+            },
+        )
 
     return HttpResponse("Invalid request method.", status=405)
 
@@ -220,9 +465,12 @@ def export_monthly_report(request, month, year):
     start_next_month = start_selected_month + relativedelta(months=1)
     start_previous_month = start_selected_month - relativedelta(months=1)
 
+    print(start_selected_month, start_next_month, start_previous_month)
+
     transactions = models.Transaction.objects.filter(
-        transaction_timestamp__gte=start_selected_month,
-        transaction_timestamp__lt=start_next_month,
+        disbursement_timestamp__gte=start_selected_month,
+        disbursement_timestamp__lt=start_next_month,
+        is_paid=True,
     ).select_related("campaign", "subscriber")
 
     response = HttpResponse(
@@ -256,16 +504,19 @@ def export_monthly_report(request, month, year):
             "Naročnina",
             "ID naročnine",
             "Datum pričetka naročnine",
+            "Is_paid",
         ]
     )
+    source_sum_dict = defaultdict(Decimal)
+    source_by_campaign_dict = defaultdict(lambda: defaultdict(Decimal))
     for i, transaction in enumerate(transactions):
         csv_writer.writerow(
             [
                 i + 1,
                 transaction.transaction_id,
                 (
-                    transaction.transaction_timestamp.strftime("%d.%m.%Y %H:%M:%S")
-                    if transaction.transaction_timestamp
+                    transaction.disbursement_timestamp.strftime("%d.%m.%Y %H:%M:%S")
+                    if transaction.disbursement_timestamp
                     else ""
                 ),
                 transaction.amount,
@@ -283,8 +534,30 @@ def export_monthly_report(request, month, year):
                     if transaction.subscription
                     else ""
                 ),
+                transaction.is_paid,
             ]
         )
+        source_sum_dict[transaction.payment_method] += transaction.amount
+        source_by_campaign_dict[transaction.campaign.name][
+            transaction.payment_method
+        ] += transaction.amount
+    csv_writer.writerow([])
+    csv_writer.writerow([])
+
+    csv_writer.writerow(["Plačilna metoda", "Skupaj"])
+    for source, total in source_sum_dict.items():
+        csv_writer.writerow([source, total])
+
+    csv_writer.writerow([])
+    csv_writer.writerow([])
+
+    for campaign, source_dict in source_by_campaign_dict.items():
+        csv_writer.writerow([f"Kampanja: {campaign}"])
+        csv_writer.writerow(["Plačilna metoda", "Skupaj"])
+        for source, total in source_dict.items():
+            csv_writer.writerow([source, total])
+        csv_writer.writerow([])
+
     csv_writer.writerow([])
     csv_writer.writerow([])
     csv_writer.writerow(
@@ -310,8 +583,8 @@ def export_monthly_report(request, month, year):
         previous_month_amount = models.Transaction.objects.filter(
             campaign__id=campaign_id,
             subscription__isnull=True,
-            transaction_timestamp__gte=start_previous_month,
-            transaction_timestamp__lt=start_selected_month,
+            disbursement_timestamp__gte=start_previous_month,
+            disbursement_timestamp__lt=start_selected_month,
         ).aggregate(total=Sum("amount"))["total"] or Decimal("0")
         amount_diff = current_month_amount - previous_month_amount
         subscription_tr = transactions.filter(
@@ -323,8 +596,8 @@ def export_monthly_report(request, month, year):
         previous_subscription_tr = models.Transaction.objects.filter(
             campaign__id=campaign_id,
             subscription__isnull=False,
-            transaction_timestamp__gte=start_previous_month,
-            transaction_timestamp__lt=start_selected_month,
+            disbursement_timestamp__gte=start_previous_month,
+            disbursement_timestamp__lt=start_selected_month,
         )
         previous_subscription_amount = previous_subscription_tr.aggregate(
             total=Sum("amount")
@@ -362,8 +635,8 @@ def export_monthly_report(request, month, year):
         previous_month_amount = models.Transaction.objects.filter(
             referrer=referrer[0],
             subscription__isnull=True,
-            transaction_timestamp__gte=start_previous_month,
-            transaction_timestamp__lt=start_selected_month,
+            disbursement_timestamp__gte=start_previous_month,
+            disbursement_timestamp__lt=start_selected_month,
         ).aggregate(total=Sum("amount"))["total"] or Decimal("0")
         amount_diff = current_month_amount - previous_month_amount
         amount_diff_str = f"+{amount_diff}" if amount_diff >= 0 else str(amount_diff)

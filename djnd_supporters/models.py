@@ -89,6 +89,7 @@ class Transaction(Timestamped):
     payment_method = models.CharField(max_length=50, default="braintree")
     reference = models.CharField(max_length=50, null=True, blank=True)
     transaction_timestamp = models.DateTimeField(null=True, blank=True)
+    disbursement_timestamp = models.DateTimeField(null=True, blank=True)
     campaign = models.ForeignKey(
         "DonationCampaign",
         related_name="donations",
