@@ -169,7 +169,13 @@ class DonationCampaignAdmin(admin.ModelAdmin):
 
 class TransactionAdmin(ImportExportModelAdmin):
     change_list_template = "admin/djnd_supporters/transaction/change_list.html"
-    readonly_fields = ("subscriber", "transaction_id", "amount", "address", "created",)
+    readonly_fields = (
+        "subscriber",
+        "transaction_id",
+        "amount",
+        "address",
+        "created",
+    )
     list_display = (
         "amount",
         "subscriberName",

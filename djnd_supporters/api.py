@@ -1209,10 +1209,9 @@ class BraintreeWebhookApiView(views.APIView):
                 print("Braintree disbursement webhook")
                 print(webhook_notification.subject)
                 disbursement = webhook_notification.subject.get("disbursement", {})
-                disbursement_date = (
-                    disbursement.get("disbursementDate")
-                    or disbursement.get("disbursement_date")
-                )
+                disbursement_date = disbursement.get(
+                    "disbursementDate"
+                ) or disbursement.get("disbursement_date")
 
                 disbursement_timestamp = None
                 if isinstance(disbursement_date, datetime):
@@ -1222,15 +1221,17 @@ class BraintreeWebhookApiView(views.APIView):
                         try:
                             parsed = datetime.strptime(disbursement_date, dt_format)
                             if dt_format == "%Y-%m-%d":
-                                parsed = datetime.combine(parsed.date(), datetime.min.time())
+                                parsed = datetime.combine(
+                                    parsed.date(), datetime.min.time()
+                                )
                             disbursement_timestamp = parsed
                             break
                         except ValueError:
                             continue
 
-                transaction_ids = disbursement.get("transactionIds") or disbursement.get(
-                    "transaction_ids", []
-                )
+                transaction_ids = disbursement.get(
+                    "transactionIds"
+                ) or disbursement.get("transaction_ids", [])
                 for transaction in transaction_ids:
                     transaction_obj = models.Transaction.objects.filter(
                         transaction_id=transaction

@@ -1,4 +1,5 @@
 import csv
+from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
 
@@ -10,7 +11,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import TemplateView
 from sentry_sdk import capture_exception
 from wkhtmltopdf.views import PDFTemplateResponse
-from collections import defaultdict
 
 from djnd_supporters import models, utils
 from djndonacije import payment
@@ -255,7 +255,9 @@ def _process_bank_transaction_rows(rows, account):
             continue
 
         try:
-            normalized_amount = amount_raw.replace(" ", "").replace(".", "").replace(",", ".")
+            normalized_amount = (
+                amount_raw.replace(" ", "").replace(".", "").replace(",", ".")
+            )
             amount = Decimal(normalized_amount)
             if amount <= 0:
                 raise ValueError("Znesek mora biti vecji od 0.")
@@ -536,7 +538,9 @@ def export_monthly_report(request, month, year):
             ]
         )
         source_sum_dict[transaction.payment_method] += transaction.amount
-        source_by_campaign_dict[transaction.campaign.name][transaction.payment_method] += transaction.amount
+        source_by_campaign_dict[transaction.campaign.name][
+            transaction.payment_method
+        ] += transaction.amount
     csv_writer.writerow([])
     csv_writer.writerow([])
 
