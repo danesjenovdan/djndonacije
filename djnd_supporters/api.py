@@ -70,6 +70,13 @@ class Subscribe(views.APIView):
 
     def post(self, request, format=None):
         data = request.data
+
+        if not isinstance(data, dict):
+            return Response(
+                {"error": "Invalid data format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         email = data.get("email", None)
         segment = data.get("segment_id", None)
         campaign_slug = data.get("campaign_id", None)
@@ -145,8 +152,16 @@ class SafeSubscribe(Subscribe):
     """
 
     def post(self, request, format=None):
+        data = request.data
+
+        if not isinstance(data, dict):
+            return Response(
+                {"error": "Invalid data format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # check captcha
-        captcha_validated = validate_captcha(request.data.get("captcha", ""))
+        captcha_validated = validate_captcha(data.get("captcha", ""))
         if not captcha_validated:
             return Response(
                 {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
@@ -350,9 +365,17 @@ class ImageViewSet(
 
 class AgrumentMailApiView(views.APIView):
     def post(self, request):
-        data = request.data
         if settings.AGRUM_TOKEN != request.META.get("HTTP_AUTHORIZATION", None):
             return Response({"msg": "You have no permissions for do that."}, status=403)
+
+        data = request.data
+
+        if not isinstance(data, dict):
+            return Response(
+                {"error": "Invalid data format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         short_url_response = requests.get(
             "https://djnd.si/yomamasofat/?fatmama=%s" % data["url"]
         )
@@ -515,6 +538,13 @@ class GenericDonationCampaign(views.APIView):
 
     def post(self, request, campaign=""):
         data = request.data
+
+        if not isinstance(data, dict):
+            return Response(
+                {"error": "Invalid data format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         nonce = data.get("nonce", None)
         uid = data.get("uid", None)
         amount = data.get("amount", None)
@@ -757,6 +787,13 @@ class GenericCampaignSubscription(views.APIView):
 
     def post(self, request, campaign=""):
         data = request.data
+
+        if not isinstance(data, dict):
+            return Response(
+                {"error": "Invalid data format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         nonce = data.get("nonce", None)
         uid = data.get("uid", None)
         amount = data.get("amount", None)
@@ -979,6 +1016,12 @@ class CancelSubscription(views.APIView):
 
     def post(self, request):
         data = request.data
+
+        if not isinstance(data, dict):
+            return Response(
+                {"error": "Invalid data format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         token = data.get("token", None)
         customer_id = data.get("customer_id", None)
@@ -1270,6 +1313,13 @@ class SendEmailApiView(GetOrAddSubscriber):
 
     def post(self, request, campaign_id=0):
         data = request.data
+
+        if not isinstance(data, dict):
+            return Response(
+                {"error": "Invalid data format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         email = data.get("email", None)
         email_template_id = data.get("email_template_id", None)
         token = request.META.get("HTTP_AUTHORIZATION")
@@ -1306,6 +1356,14 @@ class SendEditEmail(views.APIView):
         return keys[0]
 
     def post(self, request, edit_type):
+        data = request.data
+
+        if not isinstance(data, dict):
+            return Response(
+                {"error": "Invalid data format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         email_template_ids = {
             "newsletters": 991,
             "subscriptions": 992,
@@ -1317,13 +1375,13 @@ class SendEditEmail(views.APIView):
             )
 
         # check captcha
-        captcha_validated = validate_captcha(request.data.get("captcha", ""))
+        captcha_validated = validate_captcha(data.get("captcha", ""))
         if not captcha_validated:
             return Response(
                 {"status": "Napačen CAPTCHA odgovor"}, status.HTTP_403_FORBIDDEN
             )
 
-        email = request.data.get("email", None)
+        email = data.get("email", None)
         if not email or type(email) != str or "@" not in email:
             return Response(
                 {"msg": "Invalid email"}, status=status.HTTP_400_BAD_REQUEST
@@ -1342,7 +1400,13 @@ class SendEditEmail(views.APIView):
 class CreateAndSendMailApiView(views.APIView):
     def post(self, request):
         data = request.data
-        print(data)
+
+        if not isinstance(data, dict):
+            return Response(
+                {"error": "Invalid data format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if settings.AGRUM_TOKEN != request.META.get("HTTP_AUTHORIZATION", None):
             return Response({"msg": "You have no permissions for do that."}, status=403)
 
