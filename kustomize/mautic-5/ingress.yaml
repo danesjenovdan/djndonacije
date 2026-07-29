@@ -30,7 +30,9 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-production"
     nginx.ingress.kubernetes.io/server-snippet: |
-      return 301 https://mautic.djnd.si/$request_uri;
+      if ($request_uri !~* ^/.well-known) {
+        return 301 https://mautic.djnd.si$request_uri;
+      }
 spec:
   ingressClassName: nginx
   tls:
