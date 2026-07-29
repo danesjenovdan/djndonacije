@@ -20,6 +20,8 @@
           <payment-switcher
             :recurring="recurringDonation"
             :has-upn="paymentOptions.upn"
+            :has-card="paymentOptions.card"
+            :has-card-recurring="paymentOptions.cardRecurring"
             :has-flik="paymentOptions.flik"
             :has-flik-recurring="paymentOptions.flikRecurring"
             @change="onPaymentChange"

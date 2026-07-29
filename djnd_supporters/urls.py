@@ -35,7 +35,7 @@ urlpatterns = [
         api.GenericDonationCampaignQRCode.as_view(),
     ),
     re_path(
-        "donation-statistics/(?:(?P<campaign>[-\w]+)/)?$",
+        "donation-statistics/(?:(?P<campaign_id>[-\w]+)/)?$",
         api.DonationCampaignStatistics.as_view(),
     ),
     re_path(
