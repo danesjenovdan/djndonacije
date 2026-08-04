@@ -1103,187 +1103,189 @@ class BraintreeWebhookApiView(views.APIView):
 
         event = webhook_notification.kind
         try:
-            subscription_id = webhook_notification.subject["subscription"]["id"]
-            if (
-                event
-                == braintree.WebhookNotification.Kind.SubscriptionChargedSuccessfully
-            ):
-                # webhook returns 20 most recent transactions, first is always most recent transaction
-                for transaction in webhook_notification.subject["subscription"][
-                    "transactions"
-                ][:1]:
-                    print("create_transaction")
+            if "subscription" not in webhook_notification.subject:
+                subscription_id = webhook_notification.subject["subscription"]["id"]
+                if (
+                    event
+                    == braintree.WebhookNotification.Kind.SubscriptionChargedSuccessfully
+                ):
+                    # webhook returns 20 most recent transactions, first is always most recent transaction
+                    for transaction in webhook_notification.subject["subscription"][
+                        "transactions"
+                    ][:1]:
+                        print("create_transaction")
+                        subscription = models.Subscription.objects.filter(
+                            subscription_id=subscription_id
+                        ).first()
+                        # if there is a subscription from old donation installation
+                        if not subscription:
+                            continue
+
+                        transaction_id = transaction["id"]
+                        if models.Transaction.objects.filter(
+                            transaction_id=transaction_id
+                        ).exists():
+                            continue
+                        try:
+                            transaction_timestamp = datetime.strptime(
+                                transaction["createdAt"], "%Y-%m-%dT%H:%M:%SZ"
+                            )
+                        except Exception as e:
+                            print(e)
+                            print(transaction.keys())
+                            transaction_timestamp = datetime.now()
+
+                        new_transaction = models.Transaction(
+                            amount=transaction["amount"],
+                            subscriber=subscription.subscriber,
+                            campaign=subscription.campaign,
+                            transaction_id=transaction_id,
+                            account=subscription.account,
+                            payment_method="braintree-subscription",
+                            subscription=subscription,
+                            is_paid=True,
+                            referrer=subscription.referrer,
+                            transaction_timestamp=transaction_timestamp,
+                        )
+                        new_transaction.save()
+                        if subscription.campaign.subscription_charged_successfully:
+                            response, response_status = mautic_api.sendEmail(
+                                subscription.campaign.subscription_charged_successfully,
+                                subscription.subscriber.mautic_id,
+                                {},
+                            )
+                        else:
+                            capture_message(
+                                f"Campaign {subscription.campaign.name} has empty subscription_charged_successfully. Email notificaiton was not sent."
+                            )
+                        if subscription.campaign.web_hook_url:
+                            requests.post(
+                                subscription.campaign.web_hook_url,
+                                json={
+                                    "amount": transaction["amount"],
+                                    "subscription_id": subscription_id,
+                                    "customer_id": subscription.subscriber.customer_id,
+                                    "kind": "subscription_charged_successfully",
+                                },
+                            )
+
+                elif (
+                    event
+                    == braintree.WebhookNotification.Kind.SubscriptionChargedUnsuccessfully
+                ):
+                    subscription_id = webhook_notification.subject["subscription"]["id"]
                     subscription = models.Subscription.objects.filter(
                         subscription_id=subscription_id
                     ).first()
                     # if there is a subscription from old donation installation
                     if not subscription:
-                        continue
+                        return Response(status=204)
 
-                    transaction_id = transaction["id"]
-                    if models.Transaction.objects.filter(
-                        transaction_id=transaction_id
-                    ).exists():
-                        continue
-                    try:
-                        transaction_timestamp = datetime.strptime(
-                            transaction["createdAt"], "%Y-%m-%dT%H:%M:%SZ"
-                        )
-                    except Exception as e:
-                        print(e)
-                        print(transaction.keys())
-                        transaction_timestamp = datetime.now()
+                    campagin = subscription.campaign
 
-                    new_transaction = models.Transaction(
-                        amount=transaction["amount"],
-                        subscriber=subscription.subscriber,
-                        campaign=subscription.campaign,
-                        transaction_id=transaction_id,
-                        account=subscription.account,
-                        payment_method="braintree-subscription",
-                        subscription=subscription,
-                        is_paid=True,
-                        referrer=subscription.referrer,
-                        transaction_timestamp=transaction_timestamp,
-                    )
-                    new_transaction.save()
-                    if subscription.campaign.subscription_charged_successfully:
+                    if campagin.charged_unsuccessfully_email:
                         response, response_status = mautic_api.sendEmail(
-                            subscription.campaign.subscription_charged_successfully,
+                            campagin.charged_unsuccessfully_email,
                             subscription.subscriber.mautic_id,
                             {},
-                        )
-                    else:
-                        capture_message(
-                            f"Campaign {subscription.campaign.name} has empty subscription_charged_successfully. Email notificaiton was not sent."
                         )
                     if subscription.campaign.web_hook_url:
                         requests.post(
                             subscription.campaign.web_hook_url,
                             json={
-                                "amount": transaction["amount"],
                                 "subscription_id": subscription_id,
                                 "customer_id": subscription.subscriber.customer_id,
-                                "kind": "subscription_charged_successfully",
+                                "kind": "subscription_charged_unsuccessfully",
                             },
                         )
-
-            elif (
-                event
-                == braintree.WebhookNotification.Kind.SubscriptionChargedUnsuccessfully
-            ):
-                subscription_id = webhook_notification.subject["subscription"]["id"]
-                subscription = models.Subscription.objects.filter(
-                    subscription_id=subscription_id
-                ).first()
-                # if there is a subscription from old donation installation
-                if not subscription:
-                    return Response(status=204)
-
-                campagin = subscription.campaign
-
-                if campagin.charged_unsuccessfully_email:
-                    response, response_status = mautic_api.sendEmail(
-                        campagin.charged_unsuccessfully_email,
-                        subscription.subscriber.mautic_id,
-                        {},
-                    )
-                if subscription.campaign.web_hook_url:
-                    requests.post(
-                        subscription.campaign.web_hook_url,
-                        json={
-                            "subscription_id": subscription_id,
-                            "customer_id": subscription.subscriber.customer_id,
-                            "kind": "subscription_charged_unsuccessfully",
-                        },
-                    )
-                for transaction in webhook_notification.subject["subscription"][
-                    "transactions"
-                ][:1]:
-                    try:
-                        transaction_timestamp = datetime.strptime(
-                            transaction["createdAt"], "%Y-%m-%dT%H:%M:%SZ"
-                        )
-                    except Exception as e:
-                        print(e)
-                        print(transaction.keys())
-                        transaction_timestamp = datetime.now()
-                    new_transaction = models.Transaction(
-                        amount=transaction["amount"],
-                        subscriber=subscription.subscriber,
-                        campaign=campagin,
-                        transaction_id=transaction["id"],
-                        payment_method="braintree-subscription",
-                        is_paid=False,
-                        account=subscription.account,
-                        referrer=subscription.referrer,
-                        transaction_timestamp=transaction_timestamp,
-                    )
-
-            elif event == braintree.WebhookNotification.Kind.SubscriptionCanceled:
-                print("Braintree cancel subscription webhook")
-                subscription_id = webhook_notification.subject["subscription"]["id"]
-                subscription = models.Subscription.objects.filter(
-                    subscription_id=subscription_id
-                ).first()
-                # if there is a subscription from old donation installation
-                if not subscription:
-                    return Response(status=204)
-
-                subscription.is_active = False
-                subscription.save()
-                campagin = subscription.campaign
-                if campagin.subscription_canceled_email:
-                    response, response_status = mautic_api.sendEmail(
-                        campagin.subscription_canceled_email,
-                        subscription.subscriber.mautic_id,
-                        {},
-                    )
-                if subscription.campaign.web_hook_url:
-                    requests.post(
-                        subscription.campaign.web_hook_url,
-                        json={
-                            "subscription_id": subscription_id,
-                            "customer_id": subscription.subscriber.customer_id,
-                            "kind": "subscription_canceled",
-                        },
-                    )
-            elif event == braintree.WebhookNotification.Kind.Disbursement:
-                print("Braintree disbursement webhook")
-                print(webhook_notification.subject)
-                disbursement = webhook_notification.subject.get("disbursement", {})
-                disbursement_date = disbursement.get(
-                    "disbursementDate"
-                ) or disbursement.get("disbursement_date")
-
-                disbursement_timestamp = None
-                if isinstance(disbursement_date, datetime):
-                    disbursement_timestamp = disbursement_date
-                elif isinstance(disbursement_date, str):
-                    for dt_format in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d"):
+                    for transaction in webhook_notification.subject["subscription"][
+                        "transactions"
+                    ][:1]:
                         try:
-                            parsed = datetime.strptime(disbursement_date, dt_format)
-                            if dt_format == "%Y-%m-%d":
-                                parsed = datetime.combine(
-                                    parsed.date(), datetime.min.time()
-                                )
-                            disbursement_timestamp = parsed
-                            break
-                        except ValueError:
-                            continue
-
-                transaction_ids = disbursement.get(
-                    "transactionIds"
-                ) or disbursement.get("transaction_ids", [])
-                for transaction in transaction_ids:
-                    transaction_obj = models.Transaction.objects.filter(
-                        transaction_id=transaction
-                    ).first()
-                    if transaction_obj:
-                        transaction_obj.disbursement_timestamp = (
-                            disbursement_timestamp or datetime.now()
+                            transaction_timestamp = datetime.strptime(
+                                transaction["createdAt"], "%Y-%m-%dT%H:%M:%SZ"
+                            )
+                        except Exception as e:
+                            print(e)
+                            print(transaction.keys())
+                            transaction_timestamp = datetime.now()
+                        new_transaction = models.Transaction(
+                            amount=transaction["amount"],
+                            subscriber=subscription.subscriber,
+                            campaign=campagin,
+                            transaction_id=transaction["id"],
+                            payment_method="braintree-subscription",
+                            is_paid=False,
+                            account=subscription.account,
+                            referrer=subscription.referrer,
+                            transaction_timestamp=transaction_timestamp,
                         )
-                        transaction_obj.save()
+
+                elif event == braintree.WebhookNotification.Kind.SubscriptionCanceled:
+                    print("Braintree cancel subscription webhook")
+                    subscription_id = webhook_notification.subject["subscription"]["id"]
+                    subscription = models.Subscription.objects.filter(
+                        subscription_id=subscription_id
+                    ).first()
+                    # if there is a subscription from old donation installation
+                    if not subscription:
+                        return Response(status=204)
+
+                    subscription.is_active = False
+                    subscription.save()
+                    campagin = subscription.campaign
+                    if campagin.subscription_canceled_email:
+                        response, response_status = mautic_api.sendEmail(
+                            campagin.subscription_canceled_email,
+                            subscription.subscriber.mautic_id,
+                            {},
+                        )
+                    if subscription.campaign.web_hook_url:
+                        requests.post(
+                            subscription.campaign.web_hook_url,
+                            json={
+                                "subscription_id": subscription_id,
+                                "customer_id": subscription.subscriber.customer_id,
+                                "kind": "subscription_canceled",
+                            },
+                        )
+            else:
+                if event == braintree.WebhookNotification.Kind.Disbursement:
+                    print("Braintree disbursement webhook")
+                    print(webhook_notification.subject)
+                    disbursement = webhook_notification.subject.get("disbursement", {})
+                    disbursement_date = disbursement.get(
+                        "disbursementDate"
+                    ) or disbursement.get("disbursement_date")
+
+                    disbursement_timestamp = None
+                    if isinstance(disbursement_date, datetime):
+                        disbursement_timestamp = disbursement_date
+                    elif isinstance(disbursement_date, str):
+                        for dt_format in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d"):
+                            try:
+                                parsed = datetime.strptime(disbursement_date, dt_format)
+                                if dt_format == "%Y-%m-%d":
+                                    parsed = datetime.combine(
+                                        parsed.date(), datetime.min.time()
+                                    )
+                                disbursement_timestamp = parsed
+                                break
+                            except ValueError:
+                                continue
+
+                    transaction_ids = disbursement.get(
+                        "transactionIds"
+                    ) or disbursement.get("transaction_ids", [])
+                    for transaction in transaction_ids:
+                        transaction_obj = models.Transaction.objects.filter(
+                            transaction_id=transaction
+                        ).first()
+                        if transaction_obj:
+                            transaction_obj.disbursement_timestamp = (
+                                disbursement_timestamp or datetime.now()
+                            )
+                            transaction_obj.save()
 
         except Exception as e:
             print(e)
