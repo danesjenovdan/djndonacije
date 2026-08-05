@@ -36,7 +36,8 @@
       </div>
     </fieldset>
     <div class="submit-row">
-      <input type="submit" value="Izvozi CSV">
+      <button type="submit" name="export_type" value="report" class="default">Izvozi CSV z analizami</button>
+      <button type="submit" name="export_type" value="transactions">Izvozi samo transakcije</button>
       <a href="{% url 'admin:djnd_supporters_transaction_changelist' %}" class="button cancel-link">Preklici</a>
     </div>
   </form>

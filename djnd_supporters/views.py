@@ -444,6 +444,14 @@ def export_monthly_report_form(request):
         if not month or not year:
             return HttpResponse("Mesec in leto sta obvezna.", status=400)
 
+        export_type = request.POST.get("export_type", "report")
+        if export_type == "transactions":
+            return redirect(
+                "supporters:transaction-export-monthly-transactions",
+                year=int(year),
+                month=int(month),
+            )
+
         return redirect(
             "supporters:transaction-export-monthly", year=int(year), month=int(month)
         )
@@ -738,6 +746,154 @@ def export_monthly_report(request, month, year):
                 subscription_amount_diff_str,
                 data["new_subscription_count"],
                 new_subscription_count_diff_str,
+            ]
+        )
+
+    return response
+
+
+def parse_referrer_field(referrer):
+    """
+    Input:
+    document.referrer:
+    window.top === window: true
+    window.location.ancestorOrigins:
+    URL Parameters:
+    - referrer: android-app://com.google.android.gm/
+    - utm_source: danesjenovdan.si
+    - utm_medium: website
+    - utm_campaign: podpri-nas
+    - utm_content: vsak-mesec
+    Output:
+    "referrer",
+    "UTM source",
+    "UTM medium",
+    "UTM campaign",
+    "UTM content",
+    "document.referrer",
+    "window.location.ancestorOrigins",
+    """
+    if not referrer:
+        return None, None, None, None, None, None, None
+
+    document_referrer = None
+    ancestor_origins = None
+    utm_params = {}
+
+    for raw_line in referrer.splitlines():
+        line = raw_line.strip()
+        if line.startswith("document.referrer:"):
+            document_referrer = line.split("document.referrer:", 1)[1].strip()
+        elif line.startswith("window.location.ancestorOrigins:"):
+            ancestor_origins = line.split("window.location.ancestorOrigins:", 1)[
+                1
+            ].strip()
+
+    if "URL Parameters:" in referrer:
+        params_section = referrer.split("URL Parameters:", 1)[1].strip()
+        for raw_line in params_section.splitlines():
+            line = raw_line.strip()
+            if not line.startswith("- "):
+                continue
+
+            param_line = line[2:]
+            if ":" not in param_line:
+                continue
+
+            key, value = param_line.split(":", 1)
+            utm_params[key.strip()] = value.strip()
+
+    return (
+        utm_params.get("referrer"),
+        utm_params.get("utm_source"),
+        utm_params.get("utm_medium"),
+        utm_params.get("utm_campaign"),
+        utm_params.get("utm_content"),
+        document_referrer,
+        ancestor_origins,
+    )
+
+
+@login_required
+def export_monthly_transactions(request, month, year):
+    def get_token_hash(token):
+        import hashlib
+
+        return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+    def get_subsctiption_id(transaction):
+        if transaction.subscription:
+            if transaction.subscription.subscription_id:
+                return transaction.subscription.subscription_id
+            else:
+                return get_token_hash(transaction.subscription.token)
+        else:
+            return ""
+
+    month = int(month)
+    year = int(year)
+    if month < 1 or month > 12:
+        return HttpResponse("Invalid month.", status=400)
+
+    start_selected_month = datetime(day=1, month=month, year=year)
+    start_next_month = start_selected_month + relativedelta(months=1)
+    start_previous_month = start_selected_month - relativedelta(months=1)
+
+    print(start_selected_month, start_next_month, start_previous_month)
+
+    transactions = models.Transaction.objects.filter(
+        disbursement_timestamp__gte=start_selected_month,
+        disbursement_timestamp__lt=start_next_month,
+        is_paid=True,
+    ).select_related("campaign", "subscriber")
+
+    response = HttpResponse(
+        content_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="export.csv"'},
+    )
+
+    csv_writer = csv.writer(
+        response, delimiter=";", quotechar='"', quoting=csv.QUOTE_MINIMAL
+    )
+    csv_writer.writerow(
+        [
+            "ID transakcije",
+            "Datum transakcije",
+            "Vrednost",
+            "Kampanja",
+            "Način plačila",
+            "Naročnina",
+            "ID naročnine",
+            "Datum pričetka naročnine",
+            "UTM referrer",
+            "UTM source",
+            "UTM medium",
+            "UTM campaign",
+            "UTM content",
+            "document.referrer",
+            "window.location.ancestorOrigins",
+        ]
+    )
+    for transaction in transactions:
+        csv_writer.writerow(
+            [
+                transaction.transaction_id,
+                (
+                    transaction.disbursement_timestamp.isoformat()
+                    if transaction.disbursement_timestamp
+                    else ""
+                ),
+                transaction.amount,
+                transaction.campaign.name if transaction.campaign else "",
+                transaction.payment_method,
+                "da" if transaction.subscription else "ne",
+                (get_subsctiption_id(transaction)),
+                (
+                    transaction.subscription.created.isoformat()
+                    if transaction.subscription
+                    else ""
+                ),
+                *parse_referrer_field(transaction.referrer),
             ]
         )
 

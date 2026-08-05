@@ -65,4 +65,9 @@ urlpatterns = [
         views.export_monthly_report,
         name="transaction-export-monthly",
     ),
+    path(
+        "transaction-export-monthly-transactions/<int:year>/<int:month>/",
+        views.export_monthly_transactions,
+        name="transaction-export-monthly-transactions",
+    ),
 ]
