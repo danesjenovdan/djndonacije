@@ -1473,7 +1473,8 @@ class FlikCallback(views.APIView):
                 flik_payment.disbursement_timestamp = datetime.now()
                 flik_payment.save()
                 if subscription:
-                    msg = f"Dinozaverka nam je podarila mesečno flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
+                    trans_count = subscription.transactions.filter(is_paid=True).count()
+                    msg = f"Dinozaverka nam je podarila {trans_count}. mesečno flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
                 else:
                     msg = f"Dinozaverka nam je podarila flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
                 send_slack_msg(msg, flik_payment.campaign.slack_report_channel)
