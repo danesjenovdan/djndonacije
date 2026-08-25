@@ -56,17 +56,17 @@ urlpatterns = [
         name="upload-bank-transaction",
     ),
     path(
-        "transaction-export-monthly/",
+        "transaction-export-monthly/<int:account_id>/",
         views.export_monthly_report_form,
         name="transaction-export-monthly-form",
     ),
     path(
-        "transaction-export-monthly/<int:year>/<int:month>/",
+        "transaction-export-monthly/<int:account_id>/<int:year>/<int:month>/",
         views.export_monthly_report,
         name="transaction-export-monthly",
     ),
     path(
-        "transaction-export-monthly-transactions/<int:year>/<int:month>/",
+        "transaction-export-monthly-transactions/<int:account_id>/<int:year>/<int:month>/",
         views.export_monthly_transactions,
         name="transaction-export-monthly-transactions",
     ),
