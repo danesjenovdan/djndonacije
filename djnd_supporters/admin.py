@@ -239,8 +239,12 @@ class SubscriptionAdmin(ImportExportModelAdmin):
 
 
 class AccountAdmin(admin.ModelAdmin):
-    list_display = ("name",)
+    list_display = ("name", "monthly_report_link")
     search_fields = ["name"]
+
+    def monthly_report_link(self, obj):
+        url = reverse("supporters:transaction-export-monthly-form", args=[obj.id])
+        return format_html('<a href="{}">Export Monthly Report</a>', url)
 
 
 class FlikApiAdmin(admin.ModelAdmin):

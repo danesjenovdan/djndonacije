@@ -437,7 +437,7 @@ def import_bank_transactions(request):
 
 
 @login_required
-def export_monthly_report_form(request):
+def export_monthly_report_form(request, account_id):
     if request.method == "POST":
         month = request.POST.get("month")
         year = request.POST.get("year")
@@ -448,12 +448,16 @@ def export_monthly_report_form(request):
         if export_type == "transactions":
             return redirect(
                 "supporters:transaction-export-monthly-transactions",
+                account_id=account_id,
                 year=int(year),
                 month=int(month),
             )
 
         return redirect(
-            "supporters:transaction-export-monthly", year=int(year), month=int(month)
+            "supporters:transaction-export-monthly",
+            account_id=account_id,
+            year=int(year),
+            month=int(month),
         )
 
     now = datetime.today()
@@ -473,7 +477,7 @@ def export_monthly_report_form(request):
 
 
 @login_required
-def export_monthly_report(request, month, year):
+def export_monthly_report(request, account_id, month, year):
     month = int(month)
     year = int(year)
     if month < 1 or month > 12:
@@ -488,6 +492,7 @@ def export_monthly_report(request, month, year):
     transactions = models.Transaction.objects.filter(
         disbursement_timestamp__gte=start_selected_month,
         disbursement_timestamp__lt=start_next_month,
+        account_id=account_id,
         is_paid=True,
     ).select_related("campaign", "subscriber")
 
@@ -603,6 +608,7 @@ def export_monthly_report(request, month, year):
             subscription__isnull=True,
             disbursement_timestamp__gte=start_previous_month,
             disbursement_timestamp__lt=start_selected_month,
+            account_id=account_id,
         ).aggregate(total=Sum("amount"))["total"] or Decimal("0")
         amount_diff = current_month_amount - previous_month_amount
         subscription_tr = transactions.filter(
@@ -616,6 +622,7 @@ def export_monthly_report(request, month, year):
             subscription__isnull=False,
             disbursement_timestamp__gte=start_previous_month,
             disbursement_timestamp__lt=start_selected_month,
+            account_id=account_id,
         )
         previous_subscription_amount = previous_subscription_tr.aggregate(
             total=Sum("amount")
@@ -655,6 +662,7 @@ def export_monthly_report(request, month, year):
             subscription__isnull=True,
             disbursement_timestamp__gte=start_previous_month,
             disbursement_timestamp__lt=start_selected_month,
+            account_id=account_id,
         ).aggregate(total=Sum("amount"))["total"] or Decimal("0")
         amount_diff = current_month_amount - previous_month_amount
         amount_diff_str = f"+{amount_diff}" if amount_diff >= 0 else str(amount_diff)
@@ -670,10 +678,12 @@ def export_monthly_report(request, month, year):
     this_month_new_subscriptions = models.Subscription.objects.filter(
         created__gte=start_selected_month,
         created__lt=start_next_month,
+        account_id=account_id,
     ).select_related("campaign", "subscriber")
     prev_month_new_subscriptions = models.Subscription.objects.filter(
         created__gte=start_previous_month,
         created__lt=start_selected_month,
+        account_id=account_id,
     ).select_related("campaign", "subscriber")
     for sub in this_month_new_subscriptions:
         referrer_name = sub.referrer
@@ -815,7 +825,7 @@ def parse_referrer_field(referrer):
 
 
 @login_required
-def export_monthly_transactions(request, month, year):
+def export_monthly_transactions(request, account_id, month, year):
     def get_token_hash(token):
         import hashlib
 
@@ -845,6 +855,7 @@ def export_monthly_transactions(request, month, year):
         disbursement_timestamp__gte=start_selected_month,
         disbursement_timestamp__lt=start_next_month,
         is_paid=True,
+        account_id=account_id,
     ).select_related("campaign", "subscriber")
 
     response = HttpResponse(
