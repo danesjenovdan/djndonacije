@@ -3,9 +3,15 @@
 
 {% block object-tools-items %}
   <li>
-    <a href="{% url 'supporters:transaction-export-monthly-form' %}" class="addlink">
+    {% if request.GET.account__id__exact %}
+    <a href="{% url 'supporters:transaction-export-monthly-form' request.GET.account__id__exact %}" class="addlink">
       Mesečni export
     </a>
+    {% else %}
+    <a href="javascript:void(0);" class="disabled" style="pointer-events: none; opacity: 0.75;">
+      Izberi račun za mesečni export
+    </a>
+    {% endif %}
   </li>
   <li>
     <a href="{% url 'supporters:upload-bank-transaction' %}" class="addlink">
