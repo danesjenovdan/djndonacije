@@ -438,6 +438,9 @@ def import_bank_transactions(request):
 
 @login_required
 def export_monthly_report_form(request, account_id):
+    # check if this is a valid account id
+    account = get_object_or_404(models.Account, id=account_id)
+
     if request.method == "POST":
         month = request.POST.get("month")
         year = request.POST.get("year")
