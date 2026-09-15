@@ -1103,7 +1103,7 @@ class BraintreeWebhookApiView(views.APIView):
 
         event = webhook_notification.kind
         try:
-            if "subscription" not in webhook_notification.subject:
+            if "subscription" in webhook_notification.subject:
                 subscription_id = webhook_notification.subject["subscription"]["id"]
                 if (
                     event
@@ -1249,7 +1249,7 @@ class BraintreeWebhookApiView(views.APIView):
                                 "kind": "subscription_canceled",
                             },
                         )
-            else:
+            elif "disbursement" in webhook_notification.subject:
                 if event == braintree.WebhookNotification.Kind.Disbursement:
                     print("Braintree disbursement webhook")
                     print(webhook_notification.subject)
@@ -1286,6 +1286,9 @@ class BraintreeWebhookApiView(views.APIView):
                                 disbursement_timestamp or datetime.now()
                             )
                             transaction_obj.save()
+            else:
+                print("Unhandled webhook subject")
+                print(webhook_notification.subject)
 
         except Exception as e:
             print(e)
