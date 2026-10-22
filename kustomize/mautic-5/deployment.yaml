@@ -53,13 +53,13 @@ spec:
             - mountPath: /var/www/html/config
               name: mautic-5-static
               subPath: config
-            - mountPath: /usr/local/etc/php/php.ini
-              name: php-ini-conf-volume
-              subPath: php-ini
+            # - mountPath: /usr/local/etc/php/php.ini
+            #   name: php-ini-conf-volume
+            #   subPath: php-ini
       volumes:
         - name: mautic-5-static
           persistentVolumeClaim:
             claimName: mautic-5-static
-        - name: php-ini-conf-volume
-          configMap:
-            name: php-ini-conf
+        # - name: php-ini-conf-volume
+        #   configMap:
+        #     name: php-ini-conf
