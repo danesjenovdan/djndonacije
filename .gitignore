@@ -133,3 +133,4 @@ secrets.yaml
 secrets-backup.yaml
 
 *.dump
+local.php
