@@ -1,17 +1,17 @@
 # start with the nodejs image, calling it 'build'
-FROM node:22-alpine as build
+FROM node:26-alpine as build
 
 # set current directory
 WORKDIR /app
 
 # install dependencies
-COPY package.json yarn.lock ./
-RUN yarn
+COPY package.json package-lock.json ./
+RUN npm ci
 
 # build assets
 COPY . .
 ARG VITE_API_URL
-RUN yarn build
+RUN npm run build
 
 # change base image
 FROM nginx:alpine
