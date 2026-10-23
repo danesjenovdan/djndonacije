@@ -93,9 +93,8 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
   document.title = to.meta?.title ?? "Danes je nov dan";
-  next();
 });
 
 export default router;
