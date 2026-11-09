@@ -16,7 +16,7 @@ from rest_framework.views import APIView
 from djnd_supporters.mautic_api import MauticApi
 from djnd_supporters.models import Subscriber
 from djndonacije import payment
-from djndonacije.slack_utils import send_slack_msg
+from djndonacije.message_utils import send_slack_msg
 from shop.models import Article, Basket, Category, Item, Order
 from shop.serializers import ArticleSerializer, CategorySerializer, ItemSerializer
 from shop.spam_mailer import send_mail_spam
@@ -334,7 +334,8 @@ class Pay(APIView):
             if order.info:
                 msg += "\n Posvetilo: " + order.info
 
-            send_slack_msg(msg, "#djnd-bot")
+            # send_slack_msg(msg, "#djnd-bot")
+            # TODO: send zulip message
 
         return JsonResponse({"msg": "prepared"})
 
@@ -395,7 +396,8 @@ def checkout(request):
                 msg += "Preveri naročilo: " + url
                 if order.info:
                     msg += "\n Posvetilo: " + order.info
-                send_slack_msg(msg, "#djnd-bot")
+                # send_slack_msg(msg, "#djnd-bot")
+                # TODO: send zulip message
 
                 # update artickles stock
                 update_stock(order)
@@ -416,7 +418,8 @@ def checkout(request):
             msg += "Preveri naročilo: " + url
             if order.info:
                 msg += "\n Posvetilo: " + order.info
-            send_slack_msg(msg, "#djnd-bot")
+            # send_slack_msg(msg, "#djnd-bot")
+            # TODO: send zulip message
 
             data = {
                 "id": order.id,

@@ -18,8 +18,8 @@ from djnd_supporters.flik_utils import create_flik_request, normalize_phone_numb
 from djnd_supporters.mautic_api import MauticApi
 from djnd_supporters.views import getPDForDonation
 from djndonacije import payment
+from djndonacije.message_utils import send_slack_msg, send_zulip_msg
 from djndonacije.qrcode import UPNQRException, generate_upnqr_svg
-from djndonacije.slack_utils import send_slack_msg
 
 mautic_api = MauticApi()
 
@@ -201,7 +201,8 @@ class ManageSegments(views.APIView):
                     {"msg": "Campaign not found"}, status=status.HTTP_404_NOT_FOUND
                 )
             msg = f"Nova naročnina na novičnik [ {campaign.name} ] {contact_id})"
-            send_slack_msg(msg, "#novicnik-bot")
+            # send_slack_msg(msg, "#novicnik-bot")
+            send_zulip_msg(msg, "novičnik", "nove naročnine")
             response, response_status = mautic_api.addContactToASegment(
                 segment_id, contact_id
             )
@@ -698,7 +699,8 @@ class GenericDonationCampaign(views.APIView):
             pass
 
         msg = f"Dinozaverka nam je podarila {payment_type} donacijo za [ { donation_campaign.name } ] v višini: {donation.amount}"
-        send_slack_msg(msg, donation_campaign.slack_report_channel)
+        # send_slack_msg(msg, donation_campaign.slack_report_channel)
+        send_zulip_msg(msg, "podpri", "nove donacije")
 
         response = {
             "msg": "Thanks <3",
@@ -1298,10 +1300,9 @@ class BraintreeWebhookApiView(views.APIView):
             return Response(status=500)
 
         if subscription:
-            send_slack_msg(
-                f':bell:  Event "{event}" was triggered on braintree. {subscription.campaign.name} -> {subscription.amount} {subscription.subscription_id}',
-                subscription.campaign.slack_report_channel,
-            )
+            msg = f':bell:  Event "{event}" was triggered on braintree. {subscription.campaign.name} -> {subscription.amount} {subscription.subscription_id}'
+            # send_slack_msg(msg, subscription.campaign.slack_report_channel)
+            send_zulip_msg(msg, "podpri", "nove donacije")
 
         return Response(status=204)
 
@@ -1480,7 +1481,8 @@ class FlikCallback(views.APIView):
                     msg = f"Dinozaverka nam je podarila {trans_count}. mesečno flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
                 else:
                     msg = f"Dinozaverka nam je podarila flik donacijo za [ { flik_payment.campaign.name } ] v višini: {flik_payment.amount}"
-                send_slack_msg(msg, flik_payment.campaign.slack_report_channel)
+                # send_slack_msg(msg, flik_payment.campaign.slack_report_channel)
+                send_zulip_msg(msg, "podpri", "nove donacije")
             elif flik_result_response.status == "refund":
                 flik_payment.is_paid = False
                 flik_payment.save()

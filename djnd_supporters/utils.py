@@ -6,7 +6,7 @@ from django.conf import settings
 from djnd_supporters import models
 from djnd_supporters.mautic_api import MauticApi
 from djndonacije import payment
-from djndonacije.slack_utils import send_slack_msg
+from djndonacije.message_utils import send_slack_msg, send_zulip_msg
 
 mautic_api = MauticApi()
 
@@ -199,7 +199,8 @@ def save_answers(answers, mautic_id):
                         )
                         # send slack message
                         msg = f"Nova naročnina na novičnik [ {question_obj.donation_campaign.name} ] ({mautic_id})"
-                        send_slack_msg(msg, "#novicnik-bot")
+                        # send_slack_msg(msg, "#novicnik-bot")
+                        send_zulip_msg(msg, "novičnik", "nove naročnine")
                     mautic_api.sendEmail(
                         question_obj.welcome_email_tempalte,
                         mautic_id,
@@ -214,4 +215,5 @@ Nova naročnina na novičnik [ {question_obj.donation_campaign.name} {question_o
 Segment checkbox nima nastavljenega welcome email template-a, zato ni bilo poslano dobrodošlo sporočilo,
 ampak vseeno je bil kontakt dodan v segment.
                     """
-                    send_slack_msg(msg, "#novicnik-bot")
+                    # send_slack_msg(msg, "#novicnik-bot")
+                    send_zulip_msg(msg, "novičnik", "nove naročnine")

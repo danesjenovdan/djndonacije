@@ -325,3 +325,7 @@ MAUTIC_SEGMENT_ID_USERS_WITHOUT_SEGMENT = os.getenv(
     "MAUTIC_SEGMENT_ID_USERS_WITHOUT_SEGMENT", 41
 )
 LOGIN_URL = "/admin/login/"
+
+ZULIP_API_KEY = os.getenv("ZULIP_API_KEY", "")
+ZULIP_EMAIL = os.getenv("ZULIP_EMAIL", "")
+ZULIP_SITE = os.getenv("ZULIP_SITE", "")
