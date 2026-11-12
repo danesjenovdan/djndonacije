@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=84.2.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,7 +10,7 @@ dependencies = [
     "Django==6.1.2",
     "arrow==1.4.0",
     "psycopg2-binary==2.9.13",
-    "boto3==1.43.120",
+    "boto3==1.43.126",
     "django-storages==1.14.6",
     "gunicorn==26.2.0",
     "requests==2.34.2",
@@ -19,24 +19,24 @@ dependencies = [
     "djangorestframework==3.18.3",
     "django-wkhtmltopdf==3.4.0",
     "django-tinymce==5.0.0",
-    "django-admin-sortable2==2.3.1",
+    "django-admin-sortable2==2.4",
     "django-admin-inline-paginator-plus==0.1.5",
-    "sentry-sdk==2.73.0",
+    "sentry-sdk==2.74.0",
     "zulip==0.9.1",
     "django-cors-headers==4.9.0",
     "django-modeltranslation==0.20.6",
     "django-behaviors==0.5.1",
-    "django-import-export==4.4.3",
+    "django-import-export==4.4.4",
     "slackclient==2.9.4",
     "qrcodegen==1.8.0",
 ]
 
 [dependency-groups]
 dev = [
-    "black==25.1.0",
+    "black==26.10.1",
     "django-stubs==5.2.2",
-    "django-stubs-ext==5.2.2",
-    "ipython==9.17.1",
+    "django-stubs-ext==6.1.2",
+    "ipython==9.18.1",
     "isort",
 ]
 
