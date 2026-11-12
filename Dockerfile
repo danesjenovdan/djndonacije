@@ -1,4 +1,4 @@
-FROM python:3.14-trixie AS builder
+FROM python:3.15-trixie AS builder
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
@@ -42,7 +42,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 RUN python3 manage.py compilemessages
 
-FROM python:3.14-trixie AS runtime
+FROM python:3.15-trixie AS runtime
 
 EXPOSE 8000
 
