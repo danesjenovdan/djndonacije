@@ -7,7 +7,7 @@ jobs:
   pull-requests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7
 
     - name: pull-request-k8s
       uses: repo-sync/pull-request@v2
