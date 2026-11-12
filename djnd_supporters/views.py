@@ -193,7 +193,7 @@ def _process_bank_transaction_rows(rows, account):
                 if Decimal(normalized_debit) > 0:
                     # Rows with debit amounts are explicitly ignored and not shown in report.
                     continue
-            except (ArithmeticError, ValueError):
+            except ArithmeticError, ValueError:
                 # If Breme has a non-numeric value, treat row as debit metadata and ignore it.
                 continue
 
@@ -352,7 +352,7 @@ def import_bank_transactions(request):
         account_id = request.POST.get("account_id")
         try:
             account = models.Account.objects.get(id=account_id)
-        except (TypeError, ValueError, models.Account.DoesNotExist):
+        except TypeError, ValueError, models.Account.DoesNotExist:
             return render(
                 request,
                 "admin/djnd_supporters/transaction/upload_bank_transactions.html",
