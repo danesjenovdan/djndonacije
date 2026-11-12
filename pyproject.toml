@@ -33,7 +33,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "black==25.1.0",
+    "black==26.10.1",
     "django-stubs==5.2.2",
     "django-stubs-ext==5.2.2",
     "ipython==9.17.1",
