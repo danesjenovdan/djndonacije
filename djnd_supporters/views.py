@@ -582,6 +582,7 @@ def export_monthly_report(request, account_id, month, year):
         csv_writer.writerow(["Plačilna metoda", "Skupaj"])
         for source, total in source_dict.items():
             csv_writer.writerow([source, total])
+        csv_writer.writerow(["Skupaj", sum(source_dict.values())])
         csv_writer.writerow([])
 
     csv_writer.writerow([])
